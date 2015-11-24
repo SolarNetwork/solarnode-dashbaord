@@ -12,17 +12,7 @@ export default Ember.Component.extend({
   chartConfig: undefined, // a ChartConfig object
   prop: 'watts',
 
-  chart: Ember.computed('height', 'width', 'aggregate', function() {
-    var chartConfiguration = new sn.Configuration({
-      width: this.get('width'),
-      height : this.get('height'),
-      aggregate : this.get('aggregate')
-    });
-    var container = this.$().get(0);
-    var chart = sn.chart.basicLineChart(container, chartConfiguration)
-      .colors(['#f7c819']);
-    return chart;
-  }),
+  // chart: should be implemented in extending classes
 
   chartConfigurationChanged: Ember.observer('chart', 'data', function() {
     Ember.run.once(this, 'draw');
