@@ -5,7 +5,6 @@ const { isEmpty } = Ember;
 
 export default Ember.Component.extend({
   classNames: ['app-login-form'],
-  i18n: service('i18n'),
   attributeBindings: ['isProcessing'],
   session: service('session'),
   isProcessing: false,
