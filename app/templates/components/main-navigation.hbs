@@ -1,0 +1,24 @@
+{{#link-to 'index' classNames='uk-navbar-brand'}}
+	<img src="assets/images/logo-node.svg" alt="SolarNode" height="30" width="159">
+{{/link-to}}
+{{#if session.isAuthenticated}}
+  <div class="uk-navbar-content app-title">
+    {{session.data.authenticated.nodeId}}
+  </div>
+  <!--
+  <ul class="uk-navbar-nav">
+    <li class="{{if isHome 'uk-active'}}">
+      {{#link-to 'home'}}{{t 'nav.home'}}{{/link-to}}
+    </li>
+  </ul>
+  -->
+{{/if}}
+<div class="uk-navbar-content uk-navbar-flip">
+	{{#unless isLogin}}
+    {{#if session.isAuthenticated}}
+      <a {{action 'logout'}} class="uk-button uk-button-danger">{{t 'action.logout'}}</a>
+    {{else}}
+      <a {{action 'login'}} class="uk-button uk-button-primary">{{t 'action.login'}}</a>
+    {{/if}}
+  {{/unless}}
+</div>

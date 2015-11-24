@@ -1,0 +1,14 @@
+<div class="uk-flex uk-flex-middle">
+	<div class="uk-flex-item-1">
+		<h1 class="uk-margin-remove">
+			{{t "getStarted.title"}}
+		</h1>
+	</div>
+	<div class="uk-flex-item-none">
+		<button {{action 'done'}} class="uk-button uk-button-primary" disabled={{if model.userProfile.hasCharts null true}}>{{t 'action.done'}}</button>
+	</div>
+</div>
+<p>{{t "getStarted.intro"}}</p>
+{{chart-suggestion-picker suggestions=model.suggestions.suggestions
+  userProfile=model.userProfile
+  chartSourceProperties=model.userProfile.chartSourceProperties}}

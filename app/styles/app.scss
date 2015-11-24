@@ -1,0 +1,70 @@
+@import "uikit-mixins.scss";
+
+// Typogratyphy
+
+$base-body-font-family:			"Source Sans Pro", sans-serif;
+$base-body-color:				#111 !default;
+
+$base-heading-font-family:		"Alegreya Sans", sans-serif;
+$base-heading-font-weight:		300;
+$base-heading-color:			#111;
+
+$text-small-font-size:			11px;
+$text-small-line-height:		16px;
+$text-large-font-size:			18px;
+$text-large-line-height:		24px;
+$text-large-font-weight:		200;
+
+.app-navbar {
+  padding: 4px 0px;
+}
+
+nav + .app-main-content {
+  margin-top: 20px;
+}
+
+nav .uk-navbar-brand:first-child {
+  padding-right: 0 !important;
+}
+
+nav .app-title {
+  font-family: $base-body-font-family;
+  font-size: 30px;
+  line-height: 44px;
+  color: #666;
+  font-weight: 300;
+  margin-left: 0;
+  padding-left: 0 !important;
+}
+
+h1 {
+  font-weight: 100 !important;
+}
+
+.app-clickable {
+  cursor: pointer;
+}
+
+.app-flex-center {
+  align-self: center;
+}
+
+@import "uikit.scss";
+@import "components/datepicker.scss";
+@import "components/form-select.scss";
+
+// To support form rows that animate in/out
+.uk-form-row + .liquid-container {
+  margin-top: $form-gutter;
+}
+
+@import "charts.scss";
+
+.app-selected {
+  background: #88bfe8; /* Old browsers */
+  background: linear-gradient(to bottom,  #88bfe8 0%,#70b0e0 100%);
+}
+
+.app-padded {
+  padding: ($utility-margin/2) $utility-margin;
+}

@@ -1,0 +1,38 @@
+<div class="uk-flex uk-flex-wrap uk-flex-wrap-space-around">
+	<div class="uk-width-small-1-1 uk-width-large-7-10">
+		<h2>{{chartName}}</h2>
+		{{stream-chart width=550 height=320 chartConfig=chart}}
+	</div>
+	<div class="uk-width-small-1-1 uk-width-large-3-10">
+		<form class="uk-form uk-form-stacked">
+			<fieldset>
+				<div class="uk-flex">
+					<div class="uk-flex-item-1">
+						<h2>{{t 'chart.edit.title'}}</h2>
+					</div>
+					<div class="uk-flex-item-none">
+						<button {{action 'save'}} class="uk-button uk-button-primary" disabled={{if canSave null true}}>{{t 'action.save'}}</button>
+					</div>
+				</div>
+				<div class="uk-form-row">
+					<label class="uk-form-label" for="chartTitle">{{t 'chart.edit.chartTitle'}}</label>
+					<div class="uk-form-controls">
+						{{input value=chartName class='uk-width-1-1'}}
+					</div>
+				</div>
+				<div class="uk-form-row">
+					<label class="uk-form-label" for="chartStartDate">{{t 'chart.edit.startDate'}}</label>
+					<div class="uk-form-controls">
+						<input type="text" data-uk-datepicker="{format:'DD.MM.YYYY'}" class="uk-width-1-1">
+					</div>
+				</div>
+				<div class="uk-form-row">
+					<label class="uk-form-label" for="chartEndDate">{{t 'chart.edit.endDate'}}</label>
+					<div class="uk-form-controls">
+						<input type="text" data-uk-datepicker="{format:'DD.MM.YYYY'}" class="uk-width-1-1">
+					</div>
+				</div>
+			</fieldset>
+		</form>
+	</div>
+</div>

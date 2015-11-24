@@ -1,0 +1,4 @@
+{{#each suggestions as |suggestion index|}}
+  {{chart-suggestion-pick suggestion=suggestion chartSourceProperties=chartSourceProperties index=index
+      onSelect=(action 'selectChartSuggestion') onUnselect=(action 'unselectChartSuggestion')}}
+{{/each}}

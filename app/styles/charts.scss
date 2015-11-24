@@ -1,0 +1,98 @@
+.app-chart {
+	font-size: 10px;
+}
+
+.crisp {
+	shape-rendering: crispEdges;
+}
+
+.app-chart rect {
+	fill-opacity: 0.8;
+}
+
+.app-chart text {
+	fill: #333;
+}
+
+.app-chart g.ticks text {
+	text-anchor: middle;
+}
+
+.app-chart g.ticks text.agg {
+	fill: black;
+	font-weight: bold;
+}
+
+.app-chart g.ticks text.agg.neg {
+	fill: #DF3038;
+}
+
+.app-chart g.agg-gen text {
+	text-anchor: middle;
+	font-weight: bold;
+	fill: #1B7D30;
+}
+
+.app-chart g.rule,
+.app-chart g.vertrule {
+	shape-rendering: crispEdges;
+}
+
+.app-chart g.rule line,
+.app-chart g.vertrule line {
+	stroke: black;
+	opacity: 0.1;
+}
+
+.app-chart g.rule line.vert {
+	opacity: 0.05;
+	stroke-dasharray: 2 1;
+}
+
+.app-chart g.rule line.origin,
+.app-chart g.vertrule line.origin {
+	stroke: black !important;
+	opacity: 1 !important;
+}
+
+.app-chart g.rule text {
+	text-anchor: end;
+	alignment-baseline: middle;
+}
+
+.app-chart g.agg-band line {
+	stroke: black;
+	stroke-width: 15px;
+}
+
+.app-chart g.agg-band-ticks text {
+	fill: white;
+	text-anchor: middle;
+	font-weight: bold;
+}
+
+.app-chart path {
+	stroke-width: 1px;
+	fill: none;
+}
+
+.app-chart g.agg-sum path {
+	stroke: #C42F2F;
+}
+
+.app-chart .off {
+	display: none;
+}
+
+.app-chart path.area {
+	fill-opacity: 1;
+}
+
+.app-chart path.line {
+  fill: none;
+  stroke-width: 1px;
+}
+
+.app-chart line.axis {
+	stroke: black;
+}

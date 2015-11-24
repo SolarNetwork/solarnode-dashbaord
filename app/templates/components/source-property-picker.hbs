@@ -1,0 +1,4 @@
+{{#each sources as |source index|}}
+  {{source-pick source=source sourceProperties=sourceProperties index=index
+      onSelect=(action 'selectSource') onUnselect=(action 'unselectSource')}}
+{{/each}}

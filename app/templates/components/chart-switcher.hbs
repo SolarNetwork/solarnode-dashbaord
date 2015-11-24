@@ -1,0 +1,9 @@
+<ul class="uk-tab uk-margin-bottom">
+	{{#each chartGroup.charts as |chart|}}
+	  <li class={{if chart.selected 'uk-active'}}>
+	    <a {{action 'selectChart' chart}}>{{chart.chart.title}}</a>
+	  </li>
+	{{/each}}
+</ul>
+
+{{liquid-outlet}}

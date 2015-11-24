@@ -1,0 +1,11 @@
+<div class="uk-width-small-8-10 uk-width-medium-3-10">
+	<h2>{{suggestion.title}}</h2>
+</div>
+<div class="uk-width-small-2-10 uk-flex-order-last-medium app-flex-center uk-text-right">
+	{{#if selected}}
+	  {{fa-icon "check" size=3}}
+	{{/if}}
+</div>
+<div class=" uk-width-small-1-1 uk-width-medium-5-10 uk-text-center">
+	{{stream-chart width=320 height=180 data=suggestion.data prop=suggestion.sampleConfiguration.prop}}
+</div>
