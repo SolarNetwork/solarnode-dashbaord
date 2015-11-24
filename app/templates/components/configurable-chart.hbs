@@ -30,14 +30,19 @@
 			  <div id="configurable-chart-date-range-switcher" class="uk-switcher">
 			    <fieldset class="uk-active">
             <div class="uk-form-row">
-              <p>1 {{t 'chart.period.day'}}</p>
+              {{input type='number' value=period min=1}}
+              <select onchange={{action (mut periodType) value="target.value"}}>
+                {{#each periodChoices as |periodChoice|}}
+                  <option value={{periodChoice.key}} selected={{if (eq periodType periodChoice.key) true null}}>{{periodChoice.label}}</option>
+                {{/each}}
+              </select>
             </div>
           </fieldset>
           <fieldset>
             <div class="uk-form-row">
               <label class="uk-form-label" for="chartStartDate">{{t 'chart.edit.startDate'}}</label>
               <div class="uk-form-controls">
-                <input type="text" data-uk-datepicker="{format:'DD.MM.YYYY'}" class="uk-width-1-1">
+                {{input value=startDate data-uk-datepicker="{format:'DD.MM.YYYY'}" class="uk-width-1-1"}}
               </div>
             </div>
             <div class="uk-form-row">

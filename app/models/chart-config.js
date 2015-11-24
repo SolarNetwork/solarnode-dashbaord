@@ -8,8 +8,13 @@ export default DS.Model.extend({
   subtype: DS.attr('string'),
   flags: DS.attr(),
   sources: DS.hasMany('source-profile', {inverse:null}),
+
+  isUsePeriod: DS.attr('boolean', { defaultValue: true }),
+  period: DS.attr('number', { defaultValue: 1}),
+  periodType: DS.attr('string', { defaultValue: 'day'}),
   startDate: DS.attr('date'),
   endDate: DS.attr('date'),
+
   aggregate: DS.attr('string'),
 
   sourceProperties: Ember.computed('sources.@each.props', function() {

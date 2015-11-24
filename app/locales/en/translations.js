@@ -58,10 +58,10 @@ export default {
   },
   "chart" : {
     "period" : {
-      "hour" : "hour",
-      "day" : "day",
-      "month" : "month",
-      "year" : "year"
+      "hour" : {"one": "hour", "other": "hours"},
+      "day" : {"one": "day", "other": "days"},
+      "month" : {"one": "month", "other": "months"},
+      "year" : {"one": "year", "other": "years"}
     },
     "edit" : {
       "title" : "Settings",
