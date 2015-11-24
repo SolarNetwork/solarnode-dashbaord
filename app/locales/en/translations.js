@@ -57,9 +57,18 @@ export default {
     "title" : "Overview"
   },
   "chart" : {
+    "period" : {
+      "hour" : "hour",
+      "day" : "day",
+      "month" : "month",
+      "year" : "year"
+    },
     "edit" : {
       "title" : "Settings",
       "chartTitle" : "Name",
+      "dateRange" : "Date range",
+      "timePeriod" : "Period",
+      "timeDuration" : "Duration",
       "startDate" : "Start date",
       "endDate" : "End date"
     },
