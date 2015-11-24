@@ -15,7 +15,18 @@ export default Ember.Component.extend({
       return {key:type, label:i18n.t('chart.period.'+type, {count:count}).toString().capitalize()};
     });
   }),
+
+  didInsertElement() {
+    var switcherEl = this.$().find('app-date-range-switcher');
+    var switchEl = this.$().find('app-date-range-switch');
+    //switchEl.uk('switcher', {connect:switcherEl, animation:'fade'});
+  },
+
   actions: {
+    toggleUsePeriod() {
+      this.toggleProperty('isUsePeriod');
+    },
+
     save() {
       this.get('chart').save();
     }

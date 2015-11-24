@@ -23,36 +23,39 @@
 			</fieldset>
 			<fieldset class="uk-margin-top">
 			  <legend>{{t 'chart.edit.dateRange'}}</legend>
-			  <ul class="uk-subnav uk-subnav-pill" data-uk-switcher="{connect:'#configurable-chart-date-range-switcher', animation: 'fade'}">
-			    <li class="active"><a href="#">{{t 'chart.edit.timePeriod'}}</a></li>
-			    <li><a href="#">{{t 'chart.edit.timeDuration'}}</a></li>
+			  <ul class="uk-subnav uk-subnav-pill">
+			    <li class="{{if isUsePeriod 'uk-active' null}}"><a {{action 'toggleUsePeriod'}}>{{t 'chart.edit.timePeriod'}}</a></li>
+			    <li class="{{if isUsePeriod null 'uk-active'}}"><a {{action 'toggleUsePeriod'}}>{{t 'chart.edit.timeDuration'}}</a></li>
 			  </ul>
-			  <div id="configurable-chart-date-range-switcher" class="uk-switcher">
-			    <fieldset class="uk-active">
-            <div class="uk-form-row">
-              {{input type='number' value=period min=1}}
-              <select onchange={{action (mut periodType) value="target.value"}}>
-                {{#each periodChoices as |periodChoice|}}
-                  <option value={{periodChoice.key}} selected={{if (eq periodType periodChoice.key) true null}}>{{periodChoice.label}}</option>
-                {{/each}}
-              </select>
-            </div>
-          </fieldset>
-          <fieldset>
-            <div class="uk-form-row">
-              <label class="uk-form-label" for="chartStartDate">{{t 'chart.edit.startDate'}}</label>
-              <div class="uk-form-controls">
-                {{input value=startDate data-uk-datepicker="{format:'DD.MM.YYYY'}" class="uk-width-1-1"}}
+			  {{#liquid-spacer growEasing="easeOutQuint"}}
+			    {{#liquid-if isUsePeriod class="show-period"}}
+            <fieldset>
+              <div class="uk-form-row">
+                {{input type='number' value=period min=1}}
+                <select onchange={{action (mut periodType) value="target.value"}}>
+                  {{#each periodChoices as |periodChoice|}}
+                    <option value={{periodChoice.key}} selected={{if (eq periodType periodChoice.key) true null}}>{{periodChoice.label}}</option>
+                  {{/each}}
+                </select>
               </div>
-            </div>
-            <div class="uk-form-row">
-              <label class="uk-form-label" for="chartEndDate">{{t 'chart.edit.endDate'}}</label>
-              <div class="uk-form-controls">
-                <input type="text" data-uk-datepicker="{format:'DD.MM.YYYY'}" class="uk-width-1-1">
+            </fieldset>
+          {{else}}
+            <fieldset>
+              <div class="uk-form-row">
+                <label class="uk-form-label" for="chartStartDate">{{t 'chart.edit.startDate'}}</label>
+                <div class="uk-form-controls">
+                  {{input value=startDate data-uk-datepicker="{format:'DD.MM.YYYY'}" class="uk-width-1-1"}}
+                </div>
               </div>
-            </div>
-          </fieldset>
-			  </div>
+              <div class="uk-form-row">
+                <label class="uk-form-label" for="chartEndDate">{{t 'chart.edit.endDate'}}</label>
+                <div class="uk-form-controls">
+                  <input type="text" data-uk-datepicker="{format:'DD.MM.YYYY'}" class="uk-width-1-1">
+                </div>
+              </div>
+            </fieldset>
+          {{/liquid-if}}
+			  {{/liquid-spacer}}
 			</fieldset>
 		</form>
 	</div>
