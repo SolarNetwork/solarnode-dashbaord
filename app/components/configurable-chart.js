@@ -15,7 +15,10 @@ var datePropertyAccessor = {
 };
 
 export default Ember.Component.extend({
+  classNames: ['app-configurable-chart'],
+
   chartName: Ember.computed.alias('chart.title'),
+  chartUnit: Ember.computed.alias('chart.unit'),
   canSave: Ember.computed.readOnly('chart.hasDirtyAttributes'),
   startDate: Ember.computed('chart.startDate', datePropertyAccessor),
   endDate: Ember.computed('chart.endDate', datePropertyAccessor),

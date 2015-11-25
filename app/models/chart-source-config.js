@@ -5,5 +5,5 @@ export default DS.Model.extend({
   source: DS.attr('string'),
   title: DS.attr('string'),
   props: DS.attr(), // array of string
-  propsMeta: DS.attr() // object like {prop:{unit:'W'}}
+  propsMetadata: DS.attr() // object like {prop:{unit:'W'}}
 });

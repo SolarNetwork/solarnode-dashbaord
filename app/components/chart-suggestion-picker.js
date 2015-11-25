@@ -16,16 +16,17 @@ export default Ember.Component.extend({
         });
         if ( !found ) {
           var chartConfig = store.createRecord('chart-config', {
-            type: suggestion.type,
-            subtype: suggestion.subtype,
-            flags: suggestion.flags,
+            type: suggestion.get('type'),
+            subtype: suggestion.get('subtype'),
+            flags: suggestion.get('flags'),
             profile: profile,
             title: suggestion.get('title')
           });
           var sourceConfig = store.createRecord('chart-source-config', {
             chart: chartConfig,
             source : sampleConfiguration.source,
-            props : [sampleConfiguration.prop]
+            props : [sampleConfiguration.prop],
+            propsMetadata: suggestion.get('metadata')
           });
           sourceConfig.save();
           //chartConfig.get('sources').pushObject(sourceConfig);

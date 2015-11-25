@@ -45,6 +45,36 @@ function propertiesForSourceData(sourceData) {
   }).sort();
 }
 
+function metadataForProperties(props) {
+  const meta = {};
+  function setMeta(prop, values) {
+    if ( !meta[prop] ) {
+      meta[prop] = {};
+    }
+    Object.keys(values).forEach(function(key) {
+      meta[prop][key] = values[key];
+    });
+  }
+  if ( Array.isArray(props) ) {
+    props.forEach(function(prop) {
+      if ( prop === 'watts' ) {
+        setMeta(prop, {unit:'W', unitName:'watts'});
+      } else if ( prop.search(/wattHours/i) !== -1 ) {
+        setMeta(prop, {unit:'Wh', unitName:'watt hours'});
+      } else if ( prop.search(/volt/i) !== -1 ) {
+        setMeta(prop, {unit:'V', unitName:'volts'});
+      } else if ( prop.search(/current/i) !== -1 ) {
+        setMeta(prop, {unit:'A', unitName:'amps'});
+      } else if ( prop.search(/frequency/i) !== -1 ) {
+        setMeta(prop, {unit:'Hz', unitName:'hertz'});
+      } else if ( prop.search(/temp/i) !== -1 ) {
+        setMeta(prop, {unit:'°C', unitName:'celsius'});
+      }
+    });
+  }
+  return meta;
+}
+
 /**
  Make one more more suggestions from a single set of source data.
 
@@ -52,9 +82,10 @@ function propertiesForSourceData(sourceData) {
  @return {Array} An array of ChartSuggestion objects
  */
 function chartSuggestionsFromSourceData(sourceData, i18n) {
-  var props = propertiesForSourceData(sourceData);
+  const props = propertiesForSourceData(sourceData);
+  const meta = metadataForProperties(props);
 
-  var flags = {};
+  const flags = {};
 
   // look for "watts" for electricity
   if ( props.indexOf("watts") !== -1 ) {
@@ -77,11 +108,16 @@ function chartSuggestionsFromSourceData(sourceData, i18n) {
     }
   }
 
+  if ( props.indexOf("temp") !== -1 ) {
+    flags.atmosphere = true;
+  }
+
   if ( flags.electricity && flags.generation ) {
     return [ChartSuggestion.create({
       type: 'Generation',
       subtype: 'PV',
       flags: flags,
+      metadata: meta,
       title: i18n.t('chartSuggestion.generation.title', {source: sourceData.key, subtype:'PV'}).toString(),
       sources: [{source:sourceData.key, props:props}],
       data: sourceData.values,
@@ -91,6 +127,7 @@ function chartSuggestionsFromSourceData(sourceData, i18n) {
     return [ChartSuggestion.create({
       type: 'Consumption',
       flags: flags,
+      metadata: meta,
       title: i18n.t('chartSuggestion.consumption.title', {source: sourceData.key}).toString(),
       sources: [{source:sourceData.key, props:props}],
       data: sourceData.values,
@@ -100,6 +137,7 @@ function chartSuggestionsFromSourceData(sourceData, i18n) {
     // unknown, use General
     return [ChartSuggestion.create({
       flags: flags,
+      metadata: meta,
       title: i18n.t('chartSuggestion.general.title', {source:sourceData.key}).toString(),
       sources: [{source:sourceData.key, props:props}],
       data: sourceData.values,

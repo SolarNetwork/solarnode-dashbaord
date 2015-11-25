@@ -42,9 +42,11 @@ export default Ember.Component.extend({
   },
 
   draw() {
+    const chartConfig = this.get('chartConfig');
     const data = this.get('data');
     const chart = this.get('chart');
     const prop = this.get('prop');
+    var scale = 1;
     if ( data && chart ) {
       chart.reset();
       if ( Array.isArray(data) && data.length > 0 && data[0].data && data[0].source ) {
@@ -55,6 +57,10 @@ export default Ember.Component.extend({
         chart.load(data, prop, prop);
       }
       chart.regenerate();
+      scale = (chart.yScale ? chart.yScale() : chart.scale());
+      if ( chartConfig ) {
+        chartConfig.set('displayScale', scale);
+      }
     }
   },
 

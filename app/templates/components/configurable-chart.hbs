@@ -1,6 +1,11 @@
 <div class="uk-flex uk-flex-wrap uk-flex-wrap-space-around">
 	<div class="uk-width-small-1-1 uk-width-large-7-10 uk-margin-bottom">
-		<h2>{{chartName}}</h2>
+		<h2>
+		  {{chartName}}
+		  {{#if chartUnit}}
+		    <span class="unit">{{chartUnit.unit}}</span>
+		  {{/if}}
+		</h2>
 		{{chart.line-chart width=550 height=320 chartConfig=chart}}
 	</div>
 	<div class="uk-width-small-1-1 uk-width-large-3-10">

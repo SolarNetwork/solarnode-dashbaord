@@ -68,3 +68,8 @@ h1 {
 .app-padded {
   padding: ($utility-margin/2) $utility-margin;
 }
+
+.app-configurable-chart .unit {
+  font-weight: 200;
+  color: #666;
+}
