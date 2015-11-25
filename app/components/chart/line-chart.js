@@ -15,6 +15,20 @@ export default BaseChart.extend({
     var chart = sn.chart.basicLineChart(container, chartConfiguration)
       .colors(['#f7c819']);
     return chart;
+  }),
+
+  colors: Ember.computed('chart', {
+    get(key) {
+      const chart = this.get('chart');
+      return (chart ? chart.colors() : undefined);
+    },
+    set(key, value) {
+      const chart = this.get('chart');
+      if ( chart && Array.isArray(value) ) {
+        chart.colors(value);
+      }
+      return (chart ? chart.colors() : undefined);
+    }
   })
 
 });
