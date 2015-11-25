@@ -23,6 +23,14 @@ export default Ember.Component.extend({
     Ember.run.once(this, 'loadDataFromChartConfig');
   }),
 
+  inserted: Ember.on('didInsertElement', function() {
+    if ( this.get('chartConfig') ) {
+      this.loadDataFromChartConfig();
+    } else {
+      this.draw();
+    }
+  }),
+
   loadDataFromChartConfig() {
     const chartConfig = this.get('chartConfig');
     const helper = this.get('chartHelper');
@@ -49,13 +57,5 @@ export default Ember.Component.extend({
       chart.regenerate();
     }
   },
-
-  didInsertElement() {
-    if ( this.get('chartConfig') ) {
-      this.loadDataFromChartConfig();
-    } else {
-      this.draw();
-    }
-  }
 
 });
