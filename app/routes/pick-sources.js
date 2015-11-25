@@ -25,35 +25,33 @@ export default Ember.Route.extend(AuthenticatedRouteMixin, {
 		const endDate = new Date();
 		const startDate = d3.time.day.offset(endDate, -1);
     const urlHelper = this.get('clientHelper.nodeUrlHelper');
-    return new Ember.RSVP.Promise((resolve, reject) => {
-      sn.api.datum.loader([], urlHelper, startDate, endDate, 'Hour').callback((error, results) => {
-        if ( !results || !Array.isArray(results) ) {
-          sn.log("Unable to load data: {1}", error);
-          reject(error);
-        }
+    const load = Ember.RSVP.denodeify(sn.api.datum.loader([], urlHelper, startDate, endDate, 'Hour'));
+    return load().then(function(results) {
+      if ( !results || !Array.isArray(results) ) {
+        throw new Error("Unable to load data");
+      }
 
-        var dataBySource = d3.nest()
-          .key(function(d) { return d.sourceId; })
-          .sortKeys(d3.ascending)
-          .entries(results);
+      var dataBySource = d3.nest()
+        .key(function(d) { return d.sourceId; })
+        .sortKeys(d3.ascending)
+        .entries(results);
 
-        var dataByLine = [];
-        dataBySource.forEach((sourceData) => {
-          // sourceData like { key : 'foo', values : [ ... ] }
-          var templateObj = sourceData.values[0];
+      var dataByLine = [];
+      dataBySource.forEach((sourceData) => {
+        // sourceData like { key : 'foo', values : [ ... ] }
+        var templateObj = sourceData.values[0];
 
-          // get properties of first object only
-          var sourcePlotProperties = Object.keys(templateObj).filter(function(key) {
-            return (!ignoreProps[key] && typeof templateObj[key] === 'number');
-          }).sort();
-          sourcePlotProperties.forEach((plotProp) => {
-            var lineId = sourceData.key + '-' + plotProp,
-              lineData = { key : lineId, source : sourceData.key, prop : plotProp, values : sourceData.values };
-            dataByLine.push(lineData);
-          });
+        // get properties of first object only
+        var sourcePlotProperties = Object.keys(templateObj).filter(function(key) {
+          return (!ignoreProps[key] && typeof templateObj[key] === 'number');
+        }).sort();
+        sourcePlotProperties.forEach((plotProp) => {
+          var lineId = sourceData.key + '-' + plotProp,
+            lineData = { key : lineId, source : sourceData.key, prop : plotProp, values : sourceData.values };
+          dataByLine.push(lineData);
         });
-        resolve(dataByLine);
-      }).load();
+      });
+      return dataByLine;
     });
 	}
 

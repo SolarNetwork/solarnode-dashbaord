@@ -9,29 +9,27 @@ function dataPerPropertyPerSource(urlHelper) {
   // get all available data within the last week
   const endDate = new Date();
   const startDate = d3.time.day.offset(endDate, -1);
-  return new Ember.RSVP.Promise((resolve, reject) => {
-    sn.api.datum.loader([], urlHelper, startDate, endDate, 'Hour').callback((error, results) => {
-      if ( !results || !Array.isArray(results) ) {
-        sn.log("Unable to load data: {1}", error);
-        reject(error);
-      }
+  const load = Ember.RSVP.denodeify(sn.api.datum.loader([], urlHelper, startDate, endDate, 'Hour'));
+  return load().then(function(results) {
+    if ( !results || !Array.isArray(results) ) {
+      throw new Error("Unable to load data");
+    }
 
-      var dataBySource = d3.nest()
-        .key(function(d) { return d.sourceId; })
-        .sortKeys(d3.ascending)
-        .entries(results);
+    var dataBySource = d3.nest()
+      .key(function(d) { return d.sourceId; })
+      .sortKeys(d3.ascending)
+      .entries(results);
 
-      var dataByLine = [];
-      dataBySource.forEach((sourceData) => {
-        var sourcePlotProperties = propertiesForSourceData(sourceData);
-        sourcePlotProperties.forEach((plotProp) => {
-          var lineId = sourceData.key + '-' + plotProp,
-            lineData = { key : lineId, source : sourceData.key, prop : plotProp, values : sourceData.values };
-          dataByLine.push(lineData);
-        });
+    var dataByLine = [];
+    dataBySource.forEach((sourceData) => {
+      var sourcePlotProperties = propertiesForSourceData(sourceData);
+      sourcePlotProperties.forEach((plotProp) => {
+        var lineId = sourceData.key + '-' + plotProp,
+          lineData = { key : lineId, source : sourceData.key, prop : plotProp, values : sourceData.values };
+        dataByLine.push(lineData);
       });
-      resolve({dataBySource:dataBySource, dataByLine:dataByLine});
-    }).load();
+    });
+    return {dataBySource:dataBySource, dataByLine:dataByLine};
   });
 }
 
@@ -156,17 +154,15 @@ export default Ember.Service.extend({
       const loadSets = sources.map(sourceProfile => {
         return sn.api.datum.loader([sourceProfile.get('source')], urlHelper, range.start, range.end, range.aggregate);
       });
-      return new Ember.RSVP.Promise((resolve, reject) => {
-        sn.api.datum.multiLoader(loadSets).callback((error, results) => {
+      const load = Ember.RSVP.denodeify(sn.api.datum.multiLoader(loadSets));
+      return load().then(function(results) {
           if ( !results || !Array.isArray(results) || results.length !== sources.length ) {
-            sn.log("Unable to load data: {1}", error);
-            reject(error);
+            throw new Error("No data available.");
           }
           var finalData = sources.map((sourceProfile, index) => {
             return {source: sourceProfile, data: results[index]};
           });
-          resolve(finalData);
-        }).load();
+          return finalData;
       });
     });
   }
