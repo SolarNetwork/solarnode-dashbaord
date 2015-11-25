@@ -15,11 +15,6 @@ export default Ember.Component.extend({
           });
         });
         if ( !found ) {
-          var sourceProfile = store.createRecord('source-profile', {
-            source : sampleConfiguration.source,
-            props : [sampleConfiguration.prop]
-          });
-          sourceProfile.save();
           var chartConfig = store.createRecord('chart-config', {
             type: suggestion.type,
             subtype: suggestion.subtype,
@@ -27,7 +22,13 @@ export default Ember.Component.extend({
             profile: profile,
             title: suggestion.get('title')
           });
-          chartConfig.get('sources').pushObject(sourceProfile);
+          var sourceConfig = store.createRecord('chart-source-config', {
+            chart: chartConfig,
+            source : sampleConfiguration.source,
+            props : [sampleConfiguration.prop]
+          });
+          sourceConfig.save();
+          //chartConfig.get('sources').pushObject(sourceConfig);
           chartConfig.save();
           charts.pushObject(chartConfig);
           profile.save();

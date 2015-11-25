@@ -6,8 +6,9 @@ export default DS.Model.extend({
   title: DS.attr('string'),
   type: DS.attr('string'),
   subtype: DS.attr('string'),
+  style: DS.attr('string', { defaultValue: 'line' }),
   flags: DS.attr(),
-  sources: DS.hasMany('source-profile', {inverse:null}),
+  sources: DS.hasMany('chart-source-config', {inverse:'chart'}),
 
   isUsePeriod: DS.attr('boolean', { defaultValue: true }),
   period: DS.attr('number', { defaultValue: 1 }),
