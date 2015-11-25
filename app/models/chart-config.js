@@ -78,7 +78,7 @@ export default DS.Model.extend({
         return false;
       }
     });
-    if ( allSame ) {
+    if ( allSame && result ) {
       var scale = this.get('displayScale');
       result.unit = sn.format.displayUnitsForScale(result.unit, scale);
     }
