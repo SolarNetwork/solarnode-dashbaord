@@ -1,9 +1,24 @@
 import Ember from 'ember';
+import d3 from 'npm:d3';
+
+var dateFormat = d3.time.format("%d.%m.%Y");
+var datePropertyAccessor = {
+    get(key) {
+      var val = this.get('chart.'+key);
+      return (val ? dateFormat(val) : null);
+    },
+    set(key, value) {
+      var val = (value ? dateFormat.parse(value) : null);
+      this.set('chart.'+key, val);
+      return (val ? value : null);
+    }
+};
+
 export default Ember.Component.extend({
   chartName: Ember.computed.alias('chart.title'),
   canSave: Ember.computed.readOnly('chart.hasDirtyAttributes'),
-  startDate: Ember.computed.alias('chart.startDate'),
-  endDate: Ember.computed.alias('chart.endDate'),
+  startDate: Ember.computed('chart.startDate', datePropertyAccessor),
+  endDate: Ember.computed('chart.endDate', datePropertyAccessor),
   period: Ember.computed.alias('chart.period'),
   periodType: Ember.computed.alias('chart.periodType'),
   isUsePeriod: Ember.computed.alias('chart.isUsePeriod'),
@@ -16,11 +31,14 @@ export default Ember.Component.extend({
     });
   }),
 
-  didInsertElement() {
-    var switcherEl = this.$().find('app-date-range-switcher');
-    var switchEl = this.$().find('app-date-range-switch');
-    //switchEl.uk('switcher', {connect:switcherEl, animation:'fade'});
-  },
+  aggregate: Ember.computed.alias('chart.aggregate'),
+  aggregateTypes: ['FiveMinute', 'Hour', 'Day', 'Month', 'Year'],
+  aggregateChoices: Ember.computed('aggregate', 'aggregateTypes', function() {
+    const i18n = this.get('i18n');
+    return this.get('aggregateTypes').map(type => {
+      return {key:type, label:i18n.t('chart.aggregate.'+type).toString().capitalize()};
+    });
+  }),
 
   actions: {
     toggleUsePeriod() {

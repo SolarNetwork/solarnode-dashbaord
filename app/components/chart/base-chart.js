@@ -18,8 +18,9 @@ export default Ember.Component.extend({
     Ember.run.once(this, 'draw');
   }),
 
-  chartConfigChanged: Ember.observer('chartConfig', function() {
-    this.loadDataFromChartConfig();
+  chartConfigChanged: Ember.observer('chartConfig', 'chartConfig.isUsePeriod', 'chartConfig.period',
+      'chartConfig.periodType', 'chartConfig.startDate', 'chartConfig.endDate', 'chartConfig.aggregate', function() {
+    Ember.run.once(this, 'loadDataFromChartConfig');
   }),
 
   loadDataFromChartConfig() {

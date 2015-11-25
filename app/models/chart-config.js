@@ -10,12 +10,27 @@ export default DS.Model.extend({
   sources: DS.hasMany('source-profile', {inverse:null}),
 
   isUsePeriod: DS.attr('boolean', { defaultValue: true }),
-  period: DS.attr('number', { defaultValue: 1}),
+  period: DS.attr('number', { defaultValue: 1 }),
   periodType: DS.attr('string', { defaultValue: 'day'}),
+
+  periodAggregate: Ember.computed('periodType', function() {
+    const periodType = this.get('periodType');
+    if ( periodType === 'year' ) {
+      return 'Month';
+    } else if ( periodType === 'day' ) {
+      return 'Hour';
+    } else if ( periodType === 'hour' ) {
+      return 'FiveMinute';
+    } else {
+      // default to Day
+      return 'Day';
+    }
+  }),
+
   startDate: DS.attr('date'),
   endDate: DS.attr('date'),
 
-  aggregate: DS.attr('string'),
+  aggregate: DS.attr('string', { defaultValue: 'Day' }),
 
   sourceProperties: Ember.computed('sources.@each.props', function() {
     // arrays is array of arrays

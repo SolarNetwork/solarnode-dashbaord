@@ -63,6 +63,13 @@ export default {
       "month" : {"one": "month", "other": "months"},
       "year" : {"one": "year", "other": "years"}
     },
+    "aggregate" : {
+      "FiveMinute" : "five minute",
+      "Hour" : "hour",
+      "Day" : "day",
+      "Month" : "month",
+      "Year" : "year",
+    },
     "edit" : {
       "title" : "Settings",
       "chartTitle" : "Name",
@@ -70,7 +77,8 @@ export default {
       "timePeriod" : "Period",
       "timeDuration" : "Duration",
       "startDate" : "Start date",
-      "endDate" : "End date"
+      "endDate" : "End date",
+      "aggregate" : "Detail level"
     },
     "export" : "Export"
   }

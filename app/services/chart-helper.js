@@ -136,15 +136,25 @@ export default Ember.Service.extend({
 
   dataForChart(chartConfig) {
     // TODO: start, end, aggregate etc in ChartConfig model
-
+    var range = {}; // start, end
     const urlHelper = this.get('clientHelper.nodeUrlHelper');
-    const endDate = new Date();
-    const aggregate = 'Hour';
-    const range = sn.api.datum.loaderQueryRange(aggregate, 7, endDate); // note 7 is days!
+    if ( chartConfig.get('isUsePeriod') ) {
+      var period = +chartConfig.get('period');
+      range = sn.api.datum.loaderQueryRange(chartConfig.get('periodAggregate'), (period < 1 ? 1 : period), new Date());
+      range.aggregate = chartConfig.get('periodAggregate');
+    } else {
+      range.end = chartConfig.get('endDate');
+      range.start = chartConfig.get('startDate');
+      range.aggregate = chartConfig.get('aggregate');
+    }
+
+    if ( !(range.start && range.end && range.aggregate) ) {
+      return Ember.RSVP.reject(new Error('Incomplete chart range, cannot load data.'));
+    }
 
     return chartConfig.get('sources').then(sources => {
       const loadSets = sources.map(sourceProfile => {
-        return sn.api.datum.loader([sourceProfile.get('source')], urlHelper, range.start, range.end, aggregate);
+        return sn.api.datum.loader([sourceProfile.get('source')], urlHelper, range.start, range.end, range.aggregate);
       });
       return new Ember.RSVP.Promise((resolve, reject) => {
         sn.api.datum.multiLoader(loadSets).callback((error, results) => {
