@@ -78,7 +78,13 @@ export default {
       "timeDuration" : "Duration",
       "startDate" : "Start date",
       "endDate" : "End date",
-      "aggregate" : "Detail level"
+      "aggregate" : "Detail level",
+      "sources" : "Sources",
+      "source" : {
+        "title" : "Name",
+        "prop" : "Property",
+        "unit" : "Unit"
+      }
     },
     "export" : "Export"
   }

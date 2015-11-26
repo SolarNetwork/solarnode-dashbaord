@@ -72,6 +72,18 @@
           {{/liquid-if}}
 			  {{/liquid-spacer}}
 			</fieldset>
+			<fieldset class="uk-margin-top">
+			  <legend>{{t 'chart.edit.sources'}}</legend>
+
+			  {{#if canGroupSources}}
+			    <p>TODO</p>
+			  {{else}}
+			    {{#each chart.sourceGroups.firstObject.sources as |sourceConfig|}}
+			      {{configurable-chart-source sourceConfig=sourceConfig}}
+			    {{/each}}
+			  {{/if}}
+
+			</fieldset>
 		</form>
 	</div>
 </div>

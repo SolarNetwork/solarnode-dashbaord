@@ -1,0 +1,20 @@
+<div class="uk-grid">
+	<div class="uk-width-2-10">
+		[C]
+	</div>
+	<div class="uk-width-8-10">
+		{{input value=sourceConfig.displayName class="uk-width-1-1" placeholder=(t 'chart.edit.source.title')}}
+	</div>
+</div>
+{{#each sourceConfig.properties as |prop|}}
+	<div class="uk-grid">
+		<div class="uk-width-2-10">
+		</div>
+		<div class="uk-width-8-10">
+			{{prop.prop}}
+			{{input value=prop.unit class="uk-width-1-1" placeholder=(t 'chart.edit.source.unit')}}
+		</div>
+	</div>
+{{/each}}
+
+<p>Source: {{sourceConfig.displayName}}</p>

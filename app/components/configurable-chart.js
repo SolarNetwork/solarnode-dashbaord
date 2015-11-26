@@ -43,6 +43,16 @@ export default Ember.Component.extend({
     });
   }),
 
+  /**
+   Flag if the current chart style supports the display of grouped data sets.
+
+   @return {boolean} true if the chart style supports grouped data sets
+  */
+  canGroupSources: Ember.computed('chart.style', function() {
+    const style = this.get('chart.style');
+    return (style !== 'line'); // TODO: set this to what styles are explicitly supported
+  }),
+
   actions: {
     toggleUsePeriod() {
       this.toggleProperty('isUsePeriod');
