@@ -10,7 +10,7 @@ export default DS.Model.extend({
   subtype: DS.attr('string'),
   style: DS.attr('string', { defaultValue: 'line' }),
   flags: DS.attr(),
-  sources: DS.hasMany('chart-source-config', {inverse:'chart'}),
+  sourceGroups: DS.hasMany('chart-source-group', {inverse:'chart'}),
 
   isUsePeriod: DS.attr('boolean', { defaultValue: true }),
   period: DS.attr('number', { defaultValue: 1 }),
@@ -40,17 +40,10 @@ export default DS.Model.extend({
 
    @return {Array} Array of objects like <code>{source:X, prop:Y, metadata:Z}</code>
    */
-  sourceProperties: Ember.computed('sources.@each.props', function() {
+  sourceProperties: Ember.computed('sourceGroups.@each.sourceProperties', function() {
     // arrays is array of arrays
-    var arrays = this.get('sources').map(function(source) {
-      var props = source.get('props');
-      var meta = source.get('propsMetadata');
-      if ( props ) {
-        return props.map(function(prop) {
-          return {source:source.get('source'), prop:prop, metadata:(meta ? meta[prop] : null)};
-        });
-      }
-      return [];
+    var arrays = this.get('sourceGroups').map(function(group) {
+      return group.get('sourceProperties');
     });
     // merge array of arrays into single array
     return [].concat.apply([], arrays);

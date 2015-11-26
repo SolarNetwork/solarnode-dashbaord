@@ -22,14 +22,18 @@ export default Ember.Component.extend({
             profile: profile,
             title: suggestion.get('title')
           });
-          var sourceConfig = store.createRecord('chart-source-config', {
+          var sourceGroup = store.createRecord('chart-source-group', {
             chart: chartConfig,
+            title : sampleConfiguration.source
+          });
+          var sourceConfig = store.createRecord('chart-source-config', {
+            group: sourceGroup,
             source : sampleConfiguration.source,
             props : [sampleConfiguration.prop],
             propsMetadata: suggestion.get('metadata')
           });
           sourceConfig.save();
-          //chartConfig.get('sources').pushObject(sourceConfig);
+          sourceGroup.save();
           chartConfig.save();
           charts.pushObject(chartConfig);
           profile.save();
@@ -41,17 +45,20 @@ export default Ember.Component.extend({
 	    const profile = this.get('userProfile');
       const sampleConfiguration = suggestion.get('sampleConfiguration');
       profile.get('charts').any(function(chart) {
-	      return chart.get('sources').any(function(sourceProfile) {
-	        const props = sourceProfile.get('props');
-	        if ( sourceProfile.get('source') === sampleConfiguration.source && props && props.length === 1
-	            && props[0] === sampleConfiguration.prop ) {
-	          sourceProfile.destroyRecord();
-	          chart.destroyRecord();
-	          profile.save();
-	          return true;
-	        }
-	        return false;
-	      });
+        return chart.get('sourceGroups').any(function(sourceGroup) {
+          return sourceGroup.get('sources').any(function(sourceConfig) {
+            const props = sourceConfig.get('props');
+            if ( sourceConfig.get('source') === sampleConfiguration.source && props && props.length === 1
+                && props[0] === sampleConfiguration.prop ) {
+              sourceConfig.destroyRecord();
+              sourceGroup.destroyRecord();
+              chart.destroyRecord();
+              profile.save();
+              return true;
+            }
+            return false;
+          });
+        });
 	    });
 	  }
 	}

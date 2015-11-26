@@ -170,6 +170,11 @@ export default Ember.Service.extend({
     );
   },
 
+  /**
+    Get a promise for a set of data for a single chart configuration.
+
+    @return {Array} An array of objects like <code>{group:ChartGroup, groupId:X, sourceIds:[A,...], data:[...]}</code>.
+  */
   dataForChart(chartConfig) {
     // TODO: start, end, aggregate etc in ChartConfig model
     var range = {}; // start, end
@@ -188,19 +193,39 @@ export default Ember.Service.extend({
       return Ember.RSVP.reject(new Error('Incomplete chart range, cannot load data.'));
     }
 
-    return chartConfig.get('sources').then(sources => {
-      const loadSets = sources.map(sourceProfile => {
-        return sn.api.datum.loader([sourceProfile.get('source')], urlHelper, range.start, range.end, range.aggregate);
+    return chartConfig.get('sourceGroups').then(groups => {
+      // first resolve all sources for all groups...
+      var sources = groups.getEach('sources');
+      return Ember.RSVP.all(sources).then(function() {
+        return groups.slice(); // NOT a PromiseArray, we want a regular map() function below
       });
-      const load = Ember.RSVP.denodeify(sn.api.datum.multiLoader(loadSets));
-      return load().then(function(results) {
-          if ( !results || !Array.isArray(results) || results.length !== sources.length ) {
-            throw new Error("No data available.");
-          }
-          var finalData = sources.map((sourceProfile, index) => {
-            return {source: sourceProfile, data: results[index]};
-          });
-          return finalData;
+    }).then(groups => {
+      // now the sources properties  are resolved, so map them to source sets
+      return groups.map(function (group) {
+        var sources = group.get('sources'); // these are already resolved
+        var sourceSet = sources.reduce(function(sourceSet, sourceConfig, index) {
+          sourceSet.sourceIds.push(sourceConfig.get('source'));
+          return sourceSet;
+        }, {group:group, sourceIds:[]});
+        return sourceSet;
+      });
+    }).then(sourceSets => {
+      const loadSets = sourceSets.map(sourceSet => {
+        return sn.api.datum.loader(sourceSet.sourceIds, urlHelper, range.start, range.end, range.aggregate);
+      });
+      return Ember.RSVP.denodeify(sn.api.datum.multiLoader(loadSets))().then(results => {
+        if ( !results || !Array.isArray(results) || results.length !== sourceSets.length ) {
+          throw new Error("No data available.");
+        }
+        var finalData = sourceSets.map((sourceSet, index) => {
+          return {
+            group:sourceSet.group,
+            groupId:sourceSet.group.get('id'),
+            sourceIds:sourceSet.sourceIds,
+            data:results[index]
+          };
+        });
+        return finalData;
       });
     });
   }

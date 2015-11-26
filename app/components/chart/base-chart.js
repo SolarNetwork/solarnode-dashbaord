@@ -8,7 +8,7 @@ export default Ember.Component.extend({
   classNames: ['app-chart', 'app-chart-stream'/*, 'uk-responsive-width'*/],
   chartHelper: Ember.inject.service(),
   aggregate: 'Hour',
-  data: undefined, // array of data to load
+  data: undefined, // array of data groups to load
   chartConfig: undefined, // a ChartConfig object
   prop: 'watts',
 
@@ -49,9 +49,14 @@ export default Ember.Component.extend({
     var scale = 1;
     if ( data && chart ) {
       chart.reset();
-      if ( Array.isArray(data) && data.length > 0 && data[0].data && data[0].source ) {
+      if ( Array.isArray(data) && data.length > 0 && data[0].data && data[0].groupId ) {
         data.forEach(function(groupData) {
-          chart.load(groupData.data, groupData.source.get('source'), groupData.source.get('props.firstObject'));
+          // line chart does not do groups... just load data for each configured property
+          groupData.group.get('sources').forEach(function(source) {
+            source.get('props').forEach(function(prop) {
+              chart.load(groupData.data, source.get('source'), prop);
+            });
+          });
         });
       } else if ( Array.isArray(data) ) {
         chart.load(data, prop, prop);
