@@ -28,7 +28,7 @@ export default function() {
   this.transition(
     this.hasClass('show-period'),
     //this.toValue(true),
-    this.useAndReverse('crossFade'),
+    this.useAndReverse('crossFade')
   );
 
 }
