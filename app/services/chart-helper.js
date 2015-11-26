@@ -33,46 +33,44 @@ function dataPerPropertyPerSource(urlHelper) {
   });
 }
 
-function propertiesForSourceData(sourceData) {
+/**
+ Get an array of ChartPropertyConfig objects based on a set of data.
+
+ @param {Array} sourceData - The array of source data to inspect.
+ @param {Object} flags - An object to populate flag keys into.
+ @return {Array} Array of ChartPropertyConfig compatible objects.
+ */
+function propertiesForSourceData(sourceData, flags) {
   if ( !(sourceData && sourceData.values && sourceData.values.length > 0) ) {
     return [];
   }
 
   // get properties of first object only
   var templateObj = sourceData.values[0];
-  return Object.keys(templateObj).filter(function(key) {
+  var propKeys = Object.keys(templateObj).filter(function(key) {
     return (!ignoreSourceDataProps[key] && typeof templateObj[key] === 'number');
   }).sort();
-}
-
-function metadataForProperties(props) {
-  const meta = {};
-  function setMeta(prop, values) {
-    if ( !meta[prop] ) {
-      meta[prop] = {};
-    }
-    Object.keys(values).forEach(function(key) {
-      meta[prop][key] = values[key];
-    });
-  }
-  if ( Array.isArray(props) ) {
-    props.forEach(function(prop) {
-      if ( prop === 'watts' ) {
-        setMeta(prop, {unit:'W', unitName:'watts'});
-      } else if ( prop.search(/wattHours/i) !== -1 ) {
-        setMeta(prop, {unit:'Wh', unitName:'watt hours'});
-      } else if ( prop.search(/volt/i) !== -1 ) {
-        setMeta(prop, {unit:'V', unitName:'volts'});
-      } else if ( prop.search(/current/i) !== -1 ) {
-        setMeta(prop, {unit:'A', unitName:'amps'});
-      } else if ( prop.search(/frequency/i) !== -1 ) {
-        setMeta(prop, {unit:'Hz', unitName:'hertz'});
-      } else if ( prop.search(/temp/i) !== -1 ) {
-        setMeta(prop, {unit:'°C', unitName:'celsius'});
+  return propKeys.map(function(key) {
+    if ( flags ) {
+      // look for "watts" for electricity
+      if ( key === 'watts' ) {
+        flags.electricity = true;
+      } else if ( key === "dcVoltage" ) {
+        // "dcVoltage" take for PV generation
+        flags.generation = true;
+        flags.pv = true;
+      } else if ( key === "wattHoursReverse" ) {
+        // "wattHoursReverse" take for a meter
+        flags.meter = true;
+      } else if ( key === "phaseVoltage" || key === "frequency" || key === "powerFactor" ) {
+        // look for signs of AC power
+        flags.ac = true;
+      } else  if ( key === "temp" ) {
+        flags.atmosphere = true;
       }
-    });
-  }
-  return meta;
+    }
+    return {prop:key};
+  });
 }
 
 /**
@@ -82,42 +80,14 @@ function metadataForProperties(props) {
  @return {Array} An array of ChartSuggestion objects
  */
 function chartSuggestionsFromSourceData(sourceData, i18n) {
-  const props = propertiesForSourceData(sourceData);
-  const meta = metadataForProperties(props);
-
   const flags = {};
-
-  // look for "watts" for electricity
-  if ( props.indexOf("watts") !== -1 ) {
-    flags.electricity = true;
-
-    // "dcVoltage" take for PV generation
-    if ( props.indexOf("dcVoltage") !== -1 ) {
-      flags.generation = true;
-      flags.pv = true;
-    }
-
-    // "wattHoursReverse" take for a meter
-    if ( props.indexOf("wattHoursReverse") !== -1 ) {
-      flags.meter = true;
-    }
-
-    // look for signs of AC power
-    if ( props.indexOf("phaseVoltage") !== -1 || props.indexOf("frequency") !== -1 || props.indexOf("powerFactor") !== -1 ) {
-      flags.ac = true;
-    }
-  }
-
-  if ( props.indexOf("temp") !== -1 ) {
-    flags.atmosphere = true;
-  }
+  const props = propertiesForSourceData(sourceData, flags); // array of ChartPropertyConfig
 
   if ( flags.electricity && flags.generation ) {
     return [ChartSuggestion.create({
       type: 'Generation',
       subtype: 'PV',
       flags: flags,
-      metadata: meta,
       title: i18n.t('chartSuggestion.generation.title', {source: sourceData.key, subtype:'PV'}).toString(),
       sources: [{source:sourceData.key, props:props}],
       data: sourceData.values,
@@ -127,7 +97,6 @@ function chartSuggestionsFromSourceData(sourceData, i18n) {
     return [ChartSuggestion.create({
       type: 'Consumption',
       flags: flags,
-      metadata: meta,
       title: i18n.t('chartSuggestion.consumption.title', {source: sourceData.key}).toString(),
       sources: [{source:sourceData.key, props:props}],
       data: sourceData.values,
@@ -137,11 +106,10 @@ function chartSuggestionsFromSourceData(sourceData, i18n) {
     // unknown, use General
     return [ChartSuggestion.create({
       flags: flags,
-      metadata: meta,
       title: i18n.t('chartSuggestion.general.title', {source:sourceData.key}).toString(),
       sources: [{source:sourceData.key, props:props}],
       data: sourceData.values,
-      sampleConfiguration: {source:sourceData.key, prop:props[0]}
+      sampleConfiguration: {source:sourceData.key, prop:props[0].prop}
     })];
   }
 }
@@ -203,7 +171,7 @@ export default Ember.Service.extend({
       // now the sources properties  are resolved, so map them to source sets
       return groups.map(function (group) {
         var sources = group.get('sources'); // these are already resolved
-        var sourceSet = sources.reduce(function(sourceSet, sourceConfig, index) {
+        var sourceSet = sources.reduce(function(sourceSet, sourceConfig) {
           sourceSet.sourceIds.push(sourceConfig.get('source'));
           return sourceSet;
         }, {group:group, sourceIds:[]});

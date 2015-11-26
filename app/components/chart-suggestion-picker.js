@@ -8,10 +8,12 @@ export default Ember.Component.extend({
       const store  = this.get('store');
 	    const profile = this.get('userProfile');
       const sampleConfiguration = suggestion.get('sampleConfiguration');
+      const source = suggestion.get('sources').findBy('source', sampleConfiguration.source);
+      const prop = (source ? source.props.findBy('prop', sampleConfiguration.prop) : null);
       profile.get('charts').then(function(charts) {
         var found = charts.any(function(chart) {
-          return chart.get('sourceProperties').some(function(sProp) {
-            return (sProp.source === sampleConfiguration.source && sProp.prop === sampleConfiguration.prop);
+          return chart.get('sourceProperties').any(function(sProp) {
+            return (sProp.source === sampleConfiguration.source && sProp.prop && sProp.prop.prop === sampleConfiguration.prop);
           });
         });
         if ( !found ) {
@@ -29,9 +31,10 @@ export default Ember.Component.extend({
           var sourceConfig = store.createRecord('chart-source-config', {
             group: sourceGroup,
             source : sampleConfiguration.source,
-            props : [sampleConfiguration.prop],
-            propsMetadata: suggestion.get('metadata')
           });
+          var propConfig = store.createRecord('chart-property-config', prop);
+          sourceConfig.get('props').pushObject(propConfig);
+          propConfig.save();
           sourceConfig.save();
           sourceGroup.save();
           chartConfig.save();
@@ -47,9 +50,9 @@ export default Ember.Component.extend({
       profile.get('charts').any(function(chart) {
         return chart.get('sourceGroups').any(function(sourceGroup) {
           return sourceGroup.get('sources').any(function(sourceConfig) {
-            const props = sourceConfig.get('props');
-            if ( sourceConfig.get('source') === sampleConfiguration.source && props && props.length === 1
-                && props[0] === sampleConfiguration.prop ) {
+            const props = sourceConfig.get('properties');
+            if ( sourceConfig.get('source') === sampleConfiguration.source && props && props.get('length') === 1
+                && props.objectAt(0).prop === sampleConfiguration.prop ) {
               sourceConfig.destroyRecord();
               sourceGroup.destroyRecord();
               chart.destroyRecord();

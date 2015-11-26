@@ -11,8 +11,8 @@ export default Ember.Component.extend({
   selected: Ember.computed('chartSourceProperties.[]', 'suggestion', function() {
     var sampleConfiguration = this.get('suggestion.sampleConfiguration');
     var chartSourceProperties = this.get('chartSourceProperties');
-    return chartSourceProperties.any(function(sourceProperty) {
-      return (sourceProperty.source === sampleConfiguration.source && sourceProperty.prop === sampleConfiguration.prop);
+    return chartSourceProperties.any(function(sProp) {
+      return (sProp.source === sampleConfiguration.source && sProp.prop === sampleConfiguration.prop);
     });
   }),
   click() {

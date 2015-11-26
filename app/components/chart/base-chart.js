@@ -52,9 +52,10 @@ export default Ember.Component.extend({
       if ( Array.isArray(data) && data.length > 0 && data[0].data && data[0].groupId ) {
         data.forEach(function(groupData) {
           // line chart does not do groups... just load data for each configured property
-          groupData.group.get('sources').forEach(function(source) {
-            source.get('props').forEach(function(prop) {
-              chart.load(groupData.data, source.get('source'), prop);
+          groupData.group.get('sources').forEach(function(sourceConfig) {
+            const sourceId = sourceConfig.get('source');
+            sourceConfig.get('properties').forEach(function(prop) {
+              chart.load(groupData.data, sourceId, prop.prop);
             });
           });
         });

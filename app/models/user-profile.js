@@ -28,13 +28,16 @@ export default DS.Model.extend({
    * Get an array of chart source/property objects in the form of {source:foo prop:bar}.
    */
   chartSourceProperties: Ember.computed('charts.@each.sourceProperties', function() {
-    // arrays is array of arrays
-    var arrays = this.get('charts').map(function(chart) {
-      var sProps = chart.get('sourceProperties');
-      return (sProps ? sProps : []);
+    const promise = this.get('charts').then(charts => {
+      return Ember.RSVP.all(charts.mapBy('sourceProperties'));
+    }).then(arrays => {
+      var merged = Ember.A();
+      arrays.forEach(array => {
+        merged.pushObjects(array);
+      });
+      return merged;
     });
-    // merge array of arrays into single array
-    return [].concat.apply([], arrays);
+    return DS.PromiseArray.create({promise:promise});
   })
 
 });

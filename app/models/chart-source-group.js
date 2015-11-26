@@ -1,3 +1,4 @@
+import Ember from 'ember';
 import DS from 'ember-data';
 
 export default DS.Model.extend({
@@ -8,22 +9,19 @@ export default DS.Model.extend({
   /**
    Get an array of all configured sources and properties.
 
-   @return {Array} Array of objects like <code>{source:X, prop:Y, metadata:Z}</code>
+   @return {Array} Array of ChartPropertyConfig objects
    */
-  sourceProperties: Ember.computed('sources.@each.props', function() {
-    // arrays is array of arrays
-    var arrays = this.get('sources').map(function(source) {
-      var props = source.get('props');
-      var meta = source.get('propsMetadata');
-      if ( props ) {
-        return props.map(function(prop) {
-          return {source:source.get('source'), prop:prop, metadata:(meta ? meta[prop] : null)};
-        });
-      }
-      return [];
+  sourceProperties: Ember.computed('sources.@each.properties', function() {
+    const promise = this.get('sources').then(sources => {
+      return Ember.RSVP.all(sources.mapBy('properties'));
+    }).then(arrays => {
+      var merged = Ember.A();
+      arrays.forEach(array => {
+        merged.pushObjects(array);
+      });
+      return merged;
     });
-    // merge array of arrays into single array
-    return [].concat.apply([], arrays);
+    return DS.PromiseArray.create({promise:promise});
   })
 
 });

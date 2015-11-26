@@ -38,15 +38,19 @@ export default DS.Model.extend({
   /**
    Get an array of all configured sources and properties.
 
-   @return {Array} Array of objects like <code>{source:X, prop:Y, metadata:Z}</code>
+   @return {Array} Array of objects like <code>{source:X, prop:Y}</code>
    */
   sourceProperties: Ember.computed('sourceGroups.@each.sourceProperties', function() {
-    // arrays is array of arrays
-    var arrays = this.get('sourceGroups').map(function(group) {
-      return group.get('sourceProperties');
+    const promise = this.get('sourceGroups').then(sourceGroups => {
+      return Ember.RSVP.all(sourceGroups.mapBy('sourceProperties'));
+    }).then(arrays => {
+      var merged = Ember.A();
+      arrays.forEach(array => {
+        merged.pushObjects(array);
+      });
+      return merged;
     });
-    // merge array of arrays into single array
-    return [].concat.apply([], arrays);
+    return DS.PromiseArray.create({promise:promise});
   }),
 
   /**
@@ -58,8 +62,8 @@ export default DS.Model.extend({
     const sProps = this.get('sourceProperties');
     var result = null;
     var allSame = sProps.every(function(sProp) {
-      const meta = sProp.metadata;
-      if ( !meta ) {
+      const meta = sProp.prop;
+      if ( !(meta && meta.unit && meta.unitName) ) {
         return true;
       }
       if ( !result ) {
@@ -78,6 +82,11 @@ export default DS.Model.extend({
     return (allSame ? result : null);
   }),
 
+  /**
+   A transient display scale, which can be set after a chart loads based on the actual data.
+
+   @return {number} The display scale.
+  */
   displayScale: 1
 
 });
