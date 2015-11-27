@@ -83,7 +83,8 @@ export default {
       "source" : {
         "title" : "Name",
         "prop" : "Property",
-        "unit" : "Unit"
+        "unit" : "Unit",
+        "unitWithDefault" : "Unit ({{default}})"
       }
     },
     "export" : "Export"
