@@ -59,27 +59,28 @@ export default DS.Model.extend({
    @return {Object} a unit metadata object, like <code>{unit:'W', unitName:'watts'}</code>
    */
   unit: Ember.computed('sourceProperties', 'displayScale', function() {
-    const sProps = this.get('sourceProperties');
-    var result = null;
-    var allSame = sProps.every(function(sProp) {
-      const meta = sProp.prop;
-      if ( !(meta && meta.unit && meta.unitName) ) {
-        return true;
+    const promise = this.get('sourceProperties').then(sProps => {
+      var result = null;
+      var allSame = sProps.every(function(sProp) {
+        if ( !(sProp && sProp.unit && sProp.unitName) ) {
+          return true;
+        }
+        if ( !result ) {
+          // first result... take it
+          result = {unit:sProp.unit, unitName:sProp.unitName};
+          return true;
+        }
+        if ( result && (result.unit !== sProp.unit || result.unitName !== sProp.unitName) ) {
+          return false;
+        }
+      });
+      if ( allSame && result ) {
+        var scale = this.get('displayScale');
+        result.unit = sn.format.displayUnitsForScale(result.unit, scale);
       }
-      if ( !result ) {
-        // first result... take it
-        result = {unit:meta.unit, unitName:meta.unitName};
-        return true;
-      }
-      if ( result && (result.unit !== meta.unit || result.unitName !== meta.unitName) ) {
-        return false;
-      }
+      return (allSame ? result : null);
     });
-    if ( allSame && result ) {
-      var scale = this.get('displayScale');
-      result.unit = sn.format.displayUnitsForScale(result.unit, scale);
-    }
-    return (allSame ? result : null);
+    return DS.PromiseObject.create({promise:promise});
   }),
 
   /**
