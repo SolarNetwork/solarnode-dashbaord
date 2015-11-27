@@ -3,6 +3,8 @@ export default {
     "intro" : "Oops!"
   },
   "action" : {
+    "cancel" : "Cancel",
+    "choose" : "Choose",
     "done" : "Done",
     "login" : "Login",
     "logout" : "Logout",

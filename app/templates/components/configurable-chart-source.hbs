@@ -1,20 +1,21 @@
-<div class="uk-grid">
-	<div class="uk-width-2-10">
-		[C]
-	</div>
-	<div class="uk-width-8-10">
-		{{input value=sourceConfig.displayName class="uk-width-1-1" placeholder=(t 'chart.edit.source.title')}}
-	</div>
-</div>
-{{#each sourceConfig.props as |prop|}}
-	<div class="uk-grid">
-		<div class="uk-width-2-10">
-		</div>
-		<div class="uk-width-8-10">
-			{{prop.prop}}
-			{{input value=prop.unit class="uk-width-1-1" placeholder=(if prop.property.unit (t 'chart.edit.source.unitWithDefault' default=prop.property.unit) (t 'chart.edit.source.unit'))}}
-		</div>
-	</div>
-{{/each}}
-
-<p>Source: {{sourceConfig.displayName}}</p>
+<fieldset>
+  <h3>{{sourceConfig.displayName}}</h3>
+  <div class="uk-form-row">
+    {{input value=sourceConfig.displayName class="uk-width-1-1" placeholder=(t 'chart.edit.source.title')}}
+  </div>
+  {{#each sourceConfig.props as |prop|}}
+    <div class="uk-form-row">
+      {{input value=prop.prop class="uk-width-1-1"}}
+    </div>
+    <div class="uk-form-row">
+      <div class="uk-grid">
+        <div class="uk-flex-item-none">
+          {{color-swatch-input color=prop.color}}
+        </div>
+        <div class="uk-flex-item-1">
+          {{input value=prop.unit class="uk-width-1-1" placeholder=(if prop.property.unit (t 'chart.edit.source.unitWithDefault' default=prop.property.unit) (t 'chart.edit.source.unit'))}}
+        </div>
+      </div>
+    </div>
+  {{/each}}
+</fieldset>

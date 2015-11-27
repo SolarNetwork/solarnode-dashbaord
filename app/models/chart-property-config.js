@@ -6,6 +6,7 @@ export default DS.Model.extend({
   prop: DS.attr('string'),
   unit: DS.attr('string'),
   unitName: DS.attr('string'),
+  color: DS.attr('string'),
 
   property: Ember.computed('source', 'prop', 'unit', 'unitName', function() {
     var prop = this.get('prop');

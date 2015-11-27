@@ -22,6 +22,7 @@ module.exports = function(environment) {
     },
 
     contentSecurityPolicy: {
+      'img-src': "'self' data:",
       'font-src': "'self' data: https://fonts.gstatic.com",
       'style-src': "'self' 'unsafe-inline' https://fonts.googleapis.com",
       'connect-src': "'self' https://data.solarnetwork.net"
