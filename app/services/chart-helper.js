@@ -147,8 +147,8 @@ function groupedChartSuggestionsFromSuggestions(suggestions, i18n) {
     flags = typeGroups.Consumption.reduce(function(l, r) {
       return Ember.merge(l, r.get('flags'));
     }, flags);
-    let generationGroup = sourceGroupForSuggestions(typeGroups.Generation, 'generation', i18n.t('chartSuggestion.group.generation').toString());
-    let consumptionGroup = sourceGroupForSuggestions(typeGroups.Consumption, 'consumption', i18n.t('chartSuggestion.group.consumption').toString());
+    let generationGroup = sourceGroupForSuggestions(typeGroups.Generation, 'Generation', i18n.t('chartSuggestion.group.generation').toString());
+    let consumptionGroup = sourceGroupForSuggestions(typeGroups.Consumption, 'Consumption', i18n.t('chartSuggestion.group.consumption').toString());
     return [ChartSuggestion.create({
       type: 'energy-io',
       flags: flags,
