@@ -65,6 +65,9 @@ function propertiesForSourceData(sourceData, flags) {
       } else if ( key === "phaseVoltage" || key === "frequency" || key === "powerFactor" ) {
         // look for signs of AC power
         flags.ac = true;
+        if ( templateObj.phase && templateObj.phase !== 'Total' ) {
+          flags.phase = true;
+        }
       } else  if ( key === "temp" ) {
         flags.atmosphere = true;
       }
@@ -139,25 +142,33 @@ function groupedChartSuggestionsFromSuggestions(suggestions, i18n) {
   const typeGroups = d3.nest().key(function(d) {
     return d.get('type');
   }).map(suggestions);
+  const results = [];
   if ( typeGroups.Generation && typeGroups.Consumption ) {
     // we've got IO chart potential here
     let flags = typeGroups.Generation.reduce(function(l, r) {
       return Ember.merge(l, r.get('flags'));
     }, {});
-    flags = typeGroups.Consumption.reduce(function(l, r) {
-      return Ember.merge(l, r.get('flags'));
-    }, flags);
-    let generationGroup = sourceGroupForSuggestions(typeGroups.Generation, 'Generation', i18n.t('chartSuggestion.group.generation').toString());
-    let consumptionGroup = sourceGroupForSuggestions(typeGroups.Consumption, 'Consumption', i18n.t('chartSuggestion.group.consumption').toString());
-    return [ChartSuggestion.create({
-      type: 'energy-io',
-      flags: flags,
-      title: i18n.t('chartSuggestion.energy-io.title').toString(),
-      sourceGroups: [generationGroup, consumptionGroup],
-      sampleConfiguration: {prop:generationGroup.prop}
-    })];
+
+    // exclude phase consumption sources
+    let consumptionSuggestions = typeGroups.Consumption.filter(function(suggestion) {
+      return !suggestion.flags.phase;
+    });
+    if ( consumptionSuggestions.length > 0 ) {
+      flags = consumptionSuggestions.reduce(function(l, r) {
+        return Ember.merge(l, r.get('flags'));
+      }, flags);
+      let generationGroup = sourceGroupForSuggestions(typeGroups.Generation, 'Generation', i18n.t('chartSuggestion.group.generation').toString());
+      let consumptionGroup = sourceGroupForSuggestions(consumptionSuggestions, 'Consumption', i18n.t('chartSuggestion.group.consumption').toString());
+      results.push(ChartSuggestion.create({
+        type: 'energy-io',
+        flags: flags,
+        title: i18n.t('chartSuggestion.energy-io.title').toString(),
+        sourceGroups: [generationGroup, consumptionGroup],
+        sampleConfiguration: {prop:generationGroup.prop}
+      }));
+    }
   }
-  return [];
+  return results;
 }
 
 export default Ember.Service.extend({
