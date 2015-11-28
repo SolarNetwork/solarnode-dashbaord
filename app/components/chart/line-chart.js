@@ -17,6 +17,35 @@ export default BaseChart.extend({
     return chart;
   }),
 
+  draw() {
+    const chartConfig = this.get('chartConfig');
+    const data = this.get('data');
+    const chart = this.get('chart');
+    const prop = this.get('prop');
+    var scale = 1;
+    if ( data && chart ) {
+      chart.reset();
+      if ( Array.isArray(data) && data.length > 0 && data[0].data && data[0].groupId ) {
+        data.forEach(function(groupData) {
+          // line chart does not do groups... just load data for each configured property
+          groupData.group.get('sources').forEach(function(sourceConfig) {
+            const sourceId = sourceConfig.get('source');
+            sourceConfig.get('properties').forEach(function(prop) {
+              chart.load(groupData.data, sourceId, prop.prop);
+            });
+          });
+        });
+      } else if ( Array.isArray(data) ) {
+        chart.load(data, prop, prop);
+      }
+      chart.regenerate();
+      scale = (chart.yScale ? chart.yScale() : chart.scale());
+      if ( chartConfig ) {
+        chartConfig.set('displayScale', scale);
+      }
+    }
+  },
+
   colors: Ember.computed('chart', {
     get(key) {
       const chart = this.get('chart');

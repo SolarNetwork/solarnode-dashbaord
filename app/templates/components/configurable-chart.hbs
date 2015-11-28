@@ -76,7 +76,9 @@
 			  <legend>{{t 'chart.edit.sources'}}</legend>
 
 			  {{#if canGroupSources}}
-			    <p>TODO</p>
+			    {{#each chart.sourceGroups as |sourceGroup|}}
+            {{configurable-chart-source-group sourceGroup=sourceGroup}}
+			    {{/each}}
 			  {{else}}
 			    {{#each chart.sourceGroups.firstObject.sources as |sourceConfig|}}
 			      {{configurable-chart-source sourceConfig=sourceConfig}}

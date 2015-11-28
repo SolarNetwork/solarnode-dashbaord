@@ -9,6 +9,7 @@ export default Ember.Object.extend({
   subtype: 'General',
   flags: {},
   metadata: {},
+  sourceGroups: [],
   sources: [],
   data: [],
   sampleConfiguration: {}

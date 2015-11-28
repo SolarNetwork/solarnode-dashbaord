@@ -114,6 +114,52 @@ function chartSuggestionsFromSourceData(sourceData, i18n) {
   }
 }
 
+function sourceGroupForSuggestions(suggestions, key, title) {
+  var sources = [];
+  var data = [];
+  suggestions.forEach(function(suggestion) {
+    sources.push.apply(sources, suggestion.get('sources').map(function(source) {
+      return source.source;
+    }));
+    data.splice.apply(data, [data.length, 0].concat(suggestion.get('data')));
+  });
+  return {
+    groupId: key,
+    title: title,
+    sources: sources,
+    data: data,
+    prop: suggestions.get('firstObject.sampleConfiguration.prop')
+  };
+}
+
+function groupedChartSuggestionsFromSuggestions(suggestions, i18n) {
+  if ( !Array.isArray(suggestions) || suggestions.length < 2 ) {
+    return [];
+  }
+  const typeGroups = d3.nest().key(function(d) {
+    return d.get('type');
+  }).map(suggestions);
+  if ( typeGroups.Generation && typeGroups.Consumption ) {
+    // we've got IO chart potential here
+    let flags = typeGroups.Generation.reduce(function(l, r) {
+      return Ember.merge(l, r.get('flags'));
+    }, {});
+    flags = typeGroups.Consumption.reduce(function(l, r) {
+      return Ember.merge(l, r.get('flags'));
+    }, flags);
+    let generationGroup = sourceGroupForSuggestions(typeGroups.Generation, 'generation', i18n.t('chartSuggestion.group.generation').toString());
+    let consumptionGroup = sourceGroupForSuggestions(typeGroups.Consumption, 'consumption', i18n.t('chartSuggestion.group.consumption').toString());
+    return [ChartSuggestion.create({
+      type: 'energy-io',
+      flags: flags,
+      title: i18n.t('chartSuggestion.energy-io.title').toString(),
+      sourceGroups: [generationGroup, consumptionGroup],
+      sampleConfiguration: {prop:generationGroup.prop}
+    })];
+  }
+  return [];
+}
+
 export default Ember.Service.extend({
   clientHelper:  Ember.inject.service(),
   i18n: Ember.inject.service(),
@@ -133,6 +179,10 @@ export default Ember.Service.extend({
             results.push.apply(results, suggestions);
           }
         });
+
+        // look for grouped charts, e.g. energy IO
+        results = groupedChartSuggestionsFromSuggestions(results, i18n).concat(results);
+
         return {dataBySource:data.dataBySource, dataByLine:data.dataByLine, suggestions:results};
       }
     );
@@ -168,7 +218,7 @@ export default Ember.Service.extend({
         return groups.slice(); // NOT a PromiseArray, we want a regular map() function below
       });
     }).then(groups => {
-      // now the sources properties  are resolved, so map them to source sets
+      // now the sources properties are resolved, so map them to source sets
       return groups.map(function (group) {
         var sources = group.get('sources'); // these are already resolved
         var sourceSet = sources.reduce(function(sourceSet, sourceConfig) {

@@ -41,8 +41,15 @@ export default {
     "advanced" : "Advanced Setup"
   },
   "chartSuggestion" : {
+    "group" : {
+      "consumption" : "Consumption",
+      "generation" : "Generation"
+    },
     "consumption" : {
       "title" : "Consumption — {{source}}"
+    },
+    "energy-io" : {
+      "title" : "Energy I/O"
     },
     "generation" : {
       "title" : "{{subtype}} Generation — {{source}}"
