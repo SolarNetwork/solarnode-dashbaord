@@ -5,6 +5,7 @@ export default DS.Model.extend({
   title: DS.attr('string'),
   chart: DS.belongsTo('chart-config', {inverse:'sourceGroups'}),
   sources: DS.hasMany('chart-source-config', {inverse:'group'}),
+  scaleFactor: DS.attr('number', {default: 1}),
 
   /**
    Get an array of all configured sources and properties.
