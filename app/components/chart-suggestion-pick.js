@@ -30,7 +30,7 @@ export default Ember.Component.extend({
 
   click() {
     if ( this.get('selected') ) {
-      this.get('onUnselect')(this.get('suggestion'));
+      this.get('onUnselect')(this.get('suggestion'), this.get('matchingCharts'));
     } else {
       this.get('onSelect')(this.get('suggestion'));
     }

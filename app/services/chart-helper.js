@@ -117,9 +117,9 @@ function chartSuggestionsFromSourceData(sourceData, i18n) {
   }
 }
 
-function sourceGroupForSuggestions(suggestions, key, title) {
-  var sources = [];
-  var data = [];
+function sourceGroupForSuggestions(suggestions, key, title, prop) {
+  const sources = [];
+  const data = [];
   suggestions.forEach(function(suggestion) {
     sources.push.apply(sources, suggestion.get('sources').map(function(source) {
       return source.source;
@@ -131,7 +131,7 @@ function sourceGroupForSuggestions(suggestions, key, title) {
     title: title,
     sources: sources,
     data: data,
-    prop: suggestions.get('firstObject.sampleConfiguration.prop')
+    prop: prop
   };
 }
 
@@ -157,8 +157,8 @@ function groupedChartSuggestionsFromSuggestions(suggestions, i18n) {
       flags = consumptionSuggestions.reduce(function(l, r) {
         return Ember.merge(l, r.get('flags'));
       }, flags);
-      let generationGroup = sourceGroupForSuggestions(typeGroups.Generation, 'Generation', i18n.t('chartSuggestion.group.generation').toString());
-      let consumptionGroup = sourceGroupForSuggestions(consumptionSuggestions, 'Consumption', i18n.t('chartSuggestion.group.consumption').toString());
+      let generationGroup = sourceGroupForSuggestions(typeGroups.Generation, 'Generation', i18n.t('chartSuggestion.group.generation').toString(), 'wattHours');
+      let consumptionGroup = sourceGroupForSuggestions(consumptionSuggestions, 'Consumption', i18n.t('chartSuggestion.group.consumption').toString(), 'wattHours');
       results.push(ChartSuggestion.create({
         type: 'energy-io',
         flags: flags,

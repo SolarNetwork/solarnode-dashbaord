@@ -8,22 +8,36 @@ export default Ember.Component.extend({
       const store  = this.get('store');
 	    const profile = this.get('userProfile');
       const sampleConfiguration = suggestion.get('sampleConfiguration');
-      const source = suggestion.get('sources').findBy('source', sampleConfiguration.source);
-      const prop = (source ? source.props.findBy('prop', sampleConfiguration.prop) : null);
       profile.get('charts').then(function(charts) {
-        var found = charts.any(function(chart) {
-          return chart.get('sourceProperties').any(function(sProp) {
-            return (sProp.source === sampleConfiguration.source && sProp.prop && sProp.prop.prop === sampleConfiguration.prop);
-          });
+        var chartConfig = store.createRecord('chart-config', {
+          type: suggestion.get('type'),
+          subtype: suggestion.get('subtype'),
+          flags: suggestion.get('flags'),
+          profile: profile,
+          title: suggestion.get('title')
         });
-        if ( !found ) {
-          var chartConfig = store.createRecord('chart-config', {
-            type: suggestion.get('type'),
-            subtype: suggestion.get('subtype'),
-            flags: suggestion.get('flags'),
-            profile: profile,
-            title: suggestion.get('title')
+        if ( suggestion.sourceGroups ) {
+          suggestion.sourceGroups.forEach(function(group) {
+            var sourceGroup = store.createRecord('chart-source-group', {
+              chart: chartConfig,
+              title : group.groupId
+            });
+            group.sources.forEach(function(sourceId) {
+              var sourceConfig = store.createRecord('chart-source-config', {
+                group: sourceGroup,
+                source : sourceId,
+              });
+              var propConfig = store.createRecord('chart-property-config', {
+                prop: group.prop
+              });
+              sourceConfig.get('props').pushObject(propConfig);
+              propConfig.save();
+              sourceConfig.save();
+            });
+            sourceGroup.save();
           });
+        } else {
+          // single source group
           var sourceGroup = store.createRecord('chart-source-group', {
             chart: chartConfig,
             title : sampleConfiguration.source
@@ -32,37 +46,45 @@ export default Ember.Component.extend({
             group: sourceGroup,
             source : sampleConfiguration.source,
           });
-          var propConfig = store.createRecord('chart-property-config', prop);
+          var propConfig = store.createRecord('chart-property-config', {
+            prop: sampleConfiguration.prop
+          });
           sourceConfig.get('props').pushObject(propConfig);
           propConfig.save();
           sourceConfig.save();
           sourceGroup.save();
-          chartConfig.save();
-          charts.pushObject(chartConfig);
-          profile.save();
         }
+        chartConfig.save();
+        charts.pushObject(chartConfig);
+        profile.save();
       });
 	  },
 
-	  unselectChartSuggestion(suggestion) {
+	  unselectChartSuggestion(suggestion, charts) {
 	    const profile = this.get('userProfile');
-      const sampleConfiguration = suggestion.get('sampleConfiguration');
-      profile.get('charts').any(function(chart) {
-        return chart.get('sourceGroups').any(function(sourceGroup) {
-          return sourceGroup.get('sources').any(function(sourceConfig) {
-            const props = sourceConfig.get('properties');
-            if ( sourceConfig.get('source') === sampleConfiguration.source && props && props.get('length') === 1
-                && props.objectAt(0).prop === sampleConfiguration.prop ) {
-              sourceConfig.destroyRecord();
-              sourceGroup.destroyRecord();
-              chart.destroyRecord();
-              profile.save();
-              return true;
-            }
-            return false;
-          });
-        });
+	    if ( !charts ) {
+	      return;
+	    }
+	    // note we are cleaning up all child relationship records to conserve space in local storage
+	    charts.forEach(chart => {
+	      chart.get('sourceGroups').then(sourceGroups => {
+	        sourceGroups.forEach(sourceGroup => {
+            sourceGroup.get('sources').then(sourceConfigs => {
+              sourceConfigs.forEach(sourceConfig => {
+                sourceConfig.get('props').then(props => {
+                  props.forEach(prop => {
+                    prop.destroyRecord();
+                  });
+                });
+                sourceConfig.destroyRecord();
+              });
+            });
+            sourceGroup.destroyRecord();
+	        });
+	      });
+	      chart.destroyRecord();
 	    });
+	    profile.save();
 	  }
 	}
 });
