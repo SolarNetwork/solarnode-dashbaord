@@ -1,4 +1,5 @@
 import Ember from 'ember';
+import DS from 'ember-data';
 
 export default Ember.Component.extend({
   chartHelper: Ember.inject.service(),
@@ -8,13 +9,25 @@ export default Ember.Component.extend({
   position: Ember.computed('index', function() {
     return (this.get('index') + 1);
   }),
-  selected: Ember.computed('chartSourceProperties.[]', 'suggestion', function() {
-    var sampleConfiguration = this.get('suggestion.sampleConfiguration');
-    var chartSourceProperties = this.get('chartSourceProperties');
-    return chartSourceProperties.any(function(sProp) {
-      return (sProp.source === sampleConfiguration.source && sProp.prop === sampleConfiguration.prop);
+
+  matchingCharts: Ember.computed('charts.[]', 'suggestion', function() {
+    const suggestion = this.get('suggestion');
+    const promise = Ember.RSVP.filter(this.get('charts').map(function(chart) {
+      return chart.matchesSuggestion(suggestion).then(function(isMatch) {
+        return (isMatch ? chart : null);
+      });
+    }), function(v) {
+      return (v !== null);
     });
+    return DS.PromiseArray.create({promise:promise});
   }),
+
+  selected: Ember.computed('matchingCharts.[]', 'suggestion', function() {
+    const suggestion = this.get('suggestion');
+    const matchingCharts = this.get('matchingCharts');
+    return (matchingCharts.get('length') > 0);
+  }),
+
   click() {
     if ( this.get('selected') ) {
       this.get('onUnselect')(this.get('suggestion'));

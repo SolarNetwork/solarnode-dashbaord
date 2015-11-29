@@ -2,6 +2,7 @@ import Ember from 'ember';
 import DS from 'ember-data';
 import d3 from 'npm:d3';
 import sn from 'npm:solarnetwork-d3';
+import ChartSuggestion from './chart-suggestion';
 
 export default DS.Model.extend({
   profile: DS.belongsTo('user-profile', {inverse:'charts'}),
@@ -88,6 +89,39 @@ export default DS.Model.extend({
 
    @return {number} The display scale.
   */
-  displayScale: 1
+  displayScale: 1,
+
+  /**
+   Test if a suggestion matches the receiver.
+
+   @param {ChartSuggestion} - The suggestion to compare.
+   @return A promise boolean.
+   */
+  matchesSuggestion(suggestion) {
+	  // first check type/subtype
+    if ( !(this.get('type') === suggestion.get('type') && this.get('subtype') === suggestion.get('subtype')) ) {
+      return Ember.RSVP.resolve(false);
+    }
+
+    const suggestionSourceProperties = suggestion.get('sourceProperties');
+
+    // turn source properties array into map of source => prop
+    const suggestionSourcePropsObj = suggestionSourceProperties.reduce(function(l, r) {
+      l[r.source] = r.prop;
+      return l;
+    }, {});
+
+    // verify sources are the same (i.e. source + props)
+    const promise = this.get('sourceProperties').then(sProps => {
+      const sPropsCount = sProps.get('length');
+      if ( sPropsCount !== suggestionSourceProperties.length ) {
+        return false;
+      }
+      return sProps.every(function(sProp) {
+        return (suggestionSourcePropsObj[sProp.source] && suggestionSourcePropsObj[sProp.source] === sProp.prop);
+      });
+    });
+    return promise;//DS.PromiseObject.create({promise:promise});
+  }
 
 });
