@@ -12,6 +12,7 @@ export default Ember.Component.extend({
         var chartConfig = store.createRecord('chart-config', {
           type: suggestion.get('type'),
           subtype: suggestion.get('subtype'),
+          style: (suggestion.get('style') ? suggestion.get('style') : 'line'),
           flags: suggestion.get('flags'),
           profile: profile,
           title: suggestion.get('title')

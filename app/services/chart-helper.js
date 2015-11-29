@@ -90,6 +90,7 @@ function chartSuggestionsFromSourceData(sourceData, i18n) {
     return [ChartSuggestion.create({
       type: 'Generation',
       subtype: 'PV',
+      style: 'line',
       flags: flags,
       title: i18n.t('chartSuggestion.generation.title', {source: sourceData.key, subtype:'PV'}).toString(),
       sources: [{source:sourceData.key, props:props}],
@@ -99,6 +100,7 @@ function chartSuggestionsFromSourceData(sourceData, i18n) {
   } else if ( flags.electricity ) {
     return [ChartSuggestion.create({
       type: 'Consumption',
+      style: 'line',
       flags: flags,
       title: i18n.t('chartSuggestion.consumption.title', {source: sourceData.key}).toString(),
       sources: [{source:sourceData.key, props:props}],
@@ -108,6 +110,7 @@ function chartSuggestionsFromSourceData(sourceData, i18n) {
   } else {
     // unknown, use General
     return [ChartSuggestion.create({
+      style: 'line',
       flags: flags,
       title: i18n.t('chartSuggestion.general.title', {source:sourceData.key}).toString(),
       sources: [{source:sourceData.key, props:props}],
@@ -160,7 +163,8 @@ function groupedChartSuggestionsFromSuggestions(suggestions, i18n) {
       let generationGroup = sourceGroupForSuggestions(typeGroups.Generation, 'Generation', i18n.t('chartSuggestion.group.generation').toString(), 'wattHours');
       let consumptionGroup = sourceGroupForSuggestions(consumptionSuggestions, 'Consumption', i18n.t('chartSuggestion.group.consumption').toString(), 'wattHours');
       results.push(ChartSuggestion.create({
-        type: 'energy-io',
+        type: 'Energy I/O',
+        style: 'io-bar',
         flags: flags,
         title: i18n.t('chartSuggestion.energy-io.title').toString(),
         sourceGroups: [generationGroup, consumptionGroup],

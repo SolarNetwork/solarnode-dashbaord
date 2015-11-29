@@ -6,7 +6,11 @@
 		    <span class="unit">{{chartUnit.unit}}</span>
 		  {{/if}}
 		</h2>
-		{{chart.line-chart width=550 height=320 chartConfig=chart}}
+    {{#liquid-if (eq chart.style 'io-bar')}}
+      {{chart.io-bar-chart width=550 height=320 chartConfig=chart}}
+    {{else}}
+		  {{chart.line-chart width=550 height=320 chartConfig=chart}}
+		{{/liquid-if}}
 	</div>
 	<div class="uk-width-small-1-1 uk-width-large-3-10">
 		<form class="uk-form uk-form-stacked">

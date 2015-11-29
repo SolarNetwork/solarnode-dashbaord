@@ -7,7 +7,7 @@
 	{{/if}}
 </div>
 <div class=" uk-width-small-1-1 uk-width-medium-5-10 uk-text-center">
-  {{#if (eq suggestion.type 'energy-io')}}
+  {{#if (eq suggestion.style 'io-bar')}}
     {{chart.io-bar-chart width=320 height=180 data=suggestion.sourceGroups prop=suggestion.sampleConfiguration.prop}}
   {{else}}
 	  {{chart.line-chart width=320 height=180 data=suggestion.data prop=suggestion.sampleConfiguration.prop}}
