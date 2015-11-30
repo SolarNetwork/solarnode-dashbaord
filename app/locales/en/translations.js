@@ -87,6 +87,7 @@ export default {
     },
     "edit" : {
       "title" : "Settings",
+      "toggleSettingsVisibility" : "Toggle Settings",
       "chartTitle" : "Name",
       "dateRange" : "Date range",
       "timePeriod" : "Period",

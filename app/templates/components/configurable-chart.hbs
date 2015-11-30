@@ -1,5 +1,5 @@
 <div class="uk-flex uk-flex-wrap uk-flex-wrap-space-around">
-	<div class="uk-width-small-1-1 uk-width-large-7-10 uk-margin-bottom">
+	<div class="uk-width-small-1-1 uk-width-large-6-10 uk-margin-bottom">
 		<h2>
 		  {{chartName}}
 		  {{#if chartUnit}}
@@ -16,6 +16,11 @@
 		  {{chart.line-chart width=550 height=320 chartConfig=chart}}
 		{{/liquid-if}}
 	</div>
+	<div class="uk-visible-large uk-width-large-1-10 uk-text-right app-chart-settings-toggle-horizontal">
+    <a {{action 'toggleSettingsVisibility'}} title={{t 'chart.edit.toggleSettingsVisibility'}} class="uk-icon-hover uk-icon-large">
+      {{fa-icon (if isSettingsVisible 'angle-double-right' 'angle-double-left')}}
+    </a>
+	</div>
 	<div class="uk-width-small-1-1 uk-width-large-3-10">
 		<form class="uk-form uk-form-stacked">
 			<fieldset>
@@ -24,7 +29,7 @@
 						<h2>{{t 'chart.edit.title'}}</h2>
 					</div>
 					<div class="uk-flex-item-none">
-						<button {{action 'save'}} class="uk-button uk-button-primary" disabled={{if canSave null true}}>{{t 'action.save'}}</button>
+						<button {{action 'save'}} class="uk-button uk-button-success" disabled={{if canSave null true}}>{{t 'action.save'}}</button>
 					</div>
 				</div>
 				<div class="uk-form-row">

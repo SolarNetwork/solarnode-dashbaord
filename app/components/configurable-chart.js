@@ -53,9 +53,15 @@ export default Ember.Component.extend({
     return (style !== 'line'); // TODO: set this to what styles are explicitly supported
   }),
 
+  isSettingsVisible: true,
+
   actions: {
     toggleUsePeriod() {
       this.toggleProperty('isUsePeriod');
+    },
+
+    toggleSettingsVisibility() {
+      this.toggleProperty('isSettingsVisible');
     },
 
     save() {
