@@ -41,6 +41,21 @@ export default Ember.Component.extend({
   refreshTimer : null,
   refreshInterval : (5*60*1000),
 
+  willDestroy: Ember.on('willDestroyElement', function() {
+    const refreshTimer = this.get('refreshTimer');
+    if ( refreshTimer ) {
+      Ember.run.cancel(refreshTimer);
+    }
+  }),
+
+  inserted: Ember.on('didInsertElement', function() {
+    if ( this.get('chartConfig') ) {
+      this.loadDataFromChartConfig();
+    } else {
+      this.draw();
+    }
+  }),
+
   chartConfiguration : Ember.computed(function() {
     var conf = this.get('snConfiguration');
     if ( !conf ) {
@@ -65,6 +80,10 @@ export default Ember.Component.extend({
     const chartConfiguration = this.get('chartConfiguration');
     chartConfiguration.value('width', this.get('width'));
     chartConfiguration.value('height', this.get('height'));
+    const chart = this.get('chart');
+    if ( chart ) {
+      chart.regenerate();
+    }
   },
 
   chartConfigChanged: Ember.on('init', Ember.observer('chartConfig', 'chartConfig.isUsePeriod', 'chartConfig.period',
@@ -93,21 +112,6 @@ export default Ember.Component.extend({
       }
     });
   })),
-
-  willDestroy: Ember.on('willDestroyElement', function() {
-    const refreshTimer = this.get('refreshTimer');
-    if ( refreshTimer ) {
-      Ember.run.cancel(refreshTimer);
-    }
-  }),
-
-  inserted: Ember.on('didInsertElement', function() {
-    if ( this.get('chartConfig') ) {
-      this.loadDataFromChartConfig();
-    } else {
-      this.draw();
-    }
-  }),
 
   refreshDataFromChartConfig() {
     this.loadDataFromChartConfig();

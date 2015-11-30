@@ -12,6 +12,7 @@ export default DS.Model.extend({
   style: DS.attr('string', { defaultValue: 'line' }),
   flags: DS.attr(),
   sourceGroups: DS.hasMany('chart-source-group', {inverse:'chart'}),
+  isSettingsVisible: DS.attr('boolean', { defaultVavlue: true }),
 
   isUsePeriod: DS.attr('boolean', { defaultValue: true }),
   period: DS.attr('number', { defaultValue: 1 }),

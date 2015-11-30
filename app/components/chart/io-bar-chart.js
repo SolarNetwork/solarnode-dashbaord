@@ -14,9 +14,12 @@ export default BaseIOChart.extend({
     this._super(...arguments);
   },
 
-  chart: Ember.computed('height', 'width', function() {
-    var chartConfiguration = this.get('chartConfiguration');
+  chart: Ember.computed(function() {
     const container = this.$().get(0);
+    if ( !container ) {
+      return undefined;
+    }
+    var chartConfiguration = this.get('chartConfiguration');
     const colorMap = this.get('colorMap');
     var chart = this.get('snChart');
     if ( !chart ) {

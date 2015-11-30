@@ -1,5 +1,5 @@
 <div class="uk-flex uk-flex-wrap uk-flex-wrap-space-around">
-	<div class="uk-width-small-1-1 uk-margin-bottom {{if isSettingsVisible 'uk-width-large-6-10' 'uk-width-large-9-10'}}">
+	<div class="app-chart-container uk-width-small-1-1 uk-margin-bottom {{if isSettingsVisible 'uk-width-large-6-10' 'uk-width-large-9-10'}}">
 		<h2>
 		  {{chartName}}
 		  {{#if chartUnit}}
@@ -7,13 +7,13 @@
 		  {{/if}}
 		</h2>
     {{#liquid-if (eq chart.style 'io-area-overlap')}}
-      {{chart.io-area-overlap-chart width=550 height=320 chartConfig=chart}}
+      {{chart.io-area-overlap-chart width=chartWidth height=320 chartConfig=chart}}
     {{else if (eq chart.style 'io-bar')}}
-      {{chart.io-bar-chart width=550 height=320 chartConfig=chart}}
+      {{chart.io-bar-chart width=chartWidth height=320 chartConfig=chart}}
     {{else if (eq chart.style 'io-pie')}}
-      {{chart.io-pie-chart width=550 height=320 chartConfig=chart}}
+      {{chart.io-pie-chart width=chartWidth height=320 chartConfig=chart}}
     {{else}}
-		  {{chart.line-chart width=550 height=320 chartConfig=chart}}
+		  {{chart.line-chart width=chartWidth height=320 chartConfig=chart}}
 		{{/liquid-if}}
 	</div>
 	<div class="uk-visible-large uk-width-large-1-10 uk-text-right app-chart-settings-toggle-horizontal">

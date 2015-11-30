@@ -19,12 +19,15 @@ export default Ember.Component.extend({
 
   chartName: Ember.computed.alias('chart.title'),
   chartUnit: Ember.computed.alias('chart.unit'),
+  chartWidth: 550,
   canSave: Ember.computed.readOnly('chart.hasDirtyAttributes'),
   startDate: Ember.computed('chart.startDate', datePropertyAccessor),
   endDate: Ember.computed('chart.endDate', datePropertyAccessor),
   period: Ember.computed.alias('chart.period'),
   periodType: Ember.computed.alias('chart.periodType'),
   isUsePeriod: Ember.computed.alias('chart.isUsePeriod'),
+  isSettingsVisible: Ember.computed.alias('chart.isSettingsVisible'),
+
   periodTypes: ['hour', 'day', 'month', 'year'],
   periodChoices: Ember.computed('period', 'periodTypes', function() {
     const i18n = this.get('i18n');
@@ -53,7 +56,23 @@ export default Ember.Component.extend({
     return (style !== 'line'); // TODO: set this to what styles are explicitly supported
   }),
 
-  isSettingsVisible: true,
+  willDestroy: Ember.on('willDestroyElement', function() {
+    this.get('resizeService').off('debouncedDidResize', this, this.didResize);
+  }),
+
+  inserted: Ember.on('didInsertElement', function() {
+    this.get('resizeService').on('debouncedDidResize', this, this.didResize);
+    Ember.run.next(this, 'didResize');
+  }),
+
+  didResize() {
+    const w = this.$().find('.app-chart-container').width();
+    var width = this.get('w');
+    if ( w !== width ) {
+      this.set('chartWidth', w);
+      console.log(`width: ${window.innerWidth}, height: ${window.innerHeight}, chartWidth: ${w}`);
+    }
+  },
 
   actions: {
     toggleUsePeriod() {
@@ -62,6 +81,8 @@ export default Ember.Component.extend({
 
     toggleSettingsVisibility() {
       this.toggleProperty('isSettingsVisible');
+      this.get('chart').save();
+      Ember.run.next(this, 'didResize');
     },
 
     save() {
