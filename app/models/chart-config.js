@@ -71,9 +71,10 @@ export default DS.Model.extend({
           result = {unit:sProp.unit, unitName:sProp.unitName};
           return true;
         }
-        if ( result && (result.unit !== sProp.unit || result.unitName !== sProp.unitName) ) {
-          return false;
+        if ( result && result.unit === sProp.unit && result.unitName === sProp.unitName ) {
+          return true;
         }
+        return !result;
       });
       if ( allSame && result ) {
         var scale = this.get('displayScale');
