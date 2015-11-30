@@ -181,6 +181,14 @@ function groupedChartSuggestionsFromSuggestions(suggestions, i18n) {
         sourceGroups: [generationGroup, consumptionGroup],
         sampleConfiguration: {prop:generationGroup.prop}
       }));
+      results.push(ChartSuggestion.create({
+        type: 'Energy I/O Overlap',
+        style: 'io-area-overlap',
+        flags: flags,
+        title: i18n.t('chartSuggestion.energy-io-overlap.title').toString(),
+        sourceGroups: [consumptionGroup, generationGroup],
+        sampleConfiguration: {prop:generationGroup.prop}
+      }));
     }
   }
   return results;

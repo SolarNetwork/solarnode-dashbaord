@@ -54,6 +54,9 @@ export default {
     "energy-io-pie" : {
       "title" : "Energy I/O percent"
     },
+    "energy-io-overlap" : {
+      "title" : "Energy I/O overlap"
+    },
     "generation" : {
       "title" : "{{subtype}} Generation — {{source}}"
     },

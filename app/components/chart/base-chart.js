@@ -9,7 +9,8 @@ export const ConfigurationAccessor = {
   },
   set(key, value) {
     const chartConfiguration = this.get('chartConfiguration');
-    return chartConfiguration.value(key, value);
+    chartConfiguration.value(key, value);
+    return value;
   }
 };
 
@@ -87,7 +88,7 @@ export default Ember.Component.extend({
             this.set('refreshTimer', null);
           }
         }
-        const chartConfiguration = this.get('chartConfiguration');
+        this.regenerateChartConfiguration();
         this.loadDataFromChartConfig();
       }
     });

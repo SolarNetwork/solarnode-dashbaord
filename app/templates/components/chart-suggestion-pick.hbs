@@ -7,7 +7,9 @@
 	{{/if}}
 </div>
 <div class=" uk-width-small-1-1 uk-width-medium-5-10 uk-text-center">
-  {{#if (eq suggestion.style 'io-bar')}}
+  {{#if (eq suggestion.style 'io-area-overlap')}}
+    {{chart.io-area-overlap-chart width=320 height=180 data=suggestion.sourceGroups prop=suggestion.sampleConfiguration.prop}}
+  {{else if (eq suggestion.style 'io-bar')}}
     {{chart.io-bar-chart width=320 height=180 data=suggestion.sourceGroups prop=suggestion.sampleConfiguration.prop}}
   {{else if (eq suggestion.style 'io-pie')}}
     {{chart.io-pie-chart width=320 height=180 data=suggestion.sourceGroups prop=suggestion.sampleConfiguration.prop}}
