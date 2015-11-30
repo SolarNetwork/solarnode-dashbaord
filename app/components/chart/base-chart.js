@@ -27,6 +27,9 @@ export default Ember.Component.extend({
 
   snConfiguration: null,
 
+  refreshTimer : null,
+  refreshInterval : (5*60*1000),
+
   chartConfiguration : Ember.computed(function() {
     var conf = this.get('snConfiguration');
     if ( !conf ) {
@@ -59,16 +62,33 @@ export default Ember.Component.extend({
       const chart = this.get('chart');
       const chartConfig = this.get('chartConfig');
       if ( chartConfig ) {
-        if ( chartConfig.get('isUsePeriod') ) {
+        const isUsePeriod = chartConfig.get('isUsePeriod');
+        var refreshTimer = this.get('refreshTimer');
+        if ( isUsePeriod ) {
           this.set('aggregate', chartConfig.get('periodAggregate'));
+          if ( !refreshTimer ) {
+            refreshTimer = Ember.run.later(this, 'refreshDataFromChartConfig', this.get('refreshInterval'));
+            this.set('refreshTimer', refreshTimer);
+          }
         } else {
           this.set('aggregate', chartConfig.get('aggregate'));
+          if ( refreshTimer ) {
+            Ember.run.cancel(refreshTimer);
+            this.set('refreshTimer', null);
+          }
         }
         const chartConfiguration = this.get('chartConfiguration');
         this.loadDataFromChartConfig();
       }
     });
   })),
+
+  willDestroy: Ember.on('willDestroyElement', function() {
+    const refreshTimer = this.get('refreshTimer');
+    if ( refreshTimer ) {
+      Ember.run.cancel(refreshTimer);
+    }
+  }),
 
   inserted: Ember.on('didInsertElement', function() {
     if ( this.get('chartConfig') ) {
@@ -78,12 +98,20 @@ export default Ember.Component.extend({
     }
   }),
 
+  refreshDataFromChartConfig() {
+    this.loadDataFromChartConfig();
+    var refreshTimer = Ember.run.later(this, 'refreshDataFromChartConfig', this.get('refreshInterval'));
+    this.set('refreshTimer', refreshTimer);
+  },
+
   loadDataFromChartConfig() {
     const chartConfig = this.get('chartConfig');
     const helper = this.get('chartHelper');
     if ( chartConfig && helper ) {
       helper.dataForChart(chartConfig).then(data => {
-        this.set('data', data);
+        if ( !(this.isDestroyed || this.isDestroying) ) {
+          this.set('data', data);
+        }
       });
     }
   },
