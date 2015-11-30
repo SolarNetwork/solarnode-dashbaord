@@ -2,7 +2,7 @@ import Ember from 'ember';
 import d3 from 'npm:d3';
 import sn from 'npm:solarnetwork-d3';
 
-const ConfigurationAccessor = {
+export const ConfigurationAccessor = {
   get(key) {
     const chartConfiguration = this.get('chartConfiguration');
     return chartConfiguration.value(key);
@@ -12,6 +12,16 @@ const ConfigurationAccessor = {
     return chartConfiguration.value(key, value);
   }
 };
+
+export function reverseColors(colorGroup) {
+  const result = {};
+  Object.keys(colorGroup).forEach(function(key) {
+    var copy = colorGroup[key].slice();
+    copy.reverse();
+    result[key] = copy;
+  });
+  return result;
+}
 
 export default Ember.Component.extend({
   tagName: 'svg',
@@ -33,11 +43,9 @@ export default Ember.Component.extend({
   chartConfiguration : Ember.computed(function() {
     var conf = this.get('snConfiguration');
     if ( !conf ) {
-      conf = new sn.Configuration({
-        width: this.get('width'),
-        height: this.get('height')
-      });
+      conf = new sn.Configuration({});
       this.set('snConfiguration', conf);
+      this.regenerateChartConfiguration(); // get initial configuration values
     }
     return conf;
   }),
@@ -49,12 +57,14 @@ export default Ember.Component.extend({
   }),
 
   widthHeightChanged: Ember.observer('width', 'height', function() {
-    Ember.run.once(this, function() {
-      const chartConfiguration = this.get('chartConfiguration');
-      chartConfiguration.value('width', this.get('width'));
-      chartConfiguration.value('height', this.get('height'));
-    });
+    Ember.run.once(this, 'regenerateChartConfiguration');
   }),
+
+  regenerateChartConfiguration() {
+    const chartConfiguration = this.get('chartConfiguration');
+    chartConfiguration.value('width', this.get('width'));
+    chartConfiguration.value('height', this.get('height'));
+  },
 
   chartConfigChanged: Ember.on('init', Ember.observer('chartConfig', 'chartConfig.isUsePeriod', 'chartConfig.period',
       'chartConfig.periodAggregate', 'chartConfig.startDate', 'chartConfig.endDate', 'chartConfig.aggregate', function() {

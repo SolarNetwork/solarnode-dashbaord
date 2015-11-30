@@ -173,6 +173,14 @@ function groupedChartSuggestionsFromSuggestions(suggestions, i18n) {
         sourceGroups: [generationGroup, consumptionGroup],
         sampleConfiguration: {prop:generationGroup.prop}
       }));
+      results.push(ChartSuggestion.create({
+        type: 'Energy I/O Pie',
+        style: 'io-pie',
+        flags: flags,
+        title: i18n.t('chartSuggestion.energy-io-pie.title').toString(),
+        sourceGroups: [generationGroup, consumptionGroup],
+        sampleConfiguration: {prop:generationGroup.prop}
+      }));
     }
   }
   return results;

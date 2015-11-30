@@ -8,6 +8,8 @@
 		</h2>
     {{#liquid-if (eq chart.style 'io-bar')}}
       {{chart.io-bar-chart width=550 height=320 chartConfig=chart}}
+    {{else if (eq chart.style 'io-pie')}}
+      {{chart.io-pie-chart width=550 height=320 chartConfig=chart}}
     {{else}}
 		  {{chart.line-chart width=550 height=320 chartConfig=chart}}
 		{{/liquid-if}}

@@ -4,13 +4,13 @@ import d3 from 'npm:d3';
 import sn from 'npm:solarnetwork-d3';
 
 export default BaseIOChart.extend({
-  isNorthernHemisphere: false,
-  isShowSumLine: true,
-
-  plotProperties: Ember.computed('chartConfiguration', ConfigurationAccessor),
+  innerRadius: Ember.computed('chartConfiguration', 'width', 'height', ConfigurationAccessor),
 
   regenerateChartConfiguration() {
-    this.set('plotProperties', {Hour : 'wattHours', Day : 'wattHours', Month : 'wattHours'});
+    const width = this.get('width');
+    const height = this.get('height');
+    const innerRadius = Math.ceil((width < height ? width : height) / 10);
+    this.set('innerRadius', innerRadius);
     this._super(...arguments);
   },
 
@@ -20,21 +20,13 @@ export default BaseIOChart.extend({
     const colorMap = this.get('colorMap');
     var chart = this.get('snChart');
     if ( !chart ) {
-      chart = sn.chart.energyIOBarChart(container, chartConfiguration);
+      chart = sn.chart.energyIOPieChart(container, chartConfiguration);
       this.set('snChart', chart);
     }
-	  chart.showSumLine(this.get('isShowSumLine'))
-	    .northernHemisphere(this.get('isNorthernHemisphere'))
-	    .negativeGroupIds(this.get('negativeGroupIds'))
-      .colorCallback((groupId, sourceId) => {
+	  chart.colorCallback((groupId, sourceId) => {
         return (colorMap[groupId] ? colorMap[groupId].sourceColors[sourceId] : null);
       });
     return chart;
-  }),
-
-  negativeGroupIdsChanged: Ember.observer('negativeGroupIds', function() {
-    const chart = this.get('chart');
-    chart.negativeGroupIds(this.get('negativeGroupIds'));
   }),
 
 });

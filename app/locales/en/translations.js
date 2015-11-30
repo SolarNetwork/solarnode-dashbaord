@@ -51,6 +51,9 @@ export default {
     "energy-io" : {
       "title" : "Energy I/O"
     },
+    "energy-io-pie" : {
+      "title" : "Energy I/O percent"
+    },
     "generation" : {
       "title" : "{{subtype}} Generation — {{source}}"
     },
