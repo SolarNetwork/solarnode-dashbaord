@@ -1,5 +1,5 @@
 <div class="uk-flex uk-flex-wrap uk-flex-wrap-space-around">
-	<div class="uk-width-small-1-1 uk-width-large-6-10 uk-margin-bottom">
+	<div class="uk-width-small-1-1 uk-margin-bottom {{if isSettingsVisible 'uk-width-large-6-10' 'uk-width-large-9-10'}}">
 		<h2>
 		  {{chartName}}
 		  {{#if chartUnit}}
@@ -21,6 +21,7 @@
       {{fa-icon (if isSettingsVisible 'angle-double-right' 'angle-double-left')}}
     </a>
 	</div>
+	{{#if isSettingsVisible}}
 	<div class="uk-width-small-1-1 uk-width-large-3-10">
 		<form class="uk-form uk-form-stacked">
 			<fieldset>
@@ -101,4 +102,5 @@
 			</fieldset>
 		</form>
 	</div>
+	{{/if}}
 </div>
