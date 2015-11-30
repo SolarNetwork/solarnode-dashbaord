@@ -123,16 +123,19 @@ function chartSuggestionsFromSourceData(sourceData, i18n) {
 function sourceGroupForSuggestions(suggestions, key, title, prop) {
   const sources = [];
   const data = [];
+  const flags = {};
   suggestions.forEach(function(suggestion) {
     sources.push.apply(sources, suggestion.get('sources').map(function(source) {
       return source.source;
     }));
+    Ember.merge(flags, suggestion.get('flags'));
     data.splice.apply(data, [data.length, 0].concat(suggestion.get('data')));
   });
   return {
     groupId: key,
     title: title,
-    sources: sources,
+    flags: flags,
+    sourceIds: sources,
     data: data,
     prop: prop
   };

@@ -27,8 +27,8 @@ export default Ember.Object.extend({
     if ( Array.isArray(sourceGroups) && sourceGroups.length > 0 ) {
       // generate the array of configurations
       sourceGroups.forEach(function(sourceGroup) {
-        if ( Array.isArray(sourceGroup.sources) ) {
-          sourceGroup.sources.forEach(function(sourceId) {
+        if ( Array.isArray(sourceGroup.sourceIds) ) {
+          sourceGroup.sourceIds.forEach(function(sourceId) {
             sourceProperties.push({source:sourceId, prop:sourceGroup.prop});
           });
         }

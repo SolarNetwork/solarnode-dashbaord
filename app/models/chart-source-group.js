@@ -5,6 +5,7 @@ export default DS.Model.extend({
   title: DS.attr('string'),
   chart: DS.belongsTo('chart-config', {inverse:'sourceGroups'}),
   sources: DS.hasMany('chart-source-config', {inverse:'group'}),
+  flags: DS.attr(),
   scaleFactor: DS.attr('number', {default: 1}),
 
   /**

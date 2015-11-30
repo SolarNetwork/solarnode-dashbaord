@@ -21,11 +21,33 @@ export default BaseChart.extend({
   isNorthernHemisphere: false,
   isShowSumLine: true,
 
+  computeChartGroupSettings: Ember.on('init', Ember.observer('chartConfig', function() {
+    const chartConfig = this.get('chartConfig');
+    if ( !chartConfig ) {
+      return;
+    }
+    chartConfig.get('sourceGroups').then(sourceGroups => {
+      const colorGroups = {};
+      const negativeGroupIds = [];
+      sourceGroups.forEach(sourceGroup => {
+        const groupId = sourceGroup.get('id');
+        const sourceGroupFlags = sourceGroup.get('flags');
+        if ( !(sourceGroupFlags && sourceGroupFlags.generation) ) {
+          negativeGroupIds.push(groupId);
+          colorGroups[groupId] = reverseColors(colorbrewer.Blues);
+        } else {
+          colorGroups[groupId] = reverseColors(colorbrewer.Greens);
+        }
+      });
+      this.setProperties({negativeGroupIds: negativeGroupIds, colorGroups: colorGroups});
+    });
+  })),
+
   colorMap: Ember.computed('data', 'colorGroups', function() {
     const dataGroups = this.get('data');
     const colorGroups = this.get('colorGroups');
     const result = {};
-    if ( dataGroups ) {
+    if ( dataGroups && colorGroups ) {
       dataGroups.forEach(dataGroup => {
         const groupColors = {groupId: dataGroup.groupId, sourceColors:{}};
         const colorGroup = colorGroups[dataGroup.groupId];
@@ -37,7 +59,7 @@ export default BaseChart.extend({
             colorKey -= 1;
           }
           const colorSet = colorGroup[colorKey];
-          dataGroup.sources.forEach(function(sourceId, index) {
+          dataGroup.sourceIds.forEach(function(sourceId, index) {
             groupColors.sourceColors[sourceId] = colorSet[index];
           });
         }
@@ -47,31 +69,49 @@ export default BaseChart.extend({
     return result;
   }),
 
-  chart: Ember.computed('height', 'width', 'aggregate', 'negativeGroupIds', 'colorMap', function() {
-    var chartConfiguration = new sn.Configuration({
-      width: this.get('width'),
-      height : this.get('height'),
-      aggregate : this.get('aggregate'),
+  chartConfiguration : Ember.computed(function() {
+    const conf = this._super(...arguments);
+    const confProps = {
       plotProperties : {Hour : 'wattHours', Day : 'wattHours', Month : 'wattHours'}
+    };
+    Object.keys(confProps).forEach(function(key) {
+      conf.value(key, confProps[key]);
     });
+    return conf;
+  }),
+
+  snChart: null,
+
+  chart: Ember.computed('height', 'width', function() {
+    var chartConfiguration = this.get('chartConfiguration');
     const container = this.$().get(0);
     const colorMap = this.get('colorMap');
-	  var chart = sn.chart.energyIOBarChart(container, chartConfiguration)
-	    .negativeGroupIds(this.get('negativeGroupIds'))
-	    .showSumLine(this.get('isShowSumLine'))
+    var chart = this.get('snChart');
+    if ( !chart ) {
+      chart = sn.chart.energyIOBarChart(container, chartConfiguration);
+      this.set('snChart', chart);
+    }
+	  chart.showSumLine(this.get('isShowSumLine'))
 	    .northernHemisphere(this.get('isNorthernHemisphere'))
+	    .negativeGroupIds(this.get('negativeGroupIds'))
       .colorCallback((groupId, sourceId) => {
-        var color = (colorMap[groupId] ? colorMap[groupId].sourceColors[sourceId] : null);
-        return color;
+        return (colorMap[groupId] ? colorMap[groupId].sourceColors[sourceId] : null);
       });
     return chart;
   }),
 
-  colorForGroupSource(groupId, sourceId) {
-    var colorMap = this.get('colorMap');
-    var color = (colorMap[groupId] ? colorMap[groupId][sourceId] : null);
-    return color;
-  },
+  negativeGroupIdsChanged: Ember.observer('negativeGroupIds', function() {
+    const chart = this.get('chart');
+    chart.negativeGroupIds(this.get('negativeGroupIds'));
+  }),
+
+  colorMapChanged: Ember.observer('colorMap', function() {
+    const chart = this.get('chart');
+    const colorMap = this.get('colorMap');
+    chart.colorCallback((groupId, sourceId) => {
+      return (colorMap[groupId] ? colorMap[groupId].sourceColors[sourceId] : null);
+    });
+  }),
 
   draw() {
     const chartConfig = this.get('chartConfig');

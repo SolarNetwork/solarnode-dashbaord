@@ -21,12 +21,13 @@ export default Ember.Component.extend({
           suggestion.sourceGroups.forEach(function(group) {
             var sourceGroup = store.createRecord('chart-source-group', {
               chart: chartConfig,
-              title : group.groupId
+              title : group.groupId,
+              flags: group.flags
             });
-            group.sources.forEach(function(sourceId) {
+            group.sourceIds.forEach(function(sourceId) {
               var sourceConfig = store.createRecord('chart-source-config', {
                 group: sourceGroup,
-                source : sourceId,
+                source : sourceId
               });
               var propConfig = store.createRecord('chart-property-config', {
                 prop: group.prop

@@ -6,11 +6,7 @@ import sn from 'npm:solarnetwork-d3';
 export default BaseChart.extend({
 
   chart: Ember.computed('height', 'width', 'aggregate', function() {
-    var chartConfiguration = new sn.Configuration({
-      width: this.get('width'),
-      height : this.get('height'),
-      aggregate : this.get('aggregate')
-    });
+    const chartConfiguration = this.get('chartConfiguration');
     var container = this.$().get(0);
     var chart = sn.chart.basicLineChart(container, chartConfiguration)
       .colors(['#f7c819']);
