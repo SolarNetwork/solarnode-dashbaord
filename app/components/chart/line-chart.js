@@ -17,6 +17,20 @@ export default BaseChart.extend({
     return chart;
   }),
 
+  computeChartColors() {
+    this.get('chartConfig.propertyConfigs').then(propertyConfigs => {
+      const colors = [];
+      propertyConfigs.forEach(propertyConfig => {
+        colors.push(propertyConfig.get('color'));
+      });
+      this.set('colors', colors);
+    });
+  },
+
+  colorPropertiesChanged: Ember.on('init', Ember.observer('chartConfig.propertyConfigs.@each.color', function() {
+    this.computeChartColors();
+  })),
+
   draw() {
     const chartConfig = this.get('chartConfig');
     const data = this.get('data');
@@ -54,7 +68,7 @@ export default BaseChart.extend({
     set(key, value) {
       const chart = this.get('chart');
       if ( chart && Array.isArray(value) ) {
-        chart.colors(value);
+        chart.colors(value).regenerate();
       }
       return (chart ? chart.colors() : undefined);
     }

@@ -71,7 +71,8 @@ export default Ember.Component.extend({
     chartConfiguration.value('width', this.get('width'));
     chartConfiguration.value('height', this.get('height'));
     const chart = this.get('chart');
-    if ( chart ) {
+    const chartConfig = this.get('chartConfig');
+    if ( chart && (!chartConfig || chartConfig.get('isValid')) ) {
       chart.regenerate();
     }
   },

@@ -8,11 +8,10 @@ export default Ember.Component.extend(Ember.TextSupport, {
 
   color: Ember.computed.alias('value'),
 
-  //classNames: ['uk-navbar', 'uk-navbar-attached', 'app-navbar'],
   change(event) {
     const color = event.target.value;
-    this.set('color', value);
-    console.log(`color: ${this.get('color')}; event: ${event.target.value}`);
+    this.set('color', color);
+    this.get('onChangeColor')(color);
   },
 
   inserted: Ember.on('didInsertElement', function() {

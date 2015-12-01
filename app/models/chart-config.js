@@ -37,6 +37,16 @@ export default DS.Model.extend({
 
   aggregate: DS.attr('string', { defaultValue: 'Day' }),
 
+  isValid: Ember.computed('isUsePeriod', 'period', 'startDate', 'endDate', function() {
+    const isUsePeriod = this.get('isUsePeriod');
+    if ( isUsePeriod ) {
+      return (this.get('period') > 0);
+    }
+    const startDate = this.get('startDate');
+    const endDate = this.get('endDate');
+    return (startDate && endDate && endDate.getTime() > startDate.getTime());
+  }),
+
   /**
    Get an array of all configured sources and properties.
 
@@ -45,6 +55,24 @@ export default DS.Model.extend({
   sourceProperties: Ember.computed('sourceGroups.@each.sourceProperties', function() {
     const promise = this.get('sourceGroups').then(sourceGroups => {
       return Ember.RSVP.all(sourceGroups.mapBy('sourceProperties'));
+    }).then(arrays => {
+      var merged = Ember.A();
+      arrays.forEach(array => {
+        merged.pushObjects(array);
+      });
+      return merged;
+    });
+    return DS.PromiseArray.create({promise:promise});
+  }),
+
+  /**
+   Get an array of all configured ChartPropertyConfig objects.
+
+   @return {Array} Array of ChartPropertyConfig objects.
+   */
+  propertyConfigs: Ember.computed('sourceGroups.@each.propertyConfigs', function() {
+    const promise = this.get('sourceGroups').then(sourceGroups => {
+      return Ember.RSVP.all(sourceGroups.mapBy('propertyConfigs'));
     }).then(arrays => {
       var merged = Ember.A();
       arrays.forEach(array => {

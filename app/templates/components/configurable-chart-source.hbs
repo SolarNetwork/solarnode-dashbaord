@@ -10,7 +10,7 @@
     <div class="uk-form-row">
       <div class="uk-grid">
         <div class="uk-flex-item-none">
-          {{color-swatch-input color=prop.color}}
+          {{color-swatch-input color=prop.color onChangeColor=(action (mut prop.color))}}
         </div>
         <div class="uk-flex-item-1">
           {{input value=prop.unit class="uk-width-1-1" placeholder=(if prop.property.unit (t 'chart.edit.source.unitWithDefault' default=prop.property.unit) (t 'chart.edit.source.unit'))}}

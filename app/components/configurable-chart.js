@@ -20,7 +20,11 @@ export default Ember.Component.extend({
   chartName: Ember.computed.alias('chart.title'),
   chartUnit: Ember.computed.alias('chart.unit'),
   chartWidth: 550,
-  canSave: Ember.computed.readOnly('chart.hasDirtyAttributes'),
+  canSave: Ember.computed('chart.hasDirtyAttributes', 'chart.propertyConfigs.@each.hasDirtyAttributes', function() {
+    return (this.get('chart.hasDirtyAttributes') || this.get('chart.propertyConfigs').any(function(propConfig) {
+      return propConfig.get('hasDirtyAttributes');
+    }));
+  }),
   startDate: Ember.computed('chart.startDate', datePropertyAccessor),
   endDate: Ember.computed('chart.endDate', datePropertyAccessor),
   period: Ember.computed.alias('chart.period'),
@@ -86,7 +90,11 @@ export default Ember.Component.extend({
     },
 
     save() {
-      this.get('chart').save();
+      const chart = this.get('chart');
+      chart.save();
+      chart.get('propertyConfigs').forEach(propertyConfig => {
+        propertyConfig.save();
+      });
     }
   }
 });

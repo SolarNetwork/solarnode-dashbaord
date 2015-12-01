@@ -28,10 +28,10 @@ export default BaseIOChart.extend({
     }
 	  chart.showSumLine(this.get('isShowSumLine'))
 	    .northernHemisphere(this.get('isNorthernHemisphere'))
-	    .negativeGroupIds(this.get('negativeGroupIds'))
+	    .negativeGroupIds(this.get('negativeGroupIds'));/*
       .colorCallback((groupId, sourceId) => {
         return (colorMap[groupId] ? colorMap[groupId].sourceColors[sourceId] : null);
-      });
+      });*/
     return chart;
   }),
 

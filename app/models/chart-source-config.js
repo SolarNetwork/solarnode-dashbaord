@@ -25,6 +25,18 @@ export default DS.Model.extend({
       return Ember.RSVP.all(props.mapBy('property'));
     });
     return DS.PromiseArray.create({promise:promise});
-  })
+  }),
+
+  /**
+   Get an array of all configured ChartPropertyConfig objects.
+
+   @return {Array} Array of ChartPropertyConfig objects.
+   */
+  propertyConfigs: Ember.computed('props.@each.{color,unit,unitName}', function() {
+    const promise = this.get('props').then(props => {
+      return props.slice();// turn into real Array
+    });
+    return DS.PromiseArray.create({promise:promise});
+  }),
 
 });
