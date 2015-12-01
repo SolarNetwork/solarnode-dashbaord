@@ -30,7 +30,7 @@ export default BaseChart.extend({
         if ( colorGroup ) {
           const colorSet = bestColorSetFromColorGroup(dataGroup.sourceIds.length, colorGroup);
           dataGroup.sourceIds.forEach(function(sourceId, sourceIndex) {
-            groupColors.sourceColors[sourceId] = colorSet[index];
+            groupColors.sourceColors[sourceId] = colorSet[sourceIndex];
           });
         }
         result[dataGroup.groupId] = groupColors;
