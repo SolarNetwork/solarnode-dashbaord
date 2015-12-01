@@ -8,6 +8,10 @@ export default DS.Model.extend({
   unitName: DS.attr('string'),
   color: DS.attr('string', { defaultValue : '#f7c819' }),
 
+  /**
+   Get a plain object version of this object. Default values for properties will
+   be returned if possible.
+   */
   property: Ember.computed('source.source', 'prop', 'unit', 'unitName', function() {
     var prop = this.get('prop');
     var unit = this.get('unit');
@@ -34,6 +38,12 @@ export default DS.Model.extend({
         unitName = unitName || 'celsius';
       }
     }
-    return {source:(source ? source.get('source') : null), prop:prop, unit:unit, unitName:unitName};
+    return {
+      source: (source ? source.get('source') : null),
+      prop: prop,
+      unit: unit,
+      unitName:unitName,
+      color: this.get('color')
+    };
   })
 });

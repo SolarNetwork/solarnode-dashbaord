@@ -3,53 +3,33 @@ import BaseChart, { ConfigurationAccessor } from './base-chart';
 import d3 from 'npm:d3';
 import sn from 'npm:solarnetwork-d3';
 import colorbrewer from 'npm:colorbrewer';
-import { reverseColorGroupColors } from '../../services/chart-helper';
+import { reverseColorGroupColors, bestColorSetFromColorGroup } from '../../services/chart-helper';
 
 export { ConfigurationAccessor } from './base-chart';
 
 export default BaseChart.extend({
   negativeGroupIds: ['Consumption'],
-  colorGroups: {'Consumption' : reverseColorGroupColors(colorbrewer.Blues), 'Generation': reverseColorGroupColors(colorbrewer.Greens)},
 
-  computeChartGroupSettings: Ember.on('init', Ember.observer('chartConfig', function() {
-    const chartConfig = this.get('chartConfig');
-    if ( !chartConfig ) {
-      return;
-    }
-    chartConfig.get('sourceGroups').then(sourceGroups => {
-      const colorGroups = {};
-      const negativeGroupIds = [];
-      sourceGroups.forEach(sourceGroup => {
-        const groupId = sourceGroup.get('id');
-        const sourceGroupFlags = sourceGroup.get('flags');
-        if ( !(sourceGroupFlags && sourceGroupFlags.generation) ) {
-          negativeGroupIds.push(groupId);
-          colorGroups[groupId] = reverseColorGroupColors(colorbrewer.Blues);
-        } else {
-          colorGroups[groupId] = reverseColorGroupColors(colorbrewer.Greens);
-        }
-      });
-      this.setProperties({negativeGroupIds: negativeGroupIds, colorGroups: colorGroups});
-    });
-  })),
+  /**
+   An array of Colorbrewer style color groups to use for data-based color maps.
+   This is not used when a <code>chartConfig</code> is set.
+   */
+  dataColorGroups: [reverseColorGroupColors(colorbrewer.Blues), reverseColorGroupColors(colorbrewer.Greens)],
 
-  colorMap: Ember.computed('data', 'colorGroups', function() {
+  /**
+   Get a default color map to use when only data is provided (no chart config).
+   */
+  dataColorMap: Ember.computed('negativeGroupIds', 'data', 'dataColorGroups', function() {
     const dataGroups = this.get('data');
-    const colorGroups = this.get('colorGroups');
+    const colorGroups = this.get('dataColorGroups');
     const result = {};
     if ( dataGroups && colorGroups ) {
-      dataGroups.forEach(dataGroup => {
+      dataGroups.forEach((dataGroup, groupIndex) => {
         const groupColors = {groupId: dataGroup.groupId, sourceColors:{}};
-        const colorGroup = colorGroups[dataGroup.groupId];
+        const colorGroup = (colorGroups && groupIndex < colorGroups.length ? colorGroups[groupIndex] : undefined);
         if ( colorGroup ) {
-          const numSources = (Array.isArray(dataGroup.sourceIds) && dataGroup.sourceIds.length > 3 ? dataGroup.sourceIds.length : 3);
-          // find the closest number of color groups, so colors as far apart as possible
-          var colorKey = numSources;
-          while ( colorKey > 3 && !colorGroup[colorKey] ) {
-            colorKey -= 1;
-          }
-          const colorSet = colorGroup[colorKey];
-          dataGroup.sourceIds.forEach(function(sourceId, index) {
+          const colorSet = bestColorSetFromColorGroup(dataGroup.sourceIds.length, colorGroup);
+          dataGroup.sourceIds.forEach(function(sourceId, sourceIndex) {
             groupColors.sourceColors[sourceId] = colorSet[index];
           });
         }
@@ -58,6 +38,36 @@ export default BaseChart.extend({
     }
     return result;
   }),
+
+  computeChartGroupSettings: Ember.on('init', Ember.observer('chartConfig', function() {
+    const chartConfig = this.get('chartConfig');
+    if ( !chartConfig ) {
+      return;
+    }
+    chartConfig.get('sourceGroups').then(sourceGroups => {
+      const negativeGroupIds = [];
+      const groupSourecProperties = [];
+      const colorMap = {};
+      sourceGroups.forEach(sourceGroup => {
+        const groupId = sourceGroup.get('id');
+        const sourceGroupFlags = sourceGroup.get('flags');
+        if ( !(sourceGroupFlags && sourceGroupFlags.generation) ) {
+          negativeGroupIds.push(groupId);
+        }
+        colorMap[groupId] = {groupId: groupId, sourceColors:{}};
+        groupSourecProperties.push(sourceGroup.get('sourceProperties').then(sProps => {
+          sProps.forEach(sProp => {
+            colorMap[groupId].sourceColors[sProp.source] = sProp.color;
+          });
+        }));
+      });
+      Ember.RSVP.all(groupSourecProperties).then(() => {
+        this.setProperties({negativeGroupIds: negativeGroupIds, colorMap: colorMap});
+      });
+    });
+  })),
+
+  colorMap: Ember.computed.reads('dataColorMap'),
 
   colorMapChanged: Ember.observer('colorMap', function() {
     const chart = this.get('chart');

@@ -25,7 +25,7 @@ export default Ember.Component.extend({
               title : group.groupId,
               flags: group.flags
             });
-            group.sourceIds.forEach(function(sourceId) {
+            group.sourceIds.forEach(function(sourceId, index) {
               var sourceConfig = store.createRecord('chart-source-config', {
                 group: sourceGroup,
                 source : sourceId
@@ -33,6 +33,9 @@ export default Ember.Component.extend({
               var propConfig = store.createRecord('chart-property-config', {
                 prop: group.prop
               });
+              if ( group.colors && index < group.colors.length ) {
+                propConfig.set('color', group.colors[index]);
+              }
               sourceConfig.get('props').pushObject(propConfig);
               propConfig.save();
               sourceConfig.save();

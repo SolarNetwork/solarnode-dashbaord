@@ -2,6 +2,7 @@ import Ember from 'ember';
 import ChartSuggestion from '../models/chart-suggestion';
 import d3 from 'npm:d3';
 import sn from 'npm:solarnetwork-d3';
+import colorbrewer from 'npm:colorbrewer';
 
 const ignoreSourceDataProps = { 'nodeId' : true };
 
@@ -24,8 +25,40 @@ export function reverseColorGroupColors(colorGroup) {
   return result;
 }
 
+/**
+ Choose the best color set from a color group, based on a desired number of colors.
+
+ @param {Number} desiredCount - The desired number of colors.
+ @param {Object} colorGroup - The Colorbrewer style group of colors.
+ @return {Array} An array of colors.
+ */
+export function bestColorSetFromColorGroup(desiredCount, colorGroup) {
+  // find the closest number of color groups, so colors as far apart as possible
+  if ( colorGroup[desiredCount] ) {
+    return colorGroup[desiredCount].slice();
+  }
+  // search for closest key that is larger than the desired key
+  var colorKey;
+  const keys = Object.keys(colorGroup);
+  var i, len, key;
+  for ( i = 0, len = keys.length; i < len; i += 1 ) {
+    key = keys[i];
+    if ( key > desiredCount ) {
+      if ( !colorKey || (key < colorKey) ) {
+        // take this key, it's closer than the previous key (or the first key)
+        colorKey = key;
+      }
+    }
+  }
+  var array = (colorKey ? colorGroup[colorKey] : undefined);
+  if ( array ) {
+    array = array.slice(0, desiredCount);
+  }
+  return array;
+}
+
 function dataPerPropertyPerSource(urlHelper) {
-  // get all available data within the last week
+  // get all available data within the last day
   const endDate = new Date();
   const startDate = d3.time.day.offset(endDate, -1);
   const load = Ember.RSVP.denodeify(sn.api.datum.loader([], urlHelper, startDate, endDate, 'Hour'));
@@ -139,15 +172,13 @@ function chartSuggestionsFromSourceData(sourceData, i18n) {
   }
 }
 
-function sourceGroupForSuggestions(suggestions, key, title, prop) {
+function sourceGroupForSuggestions(suggestions, key, title, prop, flags, colors) {
   const sources = [];
   const data = [];
-  const flags = {};
   suggestions.forEach(function(suggestion) {
     sources.push.apply(sources, suggestion.get('sources').map(function(source) {
       return source.source;
     }));
-    Ember.merge(flags, suggestion.get('flags'));
     data.splice.apply(data, [data.length, 0].concat(suggestion.get('data')));
   });
   return {
@@ -156,8 +187,17 @@ function sourceGroupForSuggestions(suggestions, key, title, prop) {
     flags: flags,
     sourceIds: sources,
     data: data,
-    prop: prop
+    prop: prop,
+    colors: colors,
   };
+}
+
+/**
+ Reverse an array in-place, and return the array for method chaining.
+ */
+function reversedArray(array) {
+  array.reverse();
+  return array;
 }
 
 function groupedChartSuggestionsFromSuggestions(suggestions, i18n) {
@@ -170,24 +210,29 @@ function groupedChartSuggestionsFromSuggestions(suggestions, i18n) {
   const results = [];
   if ( typeGroups.Generation && typeGroups.Consumption ) {
     // we've got IO chart potential here
-    let flags = typeGroups.Generation.reduce(function(l, r) {
+    const generationFlags = typeGroups.Generation.reduce(function(l, r) {
       return Ember.merge(l, r.get('flags'));
     }, {});
 
     // exclude phase consumption sources
-    let consumptionSuggestions = typeGroups.Consumption.filter(function(suggestion) {
+    const consumptionSuggestions = typeGroups.Consumption.filter(function(suggestion) {
       return !suggestion.flags.phase;
     });
     if ( consumptionSuggestions.length > 0 ) {
-      flags = consumptionSuggestions.reduce(function(l, r) {
+      const consumptionFlags = consumptionSuggestions.reduce(function(l, r) {
         return Ember.merge(l, r.get('flags'));
-      }, flags);
-      let generationGroup = sourceGroupForSuggestions(typeGroups.Generation, 'Generation', i18n.t('chartSuggestion.group.generation').toString(), 'wattHours');
-      let consumptionGroup = sourceGroupForSuggestions(consumptionSuggestions, 'Consumption', i18n.t('chartSuggestion.group.consumption').toString(), 'wattHours');
+      }, {});
+      const ioFlags = Ember.merge(generationFlags, consumptionFlags);
+      const generationGroup = sourceGroupForSuggestions(typeGroups.Generation, 'Generation',
+        i18n.t('chartSuggestion.group.generation').toString(), 'wattHours', generationFlags,
+        reversedArray(bestColorSetFromColorGroup(consumptionSuggestions.length, colorbrewer.Greens)));
+      const consumptionGroup = sourceGroupForSuggestions(consumptionSuggestions, 'Consumption',
+        i18n.t('chartSuggestion.group.consumption').toString(), 'wattHours', consumptionFlags,
+        reversedArray(bestColorSetFromColorGroup(consumptionSuggestions.length, colorbrewer.Blues)));
       results.push(ChartSuggestion.create({
         type: 'Energy I/O',
         style: 'io-bar',
-        flags: flags,
+        flags: ioFlags,
         title: i18n.t('chartSuggestion.energy-io.title').toString(),
         sourceGroups: [generationGroup, consumptionGroup],
         sampleConfiguration: {prop:generationGroup.prop}
@@ -195,7 +240,7 @@ function groupedChartSuggestionsFromSuggestions(suggestions, i18n) {
       results.push(ChartSuggestion.create({
         type: 'Energy I/O Pie',
         style: 'io-pie',
-        flags: flags,
+        flags: ioFlags,
         title: i18n.t('chartSuggestion.energy-io-pie.title').toString(),
         sourceGroups: [generationGroup, consumptionGroup],
         sampleConfiguration: {prop:generationGroup.prop}
@@ -203,7 +248,7 @@ function groupedChartSuggestionsFromSuggestions(suggestions, i18n) {
       results.push(ChartSuggestion.create({
         type: 'Energy I/O Overlap',
         style: 'io-area-overlap',
-        flags: flags,
+        flags: ioFlags,
         title: i18n.t('chartSuggestion.energy-io-overlap.title').toString(),
         sourceGroups: [consumptionGroup, generationGroup],
         sampleConfiguration: {prop:generationGroup.prop}
