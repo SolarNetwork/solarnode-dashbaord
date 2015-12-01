@@ -234,7 +234,7 @@ function groupedChartSuggestionsFromSuggestions(suggestions, i18n) {
         style: 'io-bar',
         flags: ioFlags,
         title: i18n.t('chartSuggestion.energy-io.title').toString(),
-        sourceGroups: [generationGroup, consumptionGroup],
+        sourceGroups: [consumptionGroup, generationGroup],
         sampleConfiguration: {prop:generationGroup.prop}
       }));
       results.push(ChartSuggestion.create({
@@ -242,7 +242,7 @@ function groupedChartSuggestionsFromSuggestions(suggestions, i18n) {
         style: 'io-pie',
         flags: ioFlags,
         title: i18n.t('chartSuggestion.energy-io-pie.title').toString(),
-        sourceGroups: [generationGroup, consumptionGroup],
+        sourceGroups: [consumptionGroup, generationGroup],
         sampleConfiguration: {prop:generationGroup.prop}
       }));
       results.push(ChartSuggestion.create({
