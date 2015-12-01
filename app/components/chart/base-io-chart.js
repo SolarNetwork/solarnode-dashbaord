@@ -1,14 +1,15 @@
 import Ember from 'ember';
-import BaseChart, { reverseColors, ConfigurationAccessor } from './base-chart';
+import BaseChart, { ConfigurationAccessor } from './base-chart';
 import d3 from 'npm:d3';
 import sn from 'npm:solarnetwork-d3';
 import colorbrewer from 'npm:colorbrewer';
+import { reverseColorGroupColors } from '../../services/chart-helper';
 
-export { reverseColors, ConfigurationAccessor } from './base-chart';
+export { ConfigurationAccessor } from './base-chart';
 
 export default BaseChart.extend({
   negativeGroupIds: ['Consumption'],
-  colorGroups: {'Consumption' : reverseColors(colorbrewer.Blues), 'Generation': reverseColors(colorbrewer.Greens)},
+  colorGroups: {'Consumption' : reverseColorGroupColors(colorbrewer.Blues), 'Generation': reverseColorGroupColors(colorbrewer.Greens)},
 
   computeChartGroupSettings: Ember.on('init', Ember.observer('chartConfig', function() {
     const chartConfig = this.get('chartConfig');
@@ -23,9 +24,9 @@ export default BaseChart.extend({
         const sourceGroupFlags = sourceGroup.get('flags');
         if ( !(sourceGroupFlags && sourceGroupFlags.generation) ) {
           negativeGroupIds.push(groupId);
-          colorGroups[groupId] = reverseColors(colorbrewer.Blues);
+          colorGroups[groupId] = reverseColorGroupColors(colorbrewer.Blues);
         } else {
-          colorGroups[groupId] = reverseColors(colorbrewer.Greens);
+          colorGroups[groupId] = reverseColorGroupColors(colorbrewer.Greens);
         }
       });
       this.setProperties({negativeGroupIds: negativeGroupIds, colorGroups: colorGroups});

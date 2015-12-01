@@ -5,6 +5,25 @@ import sn from 'npm:solarnetwork-d3';
 
 const ignoreSourceDataProps = { 'nodeId' : true };
 
+/**
+ Create a reversed copy of a Colorbrewer style group of colors, for example
+ <code>{3:['red', 'white', 'blue'], 5:['red', 'white', 'blue', 'green', 'yellow']}</code>
+ would become
+ <code>{3:['blue', 'white', 'red'], 5:['yellow', 'green', 'blue', 'white''red']}</code>
+
+ @param {Object} - The color group to reverse.
+ @return {Object} - A new object with all color sets reversed.
+ */
+export function reverseColorGroupColors(colorGroup) {
+  const result = {};
+  Object.keys(colorGroup).forEach(function(key) {
+    var copy = colorGroup[key].slice();
+    copy.reverse();
+    result[key] = copy;
+  });
+  return result;
+}
+
 function dataPerPropertyPerSource(urlHelper) {
   // get all available data within the last week
   const endDate = new Date();

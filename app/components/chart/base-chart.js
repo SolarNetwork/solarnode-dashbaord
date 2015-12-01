@@ -14,16 +14,6 @@ export const ConfigurationAccessor = {
   }
 };
 
-export function reverseColors(colorGroup) {
-  const result = {};
-  Object.keys(colorGroup).forEach(function(key) {
-    var copy = colorGroup[key].slice();
-    copy.reverse();
-    result[key] = copy;
-  });
-  return result;
-}
-
 export default Ember.Component.extend({
   tagName: 'svg',
   attributeBindings: ['width', 'height'],
