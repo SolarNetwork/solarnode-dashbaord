@@ -18,7 +18,11 @@ export default BaseChart.extend({
   }),
 
   computeChartColors() {
-    this.get('chartConfig.propertyConfigs').then(propertyConfigs => {
+    const chartConfig = this.get('chartConfig');
+    if ( !chartConfig ) {
+      return;
+    }
+    chartConfig.get('propertyConfigs').then(propertyConfigs => {
       const colors = [];
       propertyConfigs.forEach(propertyConfig => {
         colors.push(propertyConfig.get('color'));

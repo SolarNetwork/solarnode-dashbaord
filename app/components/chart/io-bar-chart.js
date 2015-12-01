@@ -20,7 +20,6 @@ export default BaseIOChart.extend({
       return undefined;
     }
     var chartConfiguration = this.get('chartConfiguration');
-    const colorMap = this.get('colorMap');
     var chart = this.get('snChart');
     if ( !chart ) {
       chart = sn.chart.energyIOBarChart(container, chartConfiguration);
@@ -28,10 +27,7 @@ export default BaseIOChart.extend({
     }
 	  chart.showSumLine(this.get('isShowSumLine'))
 	    .northernHemisphere(this.get('isNorthernHemisphere'))
-	    .negativeGroupIds(this.get('negativeGroupIds'));/*
-      .colorCallback((groupId, sourceId) => {
-        return (colorMap[groupId] ? colorMap[groupId].sourceColors[sourceId] : null);
-      });*/
+	    .negativeGroupIds(this.get('negativeGroupIds'));
     return chart;
   }),
 

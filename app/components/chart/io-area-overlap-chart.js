@@ -21,9 +21,6 @@ export default BaseIOChart.extend({
       chart = sn.chart.powerAreaOverlapChart(container, chartConfiguration);
       this.set('snChart', chart);
     }
-	  chart.colorCallback((groupId, sourceId) => {
-        return (colorMap[groupId] ? colorMap[groupId].sourceColors[sourceId] : null);
-      });
     return chart;
   }),
 

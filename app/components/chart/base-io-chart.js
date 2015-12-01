@@ -79,8 +79,11 @@ export default BaseChart.extend({
     this.computeChartConfigColorMap();
   }),
 
-  colorMapChanged: Ember.observer('colorMap', function() {
-    const chart = this.get('chart');
+  colorMapChanged: Ember.observer('snChart', 'colorMap', function() {
+    const chart = this.get('snChart');
+    if ( !chart ) {
+      return;
+    }
     const colorMap = this.get('colorMap');
     chart.colorCallback((groupId, sourceId) => {
       return (colorMap[groupId] ? colorMap[groupId].sourceColors[sourceId] : null);
