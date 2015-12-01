@@ -14,6 +14,7 @@ export default Ember.Component.extend({
           subtype: suggestion.get('subtype'),
           style: (suggestion.get('style') ? suggestion.get('style') : 'line'),
           flags: suggestion.get('flags'),
+          isSettingsVisible: true,
           profile: profile,
           title: suggestion.get('title')
         });
