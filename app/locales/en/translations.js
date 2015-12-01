@@ -98,9 +98,13 @@ export default {
       "sources" : "Sources",
       "source" : {
         "title" : "Name",
+        "source" : "Source ID",
         "prop" : "Property",
         "unit" : "Unit",
         "unitWithDefault" : "Unit ({{default}})"
+      },
+      "sourceGroup" : {
+        "title" : "Group"
       }
     },
     "export" : "Export"

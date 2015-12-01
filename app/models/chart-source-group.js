@@ -7,6 +7,7 @@ export default DS.Model.extend({
   sources: DS.hasMany('chart-source-config', {inverse:'group'}),
   flags: DS.attr(),
   scaleFactor: DS.attr('number', {default: 1}),
+  groupProp: DS.attr('string'),
 
   /**
    Get an array of all configured sources and properties.
@@ -24,6 +25,6 @@ export default DS.Model.extend({
       return merged;
     });
     return DS.PromiseArray.create({promise:promise});
-  })
+  }),
 
 });
