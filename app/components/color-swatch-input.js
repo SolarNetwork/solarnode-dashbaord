@@ -6,6 +6,8 @@ export default Ember.Component.extend(Ember.TextSupport, {
   type: 'color',
   value: '#f7c819',
 
+  color: Ember.computed.alias('value'),
+
   //classNames: ['uk-navbar', 'uk-navbar-attached', 'app-navbar'],
   change(event) {
     const color = event.target.value;
