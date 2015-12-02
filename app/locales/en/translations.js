@@ -6,9 +6,11 @@ export default {
     "cancel" : "Cancel",
     "choose" : "Choose",
     "done" : "Done",
+    "hide" : "Hide",
     "login" : "Login",
     "logout" : "Logout",
-    "save" : "Save"
+    "save" : "Save",
+    "show" : "Show",
   },
   "login" : {
     "title" : "Welcome to SolarNetwork!",

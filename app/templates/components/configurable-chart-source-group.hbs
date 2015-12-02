@@ -13,7 +13,7 @@
 {{#each sourceGroup.sources as |sourceConfig|}}
   {{#each sourceConfig.props as |prop|}}
     <div class="uk-form-row uk-margin-top">
-      <div class="uk-grid">
+      <div class="uk-grid" style="align-items: center;">
         <div class="uk-flex-item-none">
           {{color-swatch-input color=prop.color onChangeColor=(action (mut prop.color))}}
         </div>
@@ -22,6 +22,11 @@
         </div>
         <div class="uk-flex-item-1">
           {{input value=sourceConfig.title class="uk-width-1-1" placeholder=(t 'chart.edit.source.title')}}
+        </div>
+        <div class="uk-flex-item-none">
+          <a {{action 'togglePropertyVisibility' prop}} title={{if prop.isHidden (t 'action.show') (t 'action.hide')}} class="uk-icon-hover uk-icon-small">
+            {{fa-icon (if prop.isHidden 'eye-slash' 'eye')}}
+          </a>
         </div>
       </div>
     </div>

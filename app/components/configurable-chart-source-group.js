@@ -9,5 +9,12 @@ export default Ember.Component.extend({
   }),
   sourceGroup: null,
   isFixedGroupCount: true,
-  fixedGroupCount: 2
+  fixedGroupCount: 2,
+
+  actions : {
+    togglePropertyVisibility(prop) {
+      prop.toggleProperty('isHidden');
+    },
+  },
+
 });

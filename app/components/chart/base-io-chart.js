@@ -70,6 +70,7 @@ export default BaseChart.extend({
       });
       this.set('negativeGroupIds', negativeGroupIds);
       this.computeChartConfigColorMap();
+      this.computePropVisibilityMap();
     });
   })),
 
@@ -87,6 +88,37 @@ export default BaseChart.extend({
     const colorMap = this.get('colorMap');
     chart.colorCallback((groupId, sourceId) => {
       return (colorMap[groupId] ? colorMap[groupId].sourceColors[sourceId] : null);
+    });
+    this.regenerateChart();
+  }),
+
+  propVisibilityChanged: Ember.observer('chartConfig.propertyConfigs.@each.isHidden', function() {
+    this.computePropVisibilityMap();
+  }),
+
+  computePropVisibilityMap() {
+    this.get('chartConfig.propertyConfigs').then(propertyConfigs => {
+      const vizMap = {};
+      propertyConfigs.forEach(propertyConfig => {
+        const groupId = propertyConfig.get('source.group.id');
+        const sourceId = propertyConfig.get('source.source');
+        if ( !vizMap[groupId] ) {
+          vizMap[groupId] = {groupId: groupId, sourceVisibility: {}};
+        }
+        vizMap[groupId].sourceVisibility[sourceId] = propertyConfig.get('isHidden');
+      });
+      this.set('visibilityMap', vizMap);
+    });
+  },
+
+  visibilityMapChanged: Ember.observer('snChart', 'visibilityMap', function() {
+    const chart = this.get('snChart');
+    if ( !chart ) {
+      return;
+    }
+    const vizMap = this.get('visibilityMap');
+    chart.sourceExcludeCallback((groupId, sourceId) => {
+      return (vizMap[groupId] ? vizMap[groupId].sourceVisibility[sourceId] : false);
     });
     this.regenerateChart();
   }),
