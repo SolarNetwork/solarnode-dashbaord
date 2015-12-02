@@ -113,10 +113,10 @@ export default BaseChart.extend({
 
   visibilityMapChanged: Ember.observer('snChart', 'visibilityMap', function() {
     const chart = this.get('snChart');
-    if ( !chart ) {
+    const vizMap = this.get('visibilityMap');
+    if ( !(chart && vizMap) ) {
       return;
     }
-    const vizMap = this.get('visibilityMap');
     chart.sourceExcludeCallback((groupId, sourceId) => {
       return (vizMap[groupId] ? vizMap[groupId].sourceVisibility[sourceId] : false);
     });
