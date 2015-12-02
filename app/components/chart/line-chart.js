@@ -36,6 +36,7 @@ export default BaseChart.extend({
   })),
 
   draw() {
+    this._super(...arguments);
     const chartConfig = this.get('chartConfig');
     const data = this.get('data');
     const chart = this.get('chart');
@@ -72,7 +73,8 @@ export default BaseChart.extend({
     set(key, value) {
       const chart = this.get('chart');
       if ( chart && Array.isArray(value) ) {
-        chart.colors(value).regenerate();
+        chart.colors(value);
+        this.regenerateChart();
       }
       return (chart ? chart.colors() : undefined);
     }

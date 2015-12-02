@@ -68,12 +68,10 @@ export default Ember.Component.extend({
 
   regenerateChartConfiguration() {
     const chartConfiguration = this.get('chartConfiguration');
-    chartConfiguration.value('width', this.get('width'));
-    chartConfiguration.value('height', this.get('height'));
-    const chart = this.get('chart');
-    const chartConfig = this.get('chartConfig');
-    if ( chart && (!chartConfig || chartConfig.get('isValid')) ) {
-      chart.regenerate();
+    if ( chartConfiguration ) {
+      chartConfiguration.value('width', this.get('width'));
+      chartConfiguration.value('height', this.get('height'));
+      this.regenerateChart();
     }
   },
 
@@ -98,32 +96,56 @@ export default Ember.Component.extend({
             this.set('refreshTimer', null);
           }
         }
-        this.regenerateChartConfiguration();
         this.loadDataFromChartConfig();
       }
     });
   })),
 
   refreshDataFromChartConfig() {
+    Ember.run.once(this, 'loadDataFromChartConfig');
     this.loadDataFromChartConfig();
     var refreshTimer = Ember.run.later(this, 'refreshDataFromChartConfig', this.get('refreshInterval'));
     this.set('refreshTimer', refreshTimer);
   },
 
+  isLoadingData: false,
+
+  regenerateChart() {
+    Ember.run.once(this, 'internalRegenerateChart');
+  },
+
+  internalRegenerateChart() {
+    const chart = this.get('chart');
+    const chartConfig = this.get('chartConfig');
+    if ( chart && (!chartConfig || chartConfig.get('isValid')) && !this.get('isLoadingData') ) {
+      chart.regenerate();
+    }
+  },
+
   loadDataFromChartConfig() {
+    Ember.run.once(this, 'internalLoadDataFromChartConfig');
+  },
+
+  internalLoadDataFromChartConfig() {
     const chartConfig = this.get('chartConfig');
     const helper = this.get('chartHelper');
-    if ( chartConfig && helper ) {
+    if ( chartConfig && helper && !this.get('isLoadingData') ) {
+      this.set('isLoadingData', true);
       helper.dataForChart(chartConfig).then(data => {
         if ( !(this.isDestroyed || this.isDestroying) ) {
-          this.set('data', data);
+          this.regenerateChartConfiguration();
+          this.setProperties({ isLoadingData: false, data: data });
         }
+      }).catch(reason => {
+        this.set('isLoadingData', false);
+        console.log('Error loading data: ' + reason);
       });
     }
   },
 
   draw() {
     // extending classes should implement
+    console.log(`Drawing chart ${this}`);
   }
 
 });

@@ -87,10 +87,12 @@ export default BaseChart.extend({
     const colorMap = this.get('colorMap');
     chart.colorCallback((groupId, sourceId) => {
       return (colorMap[groupId] ? colorMap[groupId].sourceColors[sourceId] : null);
-    }).regenerate();
+    });
+    this.regenerateChart();
   }),
 
   draw() {
+    this._super(...arguments);
     const chartConfig = this.get('chartConfig');
     const data = this.get('data');
     const chart = this.get('chart');
