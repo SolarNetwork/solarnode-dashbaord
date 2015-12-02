@@ -23,7 +23,8 @@ export default Ember.Component.extend({
             var sourceGroup = store.createRecord('chart-source-group', {
               chart: chartConfig,
               title : group.groupId,
-              flags: group.flags
+              flags: group.flags,
+              groupProp: group.prop,
             });
             group.sourceIds.forEach(function(sourceId, index) {
               var sourceConfig = store.createRecord('chart-source-config', {

@@ -66,6 +66,24 @@ export default DS.Model.extend({
   }),
 
   /**
+   Get an array of all configured ChartSourceConfig objects.
+
+   @return {Array} Array of ChartSourceConfig objects.
+   */
+  sourceConfigs: Ember.computed('sourceGroups.@each.sourceConfigs', function() {
+    const promise = this.get('sourceGroups').then(sourceGroups => {
+      return Ember.RSVP.all(sourceGroups.mapBy('sourceConfigs'));
+    }).then(arrays => {
+      var merged = Ember.A();
+      arrays.forEach(array => {
+        merged.pushObjects(array);
+      });
+      return merged;
+    });
+    return DS.PromiseArray.create({promise:promise});
+  }),
+
+  /**
    Get an array of all configured ChartPropertyConfig objects.
 
    @return {Array} Array of ChartPropertyConfig objects.

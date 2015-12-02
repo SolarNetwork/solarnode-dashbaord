@@ -18,6 +18,16 @@ export default DS.Model.extend({
   group: DS.belongsTo('chart-source-group', {inverse:'sources'}),
 
   /**
+   A shortcut to the first ChartPropertyConfig. Useful for groups with a single property.
+   */
+  prop: Ember.computed('props.[]', function() {
+    const promise = this.get('props').then(props => {
+      return props.get('firstObject');
+    });
+    return DS.PromiseObject.create({promise:promise});
+  }),
+
+  /**
    Get an array of all ChartPropertyConfig.property values.
    */
   properties: Ember.computed('props.@each.property', function() {

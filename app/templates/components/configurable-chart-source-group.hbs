@@ -2,16 +2,15 @@
 <div class="uk-form-row">
   {{input value=sourceGroup.title class="uk-width-1-1" placeholder=(t 'chart.edit.sourceGroup.title')}}
 </div>
-{{#each sourceGroup.sources as |sourceConfig|}}
-  <!--h4>{{sourceConfig.displayName}}</h4-->
-  <div class="uk-grid uk-margin-top">
-    <div class="uk-width-1-2">
-      {{input value=sourceConfig.source class="uk-width-1-1" placeholder=(t 'chart.edit.source.source')}}
-    </div>
-    <div class="uk-width-1-2">
-      {{input value=sourceConfig.title class="uk-width-1-1" placeholder=(t 'chart.edit.source.title')}}
-    </div>
+<div class="uk-grid uk-margin-top">
+  <div class="uk-width-1-2">
+    {{input value=sourceGroup.groupProp class="uk-width-1-1" placeholder=(t 'chart.edit.source.prop')}}
   </div>
+  <div class="uk-width-1-2">
+    {{input value=sourceGroup.groupUnit class="uk-width-1-1" placeholder=(if sourceGroup.groupProperty.unit (t 'chart.edit.source.unitWithDefault' default=sourceGroup.groupProperty.unit) (t 'chart.edit.source.unit'))}}
+  </div>
+</div>
+{{#each sourceGroup.sources as |sourceConfig|}}
   {{#each sourceConfig.props as |prop|}}
     <div class="uk-form-row uk-margin-top">
       <div class="uk-grid">
@@ -19,7 +18,10 @@
           {{color-swatch-input color=prop.color onChangeColor=(action (mut prop.color))}}
         </div>
         <div class="uk-flex-item-1">
-          {{input value=prop.unit class="uk-width-1-1" placeholder=(if prop.property.unit (t 'chart.edit.source.unitWithDefault' default=prop.property.unit) (t 'chart.edit.source.unit'))}}
+          {{input value=sourceConfig.source class="uk-width-1-1" placeholder=(t 'chart.edit.source.source')}}
+        </div>
+        <div class="uk-flex-item-1">
+          {{input value=sourceConfig.title class="uk-width-1-1" placeholder=(t 'chart.edit.source.title')}}
         </div>
       </div>
     </div>

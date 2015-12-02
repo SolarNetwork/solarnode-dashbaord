@@ -42,7 +42,7 @@ export default Ember.Component.extend({
     if ( this.get('chartConfig') ) {
       this.loadDataFromChartConfig();
     } else {
-      this.draw();
+      this.shouldDraw();
     }
   }),
 
@@ -59,7 +59,7 @@ export default Ember.Component.extend({
   // chart: should be implemented in extending classes
 
   chartConfigurationChanged: Ember.observer('chart', 'data', function() {
-    Ember.run.once(this, 'draw');
+    this.shouldDraw();
   }),
 
   widthHeightChanged: Ember.observer('width', 'height', function() {
@@ -71,7 +71,9 @@ export default Ember.Component.extend({
     if ( chartConfiguration ) {
       chartConfiguration.value('width', this.get('width'));
       chartConfiguration.value('height', this.get('height'));
-      this.regenerateChart();
+      if ( this.get('chartConfig') ) {
+        this.regenerateChart();
+      }
     }
   },
 
@@ -111,7 +113,9 @@ export default Ember.Component.extend({
   isLoadingData: false,
 
   regenerateChart() {
-    Ember.run.once(this, 'internalRegenerateChart');
+    if ( this.get('hasDrawn') ) {
+      Ember.run.once(this, 'internalRegenerateChart');
+    }
   },
 
   internalRegenerateChart() {
@@ -143,9 +147,17 @@ export default Ember.Component.extend({
     }
   },
 
+  hasDrawn : false,
+
+  shouldDraw() {
+    this.set('hasDrawn', false);
+    Ember.run.once(this, 'draw');
+  },
+
   draw() {
     // extending classes should implement
     console.log(`Drawing chart ${this}`);
+    this.set('hasDrawn', true);
   }
 
 });

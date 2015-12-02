@@ -20,10 +20,16 @@ export default Ember.Component.extend({
   chartName: Ember.computed.alias('chart.title'),
   chartUnit: Ember.computed.alias('chart.unit'),
   chartWidth: 550,
-  canSave: Ember.computed('chart.hasDirtyAttributes', 'chart.propertyConfigs.@each.hasDirtyAttributes', function() {
-    return (this.get('chart.hasDirtyAttributes') || this.get('chart.propertyConfigs').any(function(propConfig) {
-      return propConfig.get('hasDirtyAttributes');
-    }));
+  canSave: Ember.computed('chart.hasDirtyAttributes',
+    'chart.sourceGroups.@each.hasDirtyAttributes',
+    'chart.sourceConfigs.@each.hasDirtyAttributes',
+    'chart.propertyConfigs.@each.hasDirtyAttributes',
+    function() {
+    return (this.get('chart.hasDirtyAttributes')
+        || this.get('chart.sourceGroups').any(function(obj) { return obj.get('hasDirtyAttributes'); })
+        || this.get('chart.sourceConfigs').any(function(obj) { return obj.get('hasDirtyAttributes'); })
+        || this.get('chart.propertyConfigs').any(function(obj) { return obj.get('hasDirtyAttributes'); })
+        );
   }),
   startDate: Ember.computed('chart.startDate', datePropertyAccessor),
   endDate: Ember.computed('chart.endDate', datePropertyAccessor),
@@ -92,8 +98,14 @@ export default Ember.Component.extend({
     save() {
       const chart = this.get('chart');
       chart.save();
-      chart.get('propertyConfigs').forEach(propertyConfig => {
-        propertyConfig.save();
+      chart.get('sourceGroups').forEach(obj => {
+        obj.save();
+      });
+      chart.get('sourceConfigs').forEach(obj => {
+        obj.save();
+      });
+      chart.get('propertyConfigs').forEach(obj => {
+        obj.save();
       });
     }
   }
