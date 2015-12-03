@@ -1,15 +1,25 @@
 <h3>{{sourceGroup.title}}</h3>
-<div class="uk-form-row">
-  {{input value=sourceGroup.title class="uk-width-1-1" placeholder=(t 'chart.edit.sourceGroup.title')}}
+<div class="uk-form-row app-chart-property-form">
+  <div class="uk-grid">
+    <div class="uk-width-4-10">
+      {{input value=sourceGroup.title class="uk-width-1-1" placeholder=(t 'chart.edit.sourceGroup.title')}}
+    </div>
+    <div class="uk-width-3-10">
+      {{input value=sourceGroup.groupProp class="uk-width-1-1" placeholder=(t 'chart.edit.source.prop')}}
+    </div>
+    <div class="uk-width-3-10">
+      {{input value=sourceGroup.groupUnit class="uk-width-1-1" placeholder=(if sourceGroup.groupProperty.unit (t 'chart.edit.source.unitWithDefault' default=sourceGroup.groupProperty.unit) (t 'chart.edit.source.unit'))}}
+    </div>
+  </div>
 </div>
+<!--
 <div class="uk-grid uk-margin-top">
   <div class="uk-width-1-2">
-    {{input value=sourceGroup.groupProp class="uk-width-1-1" placeholder=(t 'chart.edit.source.prop')}}
   </div>
   <div class="uk-width-1-2">
-    {{input value=sourceGroup.groupUnit class="uk-width-1-1" placeholder=(if sourceGroup.groupProperty.unit (t 'chart.edit.source.unitWithDefault' default=sourceGroup.groupProperty.unit) (t 'chart.edit.source.unit'))}}
   </div>
 </div>
+-->
 {{#each sourceGroup.sources as |sourceConfig|}}
   {{#each sourceConfig.props as |prop|}}
     <div class="uk-form-row uk-margin-top app-chart-property-form">
