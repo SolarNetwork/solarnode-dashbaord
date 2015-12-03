@@ -28,9 +28,11 @@ export default Ember.Component.extend({
     addNewProperty() {
       const sourceConfig = this.get('sourceConfig');
       var propConfig = this.get('store').createRecord('chart-property-config');
-      sourceConfig.get('props').pushObject(propConfig);
-      propConfig.save();
-      sourceConfig.save();
+      sourceConfig.get('props').then(props => {
+        props.pushObject(propConfig);
+        propConfig.save();
+        sourceConfig.save();
+      });
     },
   },
 
