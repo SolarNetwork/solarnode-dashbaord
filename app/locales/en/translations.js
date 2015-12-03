@@ -107,6 +107,10 @@ export default {
       },
       "sourceGroup" : {
         "title" : "Group"
+      },
+      "prop" : {
+        "title" : "Name",
+        "prop" : "Property",
       }
     },
     "export" : "Export"

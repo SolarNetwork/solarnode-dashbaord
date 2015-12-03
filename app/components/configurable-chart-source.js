@@ -9,6 +9,12 @@ export default Ember.Component.extend({
       showInput: true,
       chooseText: this.get('i18n').t('action.choose')
     });
-  })
+  }),
+
+  actions : {
+    togglePropertyVisibility(prop) {
+      prop.toggleProperty('isHidden');
+    },
+  },
 
 });

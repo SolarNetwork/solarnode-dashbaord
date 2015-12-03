@@ -3,6 +3,10 @@ import BaseChart from './base-chart';
 import d3 from 'npm:d3';
 import sn from 'npm:solarnetwork-d3';
 
+function lineIdForProperty(sourceId, prop) {
+  return sourceId + '-' + prop;
+}
+
 export default BaseChart.extend({
 
   chart: Ember.computed(function() {
@@ -35,6 +39,35 @@ export default BaseChart.extend({
     this.computeChartColors();
   })),
 
+  propVisibilityChanged: Ember.observer('chartConfig.propertyConfigs.@each.isHidden', function() {
+    this.computePropVisibilityMap();
+  }),
+
+  computePropVisibilityMap() {
+    this.get('chartConfig.propertyConfigs').then(propertyConfigs => {
+      const vizMap = {};
+      propertyConfigs.forEach(propertyConfig => {
+        const sourceId = propertyConfig.get('source.source');
+        const prop = propertyConfig.get('prop');
+        const lineId = lineIdForProperty(sourceId, prop);
+        vizMap[lineId] = propertyConfig.get('isHidden');
+      });
+      this.set('visibilityMap', vizMap);
+    });
+  },
+
+  visibilityMapChanged: Ember.observer('snChart', 'visibilityMap', function() {
+    const chart = this.get('snChart');
+    const vizMap = this.get('visibilityMap');
+    if ( !(chart && vizMap) ) {
+      return;
+    }
+    chart.sourceExcludeCallback(lineId => {
+      return vizMap[lineId];
+    });
+    this.regenerateChart();
+  }),
+
   draw() {
     this._super(...arguments);
     const chartConfig = this.get('chartConfig');
@@ -50,7 +83,7 @@ export default BaseChart.extend({
           groupData.group.get('sources').forEach(function(sourceConfig) {
             const sourceId = sourceConfig.get('source');
             sourceConfig.get('properties').forEach(function(prop) {
-              chart.load(groupData.data, sourceId, prop.prop);
+              chart.load(groupData.data, lineIdForProperty(sourceId, prop.prop), prop.prop);
             });
           });
         });

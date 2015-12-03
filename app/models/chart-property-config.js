@@ -29,6 +29,7 @@ export default DS.Model.extend({
   source: DS.belongsTo('chart-source-config', {inverse:'props'}),
   sourceId: Ember.computed.alias('source.source'),
   prop: DS.attr('string'),
+  title: DS.attr('string'),
   unit: DS.attr('string'),
   unitName: DS.attr('string'),
   color: DS.attr('string', { defaultValue : '#f7c819' }),

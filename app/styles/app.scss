@@ -78,3 +78,7 @@ h1 {
   margin-top: -0.3em;
   padding-right: ($utility-margin/2);
 }
+
+.app-chart-property-form .uk-grid > * + * {
+  padding-left: ($utility-margin/3) !important;
+}

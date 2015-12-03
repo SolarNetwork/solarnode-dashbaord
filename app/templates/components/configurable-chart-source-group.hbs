@@ -12,7 +12,7 @@
 </div>
 {{#each sourceGroup.sources as |sourceConfig|}}
   {{#each sourceConfig.props as |prop|}}
-    <div class="uk-form-row uk-margin-top">
+    <div class="uk-form-row uk-margin-top app-chart-property-form">
       <div class="uk-grid" style="align-items: center;">
         <div class="uk-flex-item-none">
           {{color-swatch-input color=prop.color onChangeColor=(action (mut prop.color))}}
