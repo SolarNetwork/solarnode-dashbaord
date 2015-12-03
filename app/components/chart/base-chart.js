@@ -106,10 +106,6 @@ export default Ember.Component.extend({
     });
   })),
 
-  sourcesChanged: Ember.observer('chartConfig.propertyConfigs.@each.isHidden', function() {
-    this.computePropVisibilityMap();
-  }),
-
   refreshDataFromChartConfig() {
     Ember.run.once(this, 'loadDataFromChartConfig');
     this.loadDataFromChartConfig();
