@@ -47,6 +47,13 @@ export default DS.Model.extend({
     return (startDate && endDate && endDate.getTime() > startDate.getTime());
   }),
 
+  groups: Ember.computed('sourceGroups.[]', function() {
+    const promise = this.get('sourceGroups').then(sourceGroups => {
+      return sourceGroups;
+    });
+    return DS.PromiseArray.create({promise:promise});
+  }),
+
   /**
    Get an array of all configured sources and properties.
 
