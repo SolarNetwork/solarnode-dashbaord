@@ -3,12 +3,16 @@ export default {
     "intro" : "Oops!"
   },
   "action" : {
+    "add" : "Add",
+    "addItem" : "Add {{item}}",
     "cancel" : "Cancel",
     "choose" : "Choose",
     "done" : "Done",
     "hide" : "Hide",
     "login" : "Login",
     "logout" : "Logout",
+    "remove" : "Remove",
+    "removeItem" : "Remove {{item}}",
     "save" : "Save",
     "show" : "Show",
   },

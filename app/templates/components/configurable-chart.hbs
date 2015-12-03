@@ -94,8 +94,8 @@
             {{configurable-chart-source-group sourceGroup=sourceGroup groupIndex=groupIndex}}
 			    {{/each}}
 			  {{else}}
-			    {{#each chart.sourceGroups.firstObject.sources as |sourceConfig|}}
-			      {{configurable-chart-source sourceConfig=sourceConfig}}
+			    {{#each chart.sourceGroups as |sourceGroup groupIndex|}}
+            {{configurable-chart-source-list sourceGroup=sourceGroup groupIndex=groupIndex}}
 			    {{/each}}
 			  {{/if}}
 

@@ -21,14 +21,14 @@ export default Ember.Component.extend({
   chartUnit: Ember.computed.alias('chart.unit'),
   chartWidth: 550,
   canSave: Ember.computed('chart.hasDirtyAttributes',
-    'chart.sourceGroups.@each.hasDirtyAttributes',
-    'chart.sourceConfigs.@each.hasDirtyAttributes',
-    'chart.propertyConfigs.@each.hasDirtyAttributes',
+    'chart.sourceGroups.@each.{hasDirtyAttributes,isNew}',
+    'chart.sourceConfigs.@each.{hasDirtyAttributes,isNew}',
+    'chart.propertyConfigs.@each.{hasDirtyAttributes,isNew}',
     function() {
     return (this.get('chart.hasDirtyAttributes')
-        || this.get('chart.sourceGroups').any(function(obj) { return obj.get('hasDirtyAttributes'); })
-        || this.get('chart.sourceConfigs').any(function(obj) { return obj.get('hasDirtyAttributes'); })
-        || this.get('chart.propertyConfigs').any(function(obj) { return obj.get('hasDirtyAttributes'); })
+        || this.get('chart.sourceGroups').any(function(obj) { return obj.get('hasDirtyAttributes') || obj.get('isNew'); })
+        || this.get('chart.sourceConfigs').any(function(obj) { return obj.get('hasDirtyAttributes') || obj.get('isNew'); })
+        || this.get('chart.propertyConfigs').any(function(obj) { return obj.get('hasDirtyAttributes') || obj.get('isNew'); })
         );
   }),
   startDate: Ember.computed('chart.startDate', datePropertyAccessor),

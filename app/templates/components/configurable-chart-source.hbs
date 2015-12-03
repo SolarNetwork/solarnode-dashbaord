@@ -1,30 +1,40 @@
-<fieldset>
-  <h3>{{sourceConfig.displayName}}</h3>
-  <div class="uk-form-row">
-    {{input value=sourceConfig.displayName class="uk-width-1-1" placeholder=(t 'chart.edit.source.title')}}
-  </div>
+<h3>{{sourceConfig.displayName}}</h3>
+<div class="uk-form-row">
+  {{input value=sourceConfig.displayName class="uk-width-1-1" placeholder=(t 'chart.edit.source.title')}}
+</div>
 
-  {{#each sourceConfig.props as |prop|}}
-    <div class="uk-form-row uk-margin-top app-chart-property-form">
-      <div class="uk-grid" style="align-items: center;">
-        <div class="uk-flex-item-none">
-          {{color-swatch-input color=prop.color onChangeColor=(action (mut prop.color))}}
-        </div>
-        <div class="uk-flex-item-1">
-          {{input value=prop.prop class="uk-width-1-1" placeholder=(t 'chart.edit.prop.prop')}}
-        </div>
-        <div class="uk-flex-item-1">
-          {{input value=prop.title class="uk-width-1-1" placeholder=(t 'chart.edit.prop.title')}}
-        </div>
-        <div class="uk-flex-item-1">
-          {{input value=prop.unit class="uk-width-1-1" placeholder=(if prop.property.unit (t 'chart.edit.source.unitWithDefault' default=prop.property.unit) (t 'chart.edit.source.unit'))}}
-        </div>
-        <div class="uk-flex-item-none">
-          <a {{action 'togglePropertyVisibility' prop}} title={{if prop.isHidden (t 'action.show') (t 'action.hide')}} class="uk-icon-hover uk-icon-small">
-            {{fa-icon (if prop.isHidden 'eye-slash' 'eye')}}
-          </a>
-        </div>
+{{#each sourceConfig.props as |prop|}}
+  <div class="uk-form-row uk-margin-top app-chart-property-form">
+    <div class="uk-grid" style="align-items: center;">
+      <div class="uk-flex-item-none">
+        <a {{action 'removeProperty' prop}} title={{t 'action.removeItem' item=(t 'chart.edit.prop.prop')}} class="uk-icon-hover uk-icon-small">
+          {{fa-icon 'minus'}}
+        </a>
+      </div>
+      <div class="uk-flex-item-none">
+        {{color-swatch-input color=prop.color onChangeColor=(action (mut prop.color))}}
+      </div>
+      <div class="uk-flex-item-1">
+        {{input value=prop.prop class="uk-width-1-1" placeholder=(t 'chart.edit.prop.prop')}}
+      </div>
+      <div class="uk-flex-item-1">
+        {{input value=prop.title class="uk-width-1-1" placeholder=(t 'chart.edit.prop.title')}}
+      </div>
+      <div class="uk-flex-item-1">
+        {{input value=prop.unit class="uk-width-1-1" placeholder=(if prop.property.unit (t 'chart.edit.source.unitWithDefault' default=prop.property.unit) (t 'chart.edit.source.unit'))}}
+      </div>
+      <div class="uk-flex-item-none">
+        <a {{action 'togglePropertyVisibility' prop}} title={{if prop.isHidden (t 'action.show') (t 'action.hide')}} class="uk-icon-hover uk-icon-small">
+          {{fa-icon (if prop.isHidden 'eye-slash' 'eye')}}
+        </a>
       </div>
     </div>
-  {{/each}}
-</fieldset>
+  </div>
+{{/each}}
+<div class="uk-flex uk-flex-right uk-margin-top">
+  <div class="uk-flex-none">
+    <a {{action 'addNewProperty'}} title={{t 'action.addItem' item=(t 'chart.edit.prop.prop')}} class="uk-icon-hover uk-icon-small">
+      {{fa-icon 'plus'}}
+    </a>
+  </div>
+</div>
