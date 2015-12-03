@@ -225,10 +225,10 @@ function groupedChartSuggestionsFromSuggestions(suggestions, i18n) {
       const ioFlags = Ember.merge(generationFlags, consumptionFlags);
       const generationGroup = sourceGroupForSuggestions(typeGroups.Generation, 'Generation',
         i18n.t('chartSuggestion.group.generation').toString(), 'wattHours', generationFlags,
-        reversedArray(bestColorSetFromColorGroup(consumptionSuggestions.length, colorbrewer.Greens)));
+        bestColorSetFromColorGroup(consumptionSuggestions.length, reverseColorGroupColors(colorbrewer.Greens)));
       const consumptionGroup = sourceGroupForSuggestions(consumptionSuggestions, 'Consumption',
         i18n.t('chartSuggestion.group.consumption').toString(), 'wattHours', consumptionFlags,
-        reversedArray(bestColorSetFromColorGroup(consumptionSuggestions.length, colorbrewer.Blues)));
+        bestColorSetFromColorGroup(consumptionSuggestions.length, reverseColorGroupColors(colorbrewer.Blues)));
       results.push(ChartSuggestion.create({
         type: 'Energy I/O',
         style: 'io-bar',
