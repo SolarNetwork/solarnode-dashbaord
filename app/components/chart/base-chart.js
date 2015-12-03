@@ -78,7 +78,9 @@ export default Ember.Component.extend({
   },
 
   chartConfigChanged: Ember.on('init', Ember.observer('chartConfig', 'chartConfig.isUsePeriod', 'chartConfig.period',
-      'chartConfig.periodAggregate', 'chartConfig.startDate', 'chartConfig.endDate', 'chartConfig.aggregate', function() {
+      'chartConfig.periodAggregate', 'chartConfig.startDate', 'chartConfig.endDate', 'chartConfig.aggregate',
+      'chartConfig.propertyConfigs.@each.sourceId',
+      function() {
     Ember.run.once(this, function() {
       const chart = this.get('chart');
       const chartConfig = this.get('chartConfig');
@@ -98,10 +100,15 @@ export default Ember.Component.extend({
             this.set('refreshTimer', null);
           }
         }
-        this.loadDataFromChartConfig();
+        this.set('hasDrawn', false);
+        this.loadDataFromChartConfigThrottled();
       }
     });
   })),
+
+  sourcesChanged: Ember.observer('chartConfig.propertyConfigs.@each.isHidden', function() {
+    this.computePropVisibilityMap();
+  }),
 
   refreshDataFromChartConfig() {
     Ember.run.once(this, 'loadDataFromChartConfig');
@@ -128,6 +135,10 @@ export default Ember.Component.extend({
 
   loadDataFromChartConfig() {
     Ember.run.once(this, 'internalLoadDataFromChartConfig');
+  },
+
+  loadDataFromChartConfigThrottled() {
+    Ember.run.debounce(this, 'internalLoadDataFromChartConfig', 600);
   },
 
   internalLoadDataFromChartConfig() {

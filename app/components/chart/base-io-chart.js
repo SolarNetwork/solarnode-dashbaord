@@ -76,7 +76,8 @@ export default BaseChart.extend({
 
   colorMap: Ember.computed.reads('dataColorMap'),
 
-  colorPropertiesChanged: Ember.observer('chartConfig.propertyConfigs.@each.color', function() {
+  colorPropertiesChanged: Ember.observer('chartConfig.propertyConfigs.@each.color',
+    'chartConfig.propertyConfigs.@each.sourceId', function() {
     this.computeChartConfigColorMap();
   }),
 
