@@ -82,8 +82,8 @@ export default BaseChart.extend({
           // line chart does not do groups... just load data for each configured property
           groupData.group.get('sources').forEach(function(sourceConfig) {
             const sourceId = sourceConfig.get('source');
-            sourceConfig.get('properties').forEach(function(prop) {
-              chart.load(groupData.data, lineIdForProperty(sourceId, prop.prop), prop.prop);
+            sourceConfig.get('propertyConfigs').forEach(function(propConfig) {
+              chart.load(groupData.data, lineIdForProperty(sourceId, propConfig.get('prop')), propConfig.get('prop'));
             });
           });
         });

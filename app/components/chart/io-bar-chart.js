@@ -10,7 +10,14 @@ export default BaseIOChart.extend({
   plotProperties: Ember.computed('chartConfiguration', ConfigurationAccessor),
 
   regenerateChartConfiguration() {
-    this.set('plotProperties', {Hour : 'wattHours', Day : 'wattHours', Month : 'wattHours'});
+    var plotProp;
+    if ( this.get('chartConfig.groups.length') > 0 ) {
+      plotProp = this.get('chartConfig.groups.firstObject.groupProp');
+    }
+    if ( !plotProp ) {
+      plotProp = 'wattHours';
+    }
+    this.set('plotProperties', {FiveMinute: plotProp, Hour : plotProp, Day : plotProp, Month : plotProp});
     this._super(...arguments);
   },
 

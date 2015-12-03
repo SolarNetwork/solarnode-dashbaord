@@ -83,7 +83,9 @@ export default DS.Model.extend({
     }).then(arrays => {
       var merged = Ember.A();
       arrays.forEach(array => {
-        merged.pushObjects(array);
+        array.forEach(item => {
+          merged.pushObject(item);
+        });
       });
       return merged;
     });

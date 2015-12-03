@@ -90,11 +90,11 @@
 			  <legend>{{t 'chart.edit.sources'}}</legend>
 
 			  {{#if canGroupSources}}
-			    {{#each chart.sourceGroups as |sourceGroup groupIndex|}}
+			    {{#each chart.groups as |sourceGroup groupIndex|}}
             {{configurable-chart-source-group sourceGroup=sourceGroup groupIndex=groupIndex}}
 			    {{/each}}
 			  {{else}}
-			    {{#each chart.sourceGroups as |sourceGroup groupIndex|}}
+			    {{#each chart.groups as |sourceGroup groupIndex|}}
             {{configurable-chart-source-list sourceGroup=sourceGroup groupIndex=groupIndex}}
 			    {{/each}}
 			  {{/if}}

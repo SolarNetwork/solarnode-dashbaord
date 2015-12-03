@@ -58,9 +58,7 @@ export default DS.Model.extend({
    @return {Array} Array of ChartSourceConfig objects.
    */
   sourceConfigs: Ember.computed('sources.@each.{title,scaleFactor,groupProp,groupUnit,groupUnitName}', function() {
-    const promise = this.get('sources').then(sources => {
-      return sources.slice();// turn into real Array
-    });
+    const promise = this.get('sources');
     return DS.PromiseArray.create({promise:promise});
   }),
 
@@ -75,7 +73,9 @@ export default DS.Model.extend({
     }).then(arrays => {
       var merged = Ember.A();
       arrays.forEach(array => {
-        merged.pushObjects(array);
+        array.forEach(obj => {
+          merged.pushObject(obj);
+        });
       });
       return merged;
     });

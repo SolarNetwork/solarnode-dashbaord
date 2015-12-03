@@ -42,10 +42,8 @@ export default DS.Model.extend({
 
    @return {Array} Array of ChartPropertyConfig objects.
    */
-  propertyConfigs: Ember.computed('props.@each.{color,unit,unitName}', function() {
-    const promise = this.get('props').then(props => {
-      return props.slice();// turn into real Array
-    });
+  propertyConfigs: Ember.computed('props.@each.{color,prop,unit,unitName}', function() {
+    const promise = this.get('props');
     return DS.PromiseArray.create({promise:promise});
   }),
 
