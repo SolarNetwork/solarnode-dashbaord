@@ -59,7 +59,7 @@ export default BaseChart.extend({
     if ( !chartConfig ) {
       return;
     }
-    chartConfig.get('sourceGroups').then(sourceGroups => {
+    chartConfig.get('groups').then(sourceGroups => {
       const negativeGroupIds = [];
       sourceGroups.forEach(sourceGroup => {
         const groupId = sourceGroup.get('id');
