@@ -13,7 +13,7 @@
     {{else if (eq chart.style 'io-pie')}}
       {{chart.io-pie-chart width=chartWidth height=320 chartConfig=chart}}
     {{else}}
-		  {{chart.line-chart width=chartWidth height=320 chartConfig=chart}}
+		  {{chart.line-chart width=chartWidth height=320 chartConfig=chart allSourceConfigs=allSourceConfigs propConfigs=chart.properties}}
 		{{/liquid-if}}
 	</div>
 	<div class="uk-hidden-small uk-width-large-1-10 uk-text-right uk-margin-bottom app-chart-settings-toggle-horizontal">
@@ -30,7 +30,7 @@
 						<h2>{{t 'chart.edit.title'}}</h2>
 					</div>
 					<div class="uk-flex-item-none">
-						<button {{action 'save'}} class="uk-button uk-button-success" disabled={{if canSave null true}}>{{t 'action.save'}}</button>
+						<button {{action 'save'}} class="uk-button uk-button-success" disabled={{if canSave null null}}>{{t 'action.save'}}</button>
 					</div>
 				</div>
 				<div class="uk-form-row">
@@ -91,10 +91,10 @@
 
 			  {{#if canGroupSources}}
 			    {{#each chart.groups as |sourceGroup groupIndex|}}
-            {{configurable-chart-source-group sourceGroup=sourceGroup groupIndex=groupIndex}}
+            {{configurable-chart-source-group sourceGroup=sourceGroup groupIndex=groupIndex allPropConfigs=allPropConfigs}}
 			    {{/each}}
 			  {{else}}
-          {{configurable-chart-source-list chartConfig=chart sourceConfigs=sourceConfigs propConfigs=chart.properties}}
+          {{configurable-chart-source-list chartConfig=chart allSourceConfigs=allSourceConfigs allPropConfigs=allPropConfigs}}
 			  {{/if}}
 
 			</fieldset>

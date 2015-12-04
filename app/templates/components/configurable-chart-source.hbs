@@ -15,14 +15,20 @@
         {{color-swatch-input color=prop.color onChangeColor=(action (mut prop.color))}}
       </div>
       <div class="uk-flex-item-1">
-        {{input value=prop.prop class="uk-width-1-1" placeholder=(t 'chart.edit.prop.prop')}}
+        <select onchange={{action 'selectProperty' value="target.value"}} autocomplete="off">
+          {{#each allSourceProperties as |propConfig|}}
+            <option value={{propConfig.id}} selected={{if (eq prop.id propConfig.id) 'selected' null}}>{{propConfig.displayName}}</option>
+          {{/each}}
+        </select>
       </div>
+      <!--
       <div class="uk-flex-item-1">
         {{input value=prop.title class="uk-width-1-1" placeholder=(t 'chart.edit.prop.title')}}
       </div>
       <div class="uk-flex-item-1">
         {{input value=prop.unit class="uk-width-1-1" placeholder=(if prop.property.unit (t 'chart.edit.source.unitWithDefault' default=prop.property.unit) (t 'chart.edit.source.unit'))}}
       </div>
+      -->
       <div class="uk-flex-item-none">
         <a {{action 'togglePropertyVisibility' prop}} title={{if prop.isHidden (t 'action.show') (t 'action.hide')}} class="uk-icon-hover uk-icon-small">
           {{fa-icon (if prop.isHidden 'eye-slash' 'eye')}}
@@ -31,6 +37,7 @@
     </div>
   </div>
 {{/each}}
+{{#if (gt allSourceProperties.length sourceProperties.length)}}
 <div class="uk-flex uk-flex-right uk-margin-top">
   <div class="uk-flex-none">
     <a {{action 'addNewProperty'}} title={{t 'action.addItem' item=(t 'chart.edit.prop.prop')}} class="uk-icon-hover uk-icon-small">
@@ -38,3 +45,4 @@
     </a>
   </div>
 </div>
+{{/if}}

@@ -7,7 +7,15 @@ export default Ember.Component.extend({
   store: Ember.inject.service(),
 
   source: Ember.computed.alias('sourceConfig.source'),
-  sourceProperties: Ember.computed.filterBy('propConfigs', 'source'),
+  sourceProperties: Ember.computed('chartConfig.properties.@each.source', 'source', function() {
+    const sourceId = this.get('source');
+    return this.get('chartConfig.properties').filterBy('source', sourceId);
+  }),
+
+  allSourceProperties: Ember.computed('allPropConfigs.@each.source', 'source', function() {
+    const sourceId = this.get('source');
+    return this.get('allPropConfigs').filterBy('source', sourceId);
+  }),
 
   inserted: Ember.on('didInsertElement', function() {
     var container = this.$().find('input[type=color]').spectrum({
@@ -20,6 +28,10 @@ export default Ember.Component.extend({
   actions : {
     togglePropertyVisibility(prop) {
       prop.toggleProperty('isHidden');
+    },
+
+    selectProperty(propConfigId) {
+      // TODO
     },
 
     removeProperty(prop) {

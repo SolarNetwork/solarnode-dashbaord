@@ -39,18 +39,18 @@ export default BaseChart.extend({
     return result;
   }),
 
-  computeChartConfigColorMap() {
-    this.get('chartConfig.propertyConfigs').then(propertyConfigs => {
-      const colorMap = {};
-      propertyConfigs.forEach(propertyConfig => {
-        const groupId = propertyConfig.get('source.group.id');
-        const sourceId = propertyConfig.get('source.source');
-        if ( !colorMap[groupId] ) {
-          colorMap[groupId] = {groupId: groupId, sourceColors: {}};
-        }
-        colorMap[groupId].sourceColors[sourceId] = propertyConfig.get('color');
+  forEachGroupedProperty(callback) {
+    return Ember.RSVP.all([this.get('chartConfig.properties'), this.get('chartConfig.groups')]).then(([propConfigs, sourceGroups]) => {
+      sourceGroups.forEach(sourceGroup => {
+        const groupId = sourceGroup.get('id');
+        sourceGroup.get('sourceIds').forEach(sourceId => {
+          const propConfig = propConfigs.findBy('source', sourceId);
+          if ( propConfig ) {
+            callback.apply(this, [groupId, sourceId, propConfig]);
+          }
+        });
       });
-      this.set('colorMap', colorMap);
+      return sourceGroups;
     });
   },
 
@@ -81,6 +81,18 @@ export default BaseChart.extend({
     this.computeChartConfigColorMap();
   }),
 
+  computeChartConfigColorMap() {
+    const colorMap = {};
+    this.forEachGroupedProperty(function(groupId, sourceId, propConfig) {
+      if ( !colorMap[groupId] ) {
+        colorMap[groupId] = {groupId: groupId, sourceColors: {}};
+      }
+      colorMap[groupId].sourceColors[sourceId] = propConfig.get('color');
+    }).then(() => {
+      this.set('colorMap', colorMap);
+    });
+  },
+
   colorMapChanged: Ember.observer('snChart', 'colorMap', function() {
     const chart = this.get('snChart');
     if ( !chart ) {
@@ -98,16 +110,13 @@ export default BaseChart.extend({
   }),
 
   computePropVisibilityMap() {
-    this.get('chartConfig.propertyConfigs').then(propertyConfigs => {
-      const vizMap = {};
-      propertyConfigs.forEach(propertyConfig => {
-        const groupId = propertyConfig.get('source.group.id');
-        const sourceId = propertyConfig.get('source.source');
-        if ( !vizMap[groupId] ) {
-          vizMap[groupId] = {groupId: groupId, sourceVisibility: {}};
-        }
-        vizMap[groupId].sourceVisibility[sourceId] = propertyConfig.get('isHidden');
-      });
+    const vizMap = {};
+    this.forEachGroupedProperty(function(groupId, sourceId, propConfig) {
+      if ( !vizMap[groupId] ) {
+        vizMap[groupId] = {groupId: groupId, sourceVisibility: {}};
+      }
+      vizMap[groupId].sourceVisibility[sourceId] = propConfig.get('isHidden');
+    }).then(() => {
       this.set('visibilityMap', vizMap);
     });
   },

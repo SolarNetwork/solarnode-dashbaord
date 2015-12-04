@@ -41,6 +41,21 @@ export default DS.Model.extend({
    */
   isHidden: DS.attr('boolean'),
 
+  displayName: Ember.computed('title', 'property', function() {
+    const property = this.get('property');
+    const unit = property.unit;
+    const prop = property.prop;
+    const title = this.get('title');
+    var name = (title ? title : prop);
+    if ( unit ) {
+      if ( name ) {
+        name += ' - ';
+      }
+      name += unit;
+    }
+    return name;
+  }),
+
   /**
    Get a plain object version of this object. Default values for properties will
    be returned if possible.
