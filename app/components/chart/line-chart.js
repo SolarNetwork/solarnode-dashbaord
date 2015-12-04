@@ -26,31 +26,31 @@ export default BaseChart.extend({
     if ( !chartConfig ) {
       return;
     }
-    chartConfig.get('propertyConfigs').then(propertyConfigs => {
+    chartConfig.get('properties').then(propConfigs => {
       const colors = [];
-      propertyConfigs.forEach(propertyConfig => {
-        colors.push(propertyConfig.get('color'));
+      propConfigs.forEach(propConfig => {
+        colors.push(propConfig.get('color'));
       });
       this.set('colors', colors);
     });
   },
 
-  colorPropertiesChanged: Ember.on('init', Ember.observer('chartConfig.propertyConfigs.@each.color', function() {
+  colorPropertiesChanged: Ember.on('init', Ember.observer('chartConfig.properties.@each.color', function() {
     this.computeChartColors();
   })),
 
-  propVisibilityChanged: Ember.observer('chartConfig.propertyConfigs.@each.isHidden', function() {
+  propVisibilityChanged: Ember.observer('chartConfig.properties.@each.isHidden', function() {
     this.computePropVisibilityMap();
   }),
 
   computePropVisibilityMap() {
-    this.get('chartConfig.propertyConfigs').then(propertyConfigs => {
+    this.get('chartConfig.properties').then(propConfigs => {
       const vizMap = {};
-      propertyConfigs.forEach(propertyConfig => {
-        const sourceId = propertyConfig.get('source.source');
-        const prop = propertyConfig.get('prop');
+      propConfigs.forEach(propConfig => {
+        const sourceId = propConfig.get('source.source');
+        const prop = propConfig.get('prop');
         const lineId = lineIdForProperty(sourceId, prop);
-        vizMap[lineId] = propertyConfig.get('isHidden');
+        vizMap[lineId] = propConfig.get('isHidden');
       });
       this.set('visibilityMap', vizMap);
     });
@@ -77,12 +77,12 @@ export default BaseChart.extend({
     var scale = 1;
     if ( data && chart ) {
       chart.reset();
-      if ( Array.isArray(data) && data.length > 0 && data[0].data && data[0].groupId ) {
+      if ( Array.isArray(data) && data.length > 0 && Array.isArray(data[0].data) && Array.isArray(data[0].sourceIds) ) {
         data.forEach(function(groupData) {
           // line chart does not do groups... just load data for each configured property
-          groupData.group.get('sources').forEach(function(sourceConfig) {
-            const sourceId = sourceConfig.get('source');
-            sourceConfig.get('propertyConfigs').forEach(function(propConfig) {
+          groupData.sourceIds.forEach(function(sourceId) {
+            const propConfigsForSource = chartConfig.get('properties').filterBy('source', sourceId);
+            propConfigsForSource.forEach(function(propConfig) {
               chart.load(groupData.data, lineIdForProperty(sourceId, propConfig.get('prop')), propConfig.get('prop'));
             });
           });
