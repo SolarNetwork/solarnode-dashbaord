@@ -92,20 +92,10 @@ export default Ember.Component.extend({
 	    if ( !charts ) {
 	      return;
 	    }
-	    // note we are cleaning up all child relationship records to conserve space in local storage
+	    // also remove groups associated with chart
 	    charts.forEach(chart => {
-	      chart.get('sourceGroups').then(sourceGroups => {
+	      chart.get('groups').then(sourceGroups => {
 	        sourceGroups.forEach(sourceGroup => {
-            sourceGroup.get('sources').then(sourceConfigs => {
-              sourceConfigs.forEach(sourceConfig => {
-                sourceConfig.get('props').then(props => {
-                  props.forEach(prop => {
-                    prop.destroyRecord();
-                  });
-                });
-                sourceConfig.destroyRecord();
-              });
-            });
             sourceGroup.destroyRecord();
 	        });
 	      });
