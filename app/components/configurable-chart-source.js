@@ -6,6 +6,9 @@ export default Ember.Component.extend({
 
   store: Ember.inject.service(),
 
+  source: Ember.computed.alias('sourceConfig.source'),
+  sourceProperties: Ember.computed.filterBy('propConfigs', 'source'),
+
   inserted: Ember.on('didInsertElement', function() {
     var container = this.$().find('input[type=color]').spectrum({
       preferredFormat: 'hex',

@@ -21,14 +21,12 @@ export default Ember.Component.extend({
   chartUnit: Ember.computed.alias('chart.unit'),
   chartWidth: 550,
   canSave: Ember.computed('chart.hasDirtyAttributes',
-    'chart.sourceGroups.@each.{hasDirtyAttributes,isNew}',
-    'chart.sourceConfigs.@each.{hasDirtyAttributes,isNew}',
-    'chart.propertyConfigs.@each.{hasDirtyAttributes,isNew}',
+    'chart.groups.@each.{hasDirtyAttributes,isNew}',
+    'chart.properties.@each.{hasDirtyAttributes,isNew}',
     function() {
     return (this.get('chart.hasDirtyAttributes')
-        || this.get('chart.sourceGroups').any(function(obj) { return obj.get('hasDirtyAttributes') || obj.get('isNew'); })
-        || this.get('chart.sourceConfigs').any(function(obj) { return obj.get('hasDirtyAttributes') || obj.get('isNew'); })
-        || this.get('chart.propertyConfigs').any(function(obj) { return obj.get('hasDirtyAttributes') || obj.get('isNew'); })
+        || this.get('chart.groups').any(function(obj) { return obj.get('hasDirtyAttributes') || obj.get('isNew'); })
+        || this.get('chart.properties').any(function(obj) { return obj.get('hasDirtyAttributes') || obj.get('isNew'); })
         );
   }),
   startDate: Ember.computed('chart.startDate', datePropertyAccessor),
@@ -98,13 +96,10 @@ export default Ember.Component.extend({
     save() {
       const chart = this.get('chart');
       chart.save();
-      chart.get('sourceGroups').forEach(obj => {
+      chart.get('groups').forEach(obj => {
         obj.save();
       });
-      chart.get('sourceConfigs').forEach(obj => {
-        obj.save();
-      });
-      chart.get('propertyConfigs').forEach(obj => {
+      chart.get('properties').forEach(obj => {
         obj.save();
       });
     }
