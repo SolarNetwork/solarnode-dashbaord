@@ -26,8 +26,10 @@ export function defaultUnitsForProperty(prop) {
 }
 
 export default DS.Model.extend({
-  source: DS.belongsTo('chart-source-config', {inverse:'props'}),
-  sourceId: Ember.computed.alias('source.source'),
+  profile: DS.belongsTo('user-profile', {inverse:'chartProperties'}),
+  charts: DS.hasMany('chart-config', {inverse:'properties'}),
+
+  source: DS.attr('string'),
   prop: DS.attr('string'),
   title: DS.attr('string'),
   unit: DS.attr('string'),
@@ -43,18 +45,17 @@ export default DS.Model.extend({
    Get a plain object version of this object. Default values for properties will
    be returned if possible.
    */
-  property: Ember.computed('source.source', 'prop', 'unit', 'unitName', 'color', function() {
-    var prop = this.get('prop');
+  property: Ember.computed('source', 'prop', 'unit', 'unitName', 'color', function() {
+    const prop = this.get('prop');
     var unit = this.get('unit');
     var unitName = this.get('unitName');
-    var source = this.get('source');
     if ( prop && !(unit || unitName) ) {
       const defaultUnits = defaultUnitsForProperty(prop);
       unit = unit || defaultUnits.unit;
       unitName = unitName || defaultUnits.unitName;
     }
     return {
-      source: (source ? source.get('source') : null),
+      source: this.get('source'),
       prop: prop,
       unit: unit,
       unitName: unitName,

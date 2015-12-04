@@ -3,9 +3,9 @@ import DS from 'ember-data';
 import { defaultUnitsForProperty } from './chart-property-config';
 
 export default DS.Model.extend({
+  chart: DS.belongsTo('chart-config', {inverse:'groups'}),
+  sourceIds: DS.attr(), // array of source IDs
   title: DS.attr('string'),
-  chart: DS.belongsTo('chart-config', {inverse:'sourceGroups'}),
-  sources: DS.hasMany('chart-source-config', {inverse:'group'}),
   flags: DS.attr(),
   scaleFactor: DS.attr('number', {default: 1}),
 
@@ -38,7 +38,7 @@ export default DS.Model.extend({
    Get an array of all configured sources and properties.
 
    @return {Array} Array of ChartPropertyConfig objects
-   */
+   *
   sourceProperties: Ember.computed('sources.@each.properties', function() {
     const promise = this.get('sources').then(sources => {
       return Ember.RSVP.all(sources.mapBy('properties'));
@@ -56,7 +56,7 @@ export default DS.Model.extend({
    Get an array of all configured ChartSourceConfig objects.
 
    @return {Array} Array of ChartSourceConfig objects.
-   */
+   *
   sourceConfigs: Ember.computed('sources.@each.{title,scaleFactor,groupProp,groupUnit,groupUnitName}', function() {
     const promise = this.get('sources');
     return DS.PromiseArray.create({promise:promise});
@@ -66,7 +66,7 @@ export default DS.Model.extend({
    Get an array of all configured ChartPropertyConfig objects.
 
    @return {Array} Array of ChartPropertyConfig objects.
-   */
+   *
   propertyConfigs: Ember.computed('sources.@each.propertyConfigs', function() {
     const promise = this.get('sources').then(sources => {
       return Ember.RSVP.all(sources.mapBy('propertyConfigs'));
@@ -81,5 +81,5 @@ export default DS.Model.extend({
     });
     return DS.PromiseArray.create({promise:promise});
   }),
-
+  */
 });
