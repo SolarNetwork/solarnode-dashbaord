@@ -99,6 +99,14 @@ export default Ember.Component.extend({
             sourceGroup.destroyRecord();
 	        });
 	      });
+	      chart.get('properties').then(propConfigs => {
+	        propConfigs.forEach(propConfig => {
+	          propConfig.get('charts').then(charts => {
+	            charts.removeObject(chart);
+	            propConfig.save();
+	          });
+	        });
+	      });
 	      chart.destroyRecord();
 	    });
 	    profile.save();
