@@ -309,22 +309,17 @@ export default Ember.Service.extend({
       return Ember.RSVP.reject(new Error('Incomplete chart range, cannot load data.'));
     }
 
-    return chartConfig.get('sourceGroups').then(groups => {
-      // first resolve all sources for all groups...
-      var sources = groups.getEach('sources');
-      return Ember.RSVP.all(sources).then(function() {
-        return groups.slice(); // NOT a PromiseArray, we want a regular map() function below
-      });
-    }).then(groups => {
-      // now the sources properties are resolved, so map them to source sets
-      return groups.map(function (group) {
-        var sources = group.get('sources'); // these are already resolved
-        var sourceSet = sources.reduce(function(sourceSet, sourceConfig) {
-          sourceSet.sourceIds.push(sourceConfig.get('source'));
-          return sourceSet;
-        }, {group:group, sourceIds:[]});
-        return sourceSet;
-      });
+    return Ember.RSVP.all([chartConfig.get('properties'), chartConfig.get('groups')]).then(([propConfigs, groupConfigs]) => {
+      // compute source sets as a GROUP BY of groups
+      if ( groupConfigs && groupConfigs.get('length') > 0 ) {
+        return groupConfigs.map(groupConfig => {
+          return {groupId:groupConfig.get('id'), sourceIds:groupConfig.get('sourceIds')};
+        });
+      } else {
+        // a single "group"
+        var allSourceIds = propConfigs.mapBy('source');
+        return [{groupId:null, sourceIds:allSourceIds}];
+      }
     }).then(sourceSets => {
       const loadSets = sourceSets.map(sourceSet => {
         return sn.api.datum.loader(sourceSet.sourceIds, urlHelper, range.start, range.end, range.aggregate);
@@ -335,8 +330,7 @@ export default Ember.Service.extend({
         }
         var finalData = sourceSets.map((sourceSet, index) => {
           return {
-            group:sourceSet.group,
-            groupId:sourceSet.group.get('id'),
+            groupId:sourceSet.groupId,
             sourceIds:sourceSet.sourceIds,
             data:results[index]
           };
