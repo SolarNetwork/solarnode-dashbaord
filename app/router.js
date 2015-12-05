@@ -13,6 +13,9 @@ Router.map(function() {
   this.route('home', { path: '/home' }, function() {
     this.route('chart', { path: '/:chartId', resetNamespace: true });
   });
+  this.route('data-props', function() {
+    this.route('source', { path: '/:id' });
+  });
 });
 
 export default Router;

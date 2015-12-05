@@ -118,5 +118,15 @@ export default {
       }
     },
     "export" : "Export"
+  },
+  "data-props" : {
+    "title" : "Manage data sources",
+    "intro" : "Here are all the available data sources posted by your SolarNode. Each data source can have any number of properties associated with it. Use this page to assign friendly names, colors, and other information to any of these properties.",
+    "edit" : {
+      "noSourceSelected" : "Select a data source.",
+      "source" : {
+        "title" : "Source name",
+      }
+    }
   }
 };

@@ -1,0 +1,18 @@
+<div class="uk-grid uk-grid-divider">
+	<div class="uk-width-2-10">
+		<ul class="uk-nav uk-nav-side">
+			{{#each sourceConfigs as |sourceConfig|}}
+				<li class="{{if (eq sourceConfig.source selectedSourceId) 'uk-active' null}}">
+					<a {{action 'selectSource' sourceConfig}}>{{sourceConfig.displayName}}</a>
+				</li>
+			{{/each}}
+		</ul>
+	</div>
+	{{#if selectedSourceId}}
+		{{outlet}}
+	{{else}}
+		<div class="uk-width-4-10">
+			<p class="uk-text-muted">{{t 'data-props.edit.noSourceSelected'}}</p>
+		</div>
+	{{/if}}
+</div>
