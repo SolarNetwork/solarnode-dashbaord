@@ -11,6 +11,7 @@ export default {
     "hide" : "Hide",
     "login" : "Login",
     "logout" : "Logout",
+    "manageDataProperties" : "Manage data sources",
     "remove" : "Remove",
     "removeItem" : "Remove {{item}}",
     "save" : "Save",
