@@ -98,10 +98,12 @@ function propertiesForSourceData(sourceData, flags) {
   }
 
   // get properties of first object only
-  var templateObj = sourceData.values[0];
-  var propKeys = Object.keys(templateObj).filter(function(key) {
-    return (!ignoreSourceDataProps[key] && typeof templateObj[key] === 'number');
-  }).sort();
+  var firstDatum = sourceData.values[0];
+  return propertiesForDatum(firstDatum, flags);
+}
+
+function propertiesForDatum(datum, flags) {
+  var propKeys = datumNumericPropertyKeys(datum);
   return propKeys.map(function(key) {
     if ( flags ) {
       // look for "watts" for electricity
@@ -117,7 +119,7 @@ function propertiesForSourceData(sourceData, flags) {
       } else if ( key === "phaseVoltage" || key === "frequency" || key === "powerFactor" ) {
         // look for signs of AC power
         flags.ac = true;
-        if ( templateObj.phase && templateObj.phase !== 'Total' ) {
+        if ( datum.phase && datum.phase !== 'Total' ) {
           flags.phase = true;
         }
       } else  if ( key === "temp" ) {
@@ -126,6 +128,19 @@ function propertiesForSourceData(sourceData, flags) {
     }
     return {prop:key};
   });
+}
+
+/**
+ Get all numeric property keys for a given datum.
+
+ @param {Object} datum - A datum returned by a SolarNetwork query.
+ @return {Array} - An array of property keys.
+ */
+export function datumNumericPropertyKeys(datum) {
+  var propKeys = Object.keys(datum).filter(function(key) {
+    return (!ignoreSourceDataProps[key] && typeof datum[key] === 'number');
+  }).sort();
+  return propKeys;
 }
 
 /**
@@ -285,6 +300,8 @@ export default Ember.Service.extend({
       }
     );
   },
+
+  datumNumericPropertyKeys: datumNumericPropertyKeys,
 
   /**
     Get a promise for a set of data for a single chart configuration.

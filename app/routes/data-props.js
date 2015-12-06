@@ -3,6 +3,7 @@ import AuthenticatedRouteMixin from 'ember-simple-auth/mixins/authenticated-rout
 import d3 from 'npm:d3';
 import sn from 'npm:solarnetwork-d3';
 import DataSourceConfig from '../models/data-source-config';
+import { datumNumericPropertyKeys } from '../services/chart-helper';
 
 export default Ember.Route.extend(AuthenticatedRouteMixin, {
   clientHelper:  Ember.inject.service(),
@@ -11,20 +12,25 @@ export default Ember.Route.extend(AuthenticatedRouteMixin, {
   model() {
     const urlHelper = this.get('clientHelper.nodeUrlHelper');
     const getSources = Ember.RSVP.denodeify(sn.api.node.availableSources);
+    const nodeClient = this.get('clientHelper.nodeClient');
     const store = this.get('store');
     return this.get('userService.activeUserProfile').then(profile => {
-      const allSources = profile.get('chartSources').then(sourceConfigs => {
-        return getSources(urlHelper).then(sourceIds => {
+      return Ember.RSVP.hash({
+        profile: profile,
+        allSourceConfigs: profile.get('chartSources'),
+        allPropConfigs: profile.get('chartProperties'),
+      }).then(model => {
+        getSources(urlHelper).then(sourceIds => {
           var added = false;
           sourceIds.forEach(sourceId => {
-            const matchingSourceConfig = sourceConfigs.findBy('source', sourceId);
+            const matchingSourceConfig = model.allSourceConfigs.findBy('source', sourceId);
             if ( !matchingSourceConfig ) {
               // create one now!
               var sourceConfig = store.createRecord('chart-source-config', {
                 profile: profile,
-                source : sourceId
+                source : sourceId,
               });
-              sourceConfigs.pushObject(sourceConfig);
+              model.allSourceConfigs.pushObject(sourceConfig);
               sourceConfig.save();
               added = true;
             }
@@ -32,13 +38,35 @@ export default Ember.Route.extend(AuthenticatedRouteMixin, {
           if ( added ) {
             profile.save();
           }
-          return sourceConfigs;
+          added = false;
+          nodeClient.json(urlHelper.mostRecentURL(sourceIds)).then(data => {
+            if ( !Array.isArray(data.results) ) {
+              return;
+            }
+            data.results.forEach(datum => {
+              const sourceId = datum.sourceId;
+              const propKeys = datumNumericPropertyKeys(datum);
+              propKeys.forEach(prop => {
+                const matchingPropConfig = model.allPropConfigs.find(function(propConfig) {
+                  return (propConfig.get('source') === sourceId && propConfig.get('prop') === prop);
+                });
+                if ( !matchingPropConfig ) {
+                  var propConfig = store.createRecord('chart-property-config', {
+                    profile: profile,
+                    source: sourceId,
+                    prop: prop,
+                  });
+                  model.allPropConfigs.pushObject(propConfig);
+                  added = true;
+                }
+              });
+            });
+            if ( added ) {
+              profile.save();
+            }
+          });
         });
-      });
-      return Ember.RSVP.hash({
-        profile: profile,
-        allSourceConfigs: allSources,
-        allPropConfigs: profile.get('chartProperties'),
+        return model;
       });
     });
   },

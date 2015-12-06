@@ -17,6 +17,7 @@ export default Ember.Route.extend(AuthenticatedRouteMixin, {
       this.get('userService.activeUserProfile').then((profile) => {
         profile.set('isSetup', true);
         profile.save();
+        this.eventBus.publish('UserProfile.SetupComplete', true);
         this.transitionTo('home');
       });
     }

@@ -12,14 +12,16 @@ export default Ember.Service.extend({
     if ( store && !isEmpty(userId) ) {
       return store.find('user', userId);
     }
+    return Ember.RSVP.resolve(undefined);
   }),
 
   activeUserProfile: Ember.computed('activeUser', function() {
-    return new Ember.RSVP.Promise((resolve, reject) => {
-        this.get('activeUser').then(function(user) {
-          resolve(user.get('profile'));
-        }, reject);
-      });
+    return this.get('activeUser').then(user => {
+      if ( !user ) {
+        return undefined;
+      }
+      return user.get('profile');
+    });
   })
 
 });

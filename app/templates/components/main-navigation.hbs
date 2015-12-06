@@ -7,13 +7,14 @@
   </div>
 {{/if}}
 <div class="uk-navbar-flip">
-  {{#if session.isAuthenticated}}
+  {{#if (and session.isAuthenticated isSetup)}}
     <ul class="uk-navbar-nav">
       <li class="uk-parent" data-uk-dropdown>
-        <a href="">{{fa-icon 'cog' class="uk-icon-small uk-icon-hover"}}</a>
+        <a>{{fa-icon 'cog' class="uk-icon-small uk-icon-hover"}}</a>
         <div class="uk-dropdown uk-dropdown-navbar">
           <ul class="uk-nav uk-nav-navbar">
             <li>{{#link-to 'data-props'}}{{t 'action.manageDataProperties'}}{{/link-to}}</li>
+            <li>{{#link-to 'get-started'}}{{t 'action.getStarted'}}{{/link-to}}</li>
           </ul>
         </div>
       </li>
