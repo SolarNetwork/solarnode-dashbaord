@@ -94,7 +94,9 @@
             {{configurable-chart-source-group sourceGroup=sourceGroup groupIndex=groupIndex allPropConfigs=allPropConfigs}}
 			    {{/each}}
 			  {{else}}
-          {{configurable-chart-source-list chartConfig=chart allSourceConfigs=allSourceConfigs allPropConfigs=allPropConfigs}}
+          {{#each uniqueSourceConfigs as |sourceConfig|}}
+            {{configurable-chart-source sourceConfig=sourceConfig chartConfig=chart allPropConfigs=allPropConfigs}}
+          {{/each}}
 			  {{/if}}
 
 			</fieldset>

@@ -13,6 +13,9 @@ export default DS.Model.extend({
   properties: DS.hasMany('chart-property-config', {inverse:'charts'}),
   groups: DS.hasMany('chart-source-group', {inverse:'chart'}),
 
+  sources: Ember.computed.mapBy('properties', 'source'),
+  uniqueSources: Ember.computed.uniq('sources'),
+
   isSettingsVisible: DS.attr('boolean', { defaultValue: true }),
 
   isUsePeriod: DS.attr('boolean', { defaultValue: true }),

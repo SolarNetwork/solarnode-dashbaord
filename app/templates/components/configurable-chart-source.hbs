@@ -1,25 +1,28 @@
 <h3>{{sourceConfig.displayName}}</h3>
-<div class="uk-form-row">
-  {{input value=sourceConfig.displayName class="uk-width-1-1" placeholder=(t 'chart.edit.source.title')}}
-</div>
 
 {{#each sourceProperties as |prop|}}
   <div class="uk-form-row uk-margin-top app-chart-property-form">
     <div class="uk-grid" style="align-items: center;">
-      <div class="uk-flex-item-none">
-        <a {{action 'removeProperty' prop}} title={{t 'action.removeItem' item=(t 'chart.edit.prop.prop')}} class="uk-icon-hover uk-icon-small">
-          {{fa-icon 'minus'}}
-        </a>
-      </div>
+      {{#if (and (gt sourceProperties.length 1) (gt allSourceProperties.length sourceProperties.length))}}
+        <div class="uk-flex-item-none">
+          <a {{action 'removeProperty' prop}} title={{t 'action.removeItem' item=(t 'chart.edit.prop.prop')}} class="uk-icon-hover uk-icon-small">
+            {{fa-icon 'minus'}}
+          </a>
+        </div>
+      {{/if}}
       <div class="uk-flex-item-none">
         {{color-swatch-input color=prop.color onChangeColor=(action (mut prop.color))}}
       </div>
       <div class="uk-flex-item-1">
-        <select onchange={{action 'selectProperty' value="target.value"}} autocomplete="off">
-          {{#each allSourceProperties as |propConfig|}}
-            <option value={{propConfig.id}} selected={{if (eq prop.id propConfig.id) 'selected' null}}>{{propConfig.displayName}}</option>
-          {{/each}}
-        </select>
+        {{#if (gt allSourceProperties.length sourceProperties.length)}}
+          <select onchange={{action 'selectProperty' value="target.value"}} autocomplete="off">
+            {{#each allSourceProperties as |propConfig|}}
+              <option value={{propConfig.id}} selected={{if (eq prop.id propConfig.id) 'selected' null}}>{{propConfig.displayName}}</option>
+            {{/each}}
+          </select>
+        {{else}}
+          <p>{{sourceProperties.firstObject.displayName}}</p>
+        {{/if}}
       </div>
       <!--
       <div class="uk-flex-item-1">

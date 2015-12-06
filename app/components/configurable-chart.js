@@ -64,13 +64,28 @@ export default Ember.Component.extend({
     return (style !== 'line'); // TODO: set this to what styles are explicitly supported
   }),
 
-  willDestroy: Ember.on('willDestroyElement', function() {
-    this.get('resizeService').off('debouncedDidResize', this, this.didResize);
+  uniqueSourceConfigs: Ember.computed('chart.uniqueSources.[]', 'allSourceConfigs.@each.source', function() {
+    const sources = this.get('chart.uniqueSources');
+    const sourceConfigs = this.get('allSourceConfigs');
+    if ( !sourceConfigs ) {
+      return Ember.RSVP.resolve(new Ember.A());
+    }
+    return this.get('allSourceConfigs').filter(sourceConfig => {
+      return sources.indexOf(sourceConfig.get('source')) !== -1;
+    }).sort((l, r) => {
+      const lIndex = sources.indexOf(l.get('source'));
+      const rIndex = sources.indexOf(r.get('source'));
+      return (lIndex < rIndex ? -1 : lIndex > rIndex ? 1 : 0);
+    });
   }),
 
   inserted: Ember.on('didInsertElement', function() {
     this.get('resizeService').on('debouncedDidResize', this, this.didResize);
     Ember.run.next(this, 'didResize');
+  }),
+
+  willDestroy: Ember.on('willDestroyElement', function() {
+    this.get('resizeService').off('debouncedDidResize', this, this.didResize);
   }),
 
   didResize() {
