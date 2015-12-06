@@ -22,38 +22,38 @@ export default BaseChart.extend({
   }),
 
   computeChartColors() {
-    const chartConfig = this.get('chartConfig');
-    if ( !chartConfig ) {
+    const propConfigs = this.get('propConfigs');
+    if ( !propConfigs ) {
       return;
     }
-    chartConfig.get('properties').then(propConfigs => {
-      const colors = [];
-      propConfigs.forEach(propConfig => {
-        colors.push(propConfig.get('color'));
-      });
-      this.set('colors', colors);
+    const colors = [];
+    propConfigs.forEach(propConfig => {
+      colors.push(propConfig.get('color'));
     });
+    this.set('colors', colors);
   },
 
-  colorPropertiesChanged: Ember.on('init', Ember.observer('chartConfig.properties.@each.color', function() {
+  colorPropertiesChanged: Ember.observer('propConfigs.@each.color', function() {
     this.computeChartColors();
-  })),
+  }),
 
-  propVisibilityChanged: Ember.observer('chartConfig.properties.@each.isHidden', function() {
+  propVisibilityChanged: Ember.observer('propConfigs.@each.isHidden', function() {
     this.computePropVisibilityMap();
   }),
 
   computePropVisibilityMap() {
-    this.get('chartConfig.properties').then(propConfigs => {
-      const vizMap = {};
-      propConfigs.forEach(propConfig => {
-        const sourceId = propConfig.get('source');
-        const prop = propConfig.get('prop');
-        const lineId = lineIdForProperty(sourceId, prop);
-        vizMap[lineId] = propConfig.get('isHidden');
-      });
-      this.set('visibilityMap', vizMap);
+    const propConfigs = this.get('propConfigs');
+    if ( !propConfigs ) {
+      return;
+    }
+    const vizMap = {};
+    propConfigs.forEach(propConfig => {
+      const sourceId = propConfig.get('source');
+      const prop = propConfig.get('prop');
+      const lineId = lineIdForProperty(sourceId, prop);
+      vizMap[lineId] = propConfig.get('isHidden');
     });
+    this.set('visibilityMap', vizMap);
   },
 
   visibilityMapChanged: Ember.observer('snChart', 'visibilityMap', function() {
@@ -100,11 +100,11 @@ export default BaseChart.extend({
 
   colors: Ember.computed('chart', {
     get(key) {
-      const chart = this.get('chart');
+      const chart = this.get('snChart');
       return (chart ? chart.colors() : undefined);
     },
     set(key, value) {
-      const chart = this.get('chart');
+      const chart = this.get('snChart');
       if ( chart && Array.isArray(value) ) {
         chart.colors(value);
         this.regenerateChart();
