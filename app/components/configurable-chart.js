@@ -109,7 +109,6 @@ export default Ember.Component.extend({
     },
 
     togglePropertyVisibility(prop) {
-      console.log('chart prop viz change: ' +prop);
       this.get('chart.properties').then(propConfigs => {
         const propConfig = propConfigs.findBy('id', prop.get('id'));
         if ( propConfig ) {
@@ -119,7 +118,6 @@ export default Ember.Component.extend({
     },
 
     setPropertyColor(prop, color) {
-      console.log('chart prop color change: ' +prop +', color = ' + color);
       this.get('chart.properties').then(propConfigs => {
         const propConfig = propConfigs.findBy('id', prop.get('id'));
         if ( propConfig ) {
