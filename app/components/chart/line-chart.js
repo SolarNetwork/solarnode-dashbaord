@@ -47,7 +47,7 @@ export default BaseChart.extend({
     this.get('chartConfig.properties').then(propConfigs => {
       const vizMap = {};
       propConfigs.forEach(propConfig => {
-        const sourceId = propConfig.get('source.source');
+        const sourceId = propConfig.get('source');
         const prop = propConfig.get('prop');
         const lineId = lineIdForProperty(sourceId, prop);
         vizMap[lineId] = propConfig.get('isHidden');

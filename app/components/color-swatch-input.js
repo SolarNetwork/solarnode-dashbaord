@@ -6,12 +6,17 @@ export default Ember.Component.extend(Ember.TextSupport, {
   type: 'color',
   value: '#f7c819',
 
+  /**
+   A context object to pass as the first argument to the configured <code>onChangeColor</code> action.
+   */
+  colorContext: null,
+
   color: Ember.computed.alias('value'),
 
   change(event) {
     const color = event.target.value;
     this.set('color', color);
-    this.get('onChangeColor')(color);
+    this.get('onChangeColor')(this.get('colorContext'), color);
   },
 
   inserted: Ember.on('didInsertElement', function() {

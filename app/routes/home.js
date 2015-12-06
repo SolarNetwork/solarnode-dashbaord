@@ -42,6 +42,16 @@ export default Ember.Route.extend(AuthenticatedRouteMixin, {
 
   actions : {
     selectChart(chart) {
+      if ( !chart.get('propConfigs') ) {
+        chart.get('chart.properties').then(propConfigs => {
+          chart.set('propConfigs', propConfigs);
+          chart.set('selected', true);
+          return chart;
+        }).then(finalChart => {
+          this.transitionTo('chart', finalChart);
+        });
+        return;
+      }
       chart.set('selected', true);
       this.transitionTo('chart', chart);
     }

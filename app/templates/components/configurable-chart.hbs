@@ -13,7 +13,7 @@
     {{else if (eq chart.style 'io-pie')}}
       {{chart.io-pie-chart width=chartWidth height=320 chartConfig=chart}}
     {{else}}
-		  {{chart.line-chart width=chartWidth height=320 chartConfig=chart allSourceConfigs=allSourceConfigs propConfigs=chart.properties}}
+		  {{chart.line-chart width=chartWidth height=320 chartConfig=chart allSourceConfigs=allSourceConfigs propConfigs=propConfigs}}
 		{{/liquid-if}}
 	</div>
 	<div class="uk-hidden-small uk-width-large-1-10 uk-text-right uk-margin-bottom app-chart-settings-toggle-horizontal">
@@ -95,7 +95,10 @@
 			    {{/each}}
 			  {{else}}
           {{#each uniqueSourceConfigs as |sourceConfig|}}
-            {{configurable-chart-source sourceConfig=sourceConfig chartConfig=chart allPropConfigs=allPropConfigs}}
+            {{configurable-chart-source sourceConfig=sourceConfig chartConfig=chart
+              propConfigs=propConfigs allPropConfigs=allPropConfigs
+              togglePropertyVisibility=(action 'togglePropertyVisibility')
+              setPropertyColor=(action 'setPropertyColor')}}
           {{/each}}
 			  {{/if}}
 

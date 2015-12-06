@@ -9,12 +9,13 @@ export default Ember.Route.extend(AuthenticatedRouteMixin, {
     // note we don't do this in afterModel because we only want it invoked via direct URL, e.g. browser back button
     return Ember.RSVP.all([this.get('userService.activeUserProfile'), this.store.findRecord('chart-config', params.chartId)])
     .then(([profile, chartConfig]) => {
-      return Ember.RSVP.all([profile.get('charts'), profile.get('chartSources'), profile.get('chartProperties')])
-      .then(([allCharts, allSourceConfigs, allPropConfigs]) => {
+      return Ember.RSVP.all([chartConfig.get('properties'), profile.get('charts'), profile.get('chartSources'), profile.get('chartProperties')])
+      .then(([chartPropConfigs, allCharts, allSourceConfigs, allPropConfigs]) => {
         this.eventBus.publish('chartRoute.ChartLoaded', chartConfig);
         return SelectableChart.create({
           chart: chartConfig,
           profile: profile,
+          propConfigs: chartPropConfigs,
           allCharts: allCharts,
           allSourceConfigs : allSourceConfigs,
           allPropConfigs : allPropConfigs,

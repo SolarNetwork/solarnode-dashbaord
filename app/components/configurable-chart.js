@@ -108,6 +108,26 @@ export default Ember.Component.extend({
       Ember.run.next(this, 'didResize');
     },
 
+    togglePropertyVisibility(prop) {
+      console.log('chart prop viz change: ' +prop);
+      this.get('chart.properties').then(propConfigs => {
+        const propConfig = propConfigs.findBy('id', prop.get('id'));
+        if ( propConfig ) {
+          propConfig.toggleProperty('isHidden');
+        }
+      });
+    },
+
+    setPropertyColor(prop, color) {
+      console.log('chart prop color change: ' +prop +', color = ' + color);
+      this.get('chart.properties').then(propConfigs => {
+        const propConfig = propConfigs.findBy('id', prop.get('id'));
+        if ( propConfig ) {
+          propConfig.set('color', color);
+        };
+      });
+    },
+
     save() {
       const chart = this.get('chart');
       chart.save();

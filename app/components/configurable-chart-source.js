@@ -7,9 +7,9 @@ export default Ember.Component.extend({
   store: Ember.inject.service(),
 
   source: Ember.computed.alias('sourceConfig.source'),
-  sourceProperties: Ember.computed('chartConfig.properties.@each.source', 'source', function() {
+  sourceProperties: Ember.computed('propConfigs.@each.source', 'source', function() {
     const sourceId = this.get('source');
-    return this.get('chartConfig.properties').filterBy('source', sourceId);
+    return this.get('propConfigs').filterBy('source', sourceId);
   }),
 
   allSourceProperties: Ember.computed('allPropConfigs.@each.source', 'source', function() {
@@ -27,8 +27,13 @@ export default Ember.Component.extend({
 
   actions : {
     togglePropertyVisibility(prop) {
-      prop.toggleProperty('isHidden');
+      this.sendAction('togglePropertyVisibility', prop);
+      //prop.toggleProperty('isHidden');
     },
+
+   setPropertyColor(prop, color) {
+      this.sendAction('setPropertyColor', prop, color);
+   },
 
     selectProperty(propConfigId) {
       // TODO
