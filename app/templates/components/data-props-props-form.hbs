@@ -1,10 +1,4 @@
 <legend>{{t 'data-props.edit.props.title' source=sourceConfig.displayName}}</legend>
-{{#unless hidePropsIntro}}
-	<div class="uk-alert" data-uk-alert>
-		<a href="" class="uk-alert-close uk-close"></a>
-		<p>{{t 'data-props.edit.props.intro' source=sourceConfig.displayName}}</p>
-	</div>
-{{/unless}}
 <fieldset class="app-chart-property-form">
 	{{#each propConfigs as |prop|}}
 		<div class="uk-grid app-chart-property-form" style="align-items: center;">

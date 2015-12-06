@@ -2,4 +2,8 @@
 	{{t 'data-props.title'}}
 </h1>
 <p>{{t 'data-props.intro'}}</p>
-{{data-props-editor sourceConfigs=model.allSourceConfigs propConfigs=model.allPropConfigs selectedSource='selectedSource'}}
+{{data-props-editor
+	profile=model.profile
+	sourceConfigs=model.allSourceConfigs
+	propConfigs=model.allPropConfigs
+	selectedSource='selectedSource'}}

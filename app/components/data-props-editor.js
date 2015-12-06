@@ -22,6 +22,15 @@ export default Ember.Component.extend({
       this.set('selectedSourceId', sourceConfig.get('source'));
       this.sendAction('selectedSource', sourceConfig);
     },
+
+    hideDataPropHelp() {
+      const profile = this.get('profile');
+      if ( profile ) {
+        profile.set('isHideDataPropHelp', true);
+        profile.save();
+      }
+    },
+
   },
 
 });

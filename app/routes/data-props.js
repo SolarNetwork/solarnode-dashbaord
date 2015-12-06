@@ -36,6 +36,7 @@ export default Ember.Route.extend(AuthenticatedRouteMixin, {
         });
       });
       return Ember.RSVP.hash({
+        profile: profile,
         allSourceConfigs: allSources,
         allPropConfigs: profile.get('chartProperties'),
       });
@@ -47,13 +48,14 @@ export default Ember.Route.extend(AuthenticatedRouteMixin, {
       sourceConfig.get('profile').then(profile => {
         profile.get('chartProperties').then(allPropConfigs => {
           const model = DataSourceConfig.create({
+            profile: profile,
             sourceConfig: sourceConfig,
             allPropConfigs: allPropConfigs,
           });
           this.transitionTo('data-props.source', model);
         })
       });
-    },
+    }
   },
 
 });

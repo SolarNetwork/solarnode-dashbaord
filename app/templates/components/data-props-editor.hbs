@@ -1,3 +1,9 @@
+{{#unless profile.isHideDataPropHelp}}
+	<div class="uk-alert" data-uk-alert>
+		<a {{action 'hideDataPropHelp'}} class="uk-alert-close uk-close"></a>
+		<p>{{t 'data-props.edit.help'}}</p>
+	</div>
+{{/unless}}
 <div class="uk-grid uk-flex-wrap uk-flex-wrap-space-around">
   <form class="uk-form uk-width-small-4-10 uk-width-large-2-10">
     <fieldset>

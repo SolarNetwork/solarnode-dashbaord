@@ -9,6 +9,7 @@ export default Ember.Route.extend({
       return sourceConfig.get('profile').then(profile => {
         return profile.get('chartProperties').then(allPropConfigs => {
           const model = DataSourceConfig.create({
+            profile: profile,
             sourceConfig: sourceConfig,
             allPropConfigs: allPropConfigs,
           });
