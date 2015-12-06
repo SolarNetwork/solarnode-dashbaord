@@ -57,6 +57,7 @@ export default Ember.Route.extend(AuthenticatedRouteMixin, {
                     prop: prop,
                   });
                   model.allPropConfigs.pushObject(propConfig);
+                  propConfig.save();
                   added = true;
                 }
               });
