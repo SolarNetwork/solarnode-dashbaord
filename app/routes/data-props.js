@@ -2,6 +2,7 @@ import Ember from 'ember';
 import AuthenticatedRouteMixin from 'ember-simple-auth/mixins/authenticated-route-mixin';
 import d3 from 'npm:d3';
 import sn from 'npm:solarnetwork-d3';
+import DataSourceConfig from '../models/data-source-config';
 
 export default Ember.Route.extend(AuthenticatedRouteMixin, {
   clientHelper:  Ember.inject.service(),
@@ -43,7 +44,15 @@ export default Ember.Route.extend(AuthenticatedRouteMixin, {
 
   actions : {
     selectedSource(sourceConfig) {
-      this.transitionTo('data-props.source', sourceConfig);
+      sourceConfig.get('profile').then(profile => {
+        profile.get('chartProperties').then(allPropConfigs => {
+          const model = DataSourceConfig.create({
+            sourceConfig: sourceConfig,
+            allPropConfigs: allPropConfigs,
+          });
+          this.transitionTo('data-props.source', model);
+        })
+      });
     },
   },
 

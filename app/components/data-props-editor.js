@@ -5,16 +5,16 @@ export default Ember.Component.extend({
 
   init() {
     this._super(...arguments);
-    this.eventBus.subscribe('data-props.source.SourceConfigLoaded', this, 'onSourceConfigLoaded');
+    this.eventBus.subscribe('data-props.source.DataSourceConfigLoaded', this, 'onDataSourceConfigLoaded');
   },
 
   destroy() {
-    this.eventBus.unsubscribe('data-props.source.SourceConfigLoaded');
+    this.eventBus.unsubscribe('data-props.source.DataSourceConfigLoaded');
     this._super(...arguments);
   },
 
-  onSourceConfigLoaded(sourceConfig) {
-    this.set('selectedSourceId', sourceConfig.get('source'));
+  onDataSourceConfigLoaded(dataSourceConfig) {
+    this.set('selectedSourceId', dataSourceConfig.get('sourceId'));
   },
 
   actions : {

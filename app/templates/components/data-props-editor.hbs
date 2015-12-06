@@ -1,17 +1,20 @@
-<div class="uk-grid uk-grid-divider">
-	<div class="uk-width-2-10">
-		<ul class="uk-nav uk-nav-side">
-			{{#each sourceConfigs as |sourceConfig|}}
-				<li class="{{if (eq sourceConfig.source selectedSourceId) 'uk-active' null}}">
-					<a {{action 'selectSource' sourceConfig}}>{{sourceConfig.displayName}}</a>
-				</li>
-			{{/each}}
-		</ul>
-	</div>
+<div class="uk-grid uk-flex-wrap uk-flex-wrap-space-around">
+  <form class="uk-form uk-width-small-4-10 uk-width-large-2-10">
+    <fieldset>
+      <legend>{{t 'data-props.edit.sources.title'}}</legend>
+      <ul class="uk-nav uk-nav-side">
+        {{#each sourceConfigs as |sourceConfig|}}
+          <li class="{{if (eq sourceConfig.source selectedSourceId) 'uk-active' null}}">
+            <a {{action 'selectSource' sourceConfig}}>{{sourceConfig.displayName}}</a>
+          </li>
+        {{/each}}
+      </ul>
+		</fieldset>
+	</form>
 	{{#if selectedSourceId}}
 		{{outlet}}
 	{{else}}
-		<div class="uk-width-4-10">
+		<div class="uk-width-small-6-10 uk-width-large-4-10">
 			<p class="uk-text-muted">{{t 'data-props.edit.noSourceSelected'}}</p>
 		</div>
 	{{/if}}

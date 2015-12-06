@@ -1,0 +1,25 @@
+<legend>{{t 'data-props.edit.props.title' source=sourceConfig.displayName}}</legend>
+{{#unless hidePropsIntro}}
+	<div class="uk-alert" data-uk-alert>
+		<a href="" class="uk-alert-close uk-close"></a>
+		<p>{{t 'data-props.edit.props.intro' source=sourceConfig.displayName}}</p>
+	</div>
+{{/unless}}
+<fieldset class="app-chart-property-form">
+	{{#each propConfigs as |prop|}}
+		<div class="uk-grid app-chart-property-form" style="align-items: center;">
+			<div class="uk-flex-item-none">
+				{{color-swatch-input color=prop.color onChangeColor=(action (mut prop.color))}}
+			</div>
+			<div class="uk-flex-item-1">
+				{{input value=prop.prop class="uk-width-1-1" placeholder=(t 'data-props.edit.prop.prop.placeholder')}}
+			</div>
+			<div class="uk-flex-item-1">
+				{{input value=prop.title class="uk-width-1-1" placeholder=(t 'data-props.edit.prop.title.placeholder')}}
+			</div>
+			<div class="uk-flex-item-1">
+				{{input value=prop.unit class="uk-width-1-1" placeholder=(if prop.property.unit (t 'data-props.edit.prop.unit.placeholderWithDefault' default=prop.property.unit) (t 'data-props.edit.prop.unit.placeholder'))}}
+			</div>
+		</div>
+	{{/each}}
+</fieldset>

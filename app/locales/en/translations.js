@@ -125,9 +125,41 @@ export default {
     "intro" : "Here are all the available data sources posted by your SolarNode. Each data source can have any number of properties associated with it. Use this page to assign friendly names, colors, and other information to any of these properties.",
     "edit" : {
       "noSourceSelected" : "Select a data source.",
+      "sources" : {
+        "title" : "Sources",
+      },
       "source" : {
-        "title" : "Source name",
-      }
+        "id" : "Source ID",
+        "heading" : "{{name}} Source",
+        "title" : "Name",
+        "placeholder" : "Enter a friendly name",
+        "caption" : "You can give this source a more friendly name here. This name will be used for display purposes only.",
+      },
+      "props" : {
+        "title" : "{{source}} Properties",
+        "intro" : "Here are the data properties for source {{source}}. Each property has a color for use in charts, and a unit of measurement.",
+      },
+      "prop" : {
+        "prop" : {
+          "title" : "Property",
+          "placeholder" : "Property name",
+          "caption" : "This is the property name as it is posted by the SolarNode.",
+        },
+        "title" : {
+          "title" : "Name",
+          "placeholder" : "Friendly name",
+          "caption" : "You can give this property a more friendly name, for display purposes only.",
+        },
+        "color" : {
+          "title" : "Color",
+        },
+        "unit" : {
+          "title" : "Unit",
+          "placeholder" : "Unit of measurement",
+          "placeholderWithDefault" : "Unit ({{default}})",
+          "caption" : "Enter the unit of measurement used by this property."
+        },
+      },
     }
   }
 };
