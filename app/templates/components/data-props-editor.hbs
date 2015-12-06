@@ -1,3 +1,11 @@
+<div class="uk-grid">
+	<div class="uk-width-8-10">
+		<p>{{t 'data-props.intro'}}</p>
+	</div>
+	<div class="uk-width-2-10 uk-text-right">
+		<button {{action 'save'}} class="uk-button uk-button-success" disabled={{if canSave null true}}>{{t 'action.save'}}</button>
+	</div>
+</div>
 {{#unless profile.isHideDataPropHelp}}
 	<div class="uk-alert" data-uk-alert>
 		<a {{action 'hideDataPropHelp'}} class="uk-alert-close uk-close"></a>
@@ -9,7 +17,7 @@
     <fieldset>
       <legend>{{t 'data-props.edit.sources.title'}}</legend>
       <ul class="uk-nav uk-nav-side">
-        {{#each sourceConfigs as |sourceConfig|}}
+        {{#each sortedSourceConfigs as |sourceConfig|}}
           <li class="{{if (eq sourceConfig.source selectedSourceId) 'uk-active' null}}">
             <a {{action 'selectSource' sourceConfig}}>{{sourceConfig.displayName}}</a>
           </li>
@@ -20,8 +28,15 @@
 	{{#if selectedSourceId}}
 		{{outlet}}
 	{{else}}
-		<div class="uk-width-small-6-10 uk-width-large-4-10">
-			<p class="uk-text-muted">{{t 'data-props.edit.noSourceSelected'}}</p>
-		</div>
+	  <div class="uk-width-small-6-10 uk-width-large-4-10">
+      <form class="uk-form">
+        <fieldset>
+          <legend>&nbsp;</legend>
+          <div class="uk-width-small-6-10 uk-width-large-4-10">
+            <p class="uk-text-muted">{{t 'data-props.edit.noSourceSelected'}}</p>
+          </div>
+        </fieldset>
+      </form>
+    </div>
 	{{/if}}
 </div>

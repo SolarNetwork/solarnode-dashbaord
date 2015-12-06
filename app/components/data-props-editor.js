@@ -3,6 +3,18 @@ import Ember from 'ember';
 export default Ember.Component.extend({
   selectedSourceId: null,
 
+  sourceConfigsSorting: ['displayName'],
+  sortedSourceConfigs: Ember.computed.sort('sourceConfigs', 'sourceConfigsSorting'),
+
+  canSave: Ember.computed(
+    'sourceConfigs.@each.{hasDirtyAttributes,isNew}',
+    'propConfigs.@each.{hasDirtyAttributes,isNew}',
+    function() {
+    return (this.get('sourceConfigs').any(function(obj) { return obj.get('hasDirtyAttributes') || obj.get('isNew'); })
+        || this.get('propConfigs').any(function(obj) { return obj.get('hasDirtyAttributes') || obj.get('isNew'); })
+        );
+  }),
+
   init() {
     this._super(...arguments);
     this.eventBus.subscribe('data-props.source.DataSourceConfigLoaded', this, 'onDataSourceConfigLoaded');
@@ -31,6 +43,14 @@ export default Ember.Component.extend({
       }
     },
 
+    save() {
+      this.get('sourceConfigs').forEach(obj => {
+        obj.save();
+      });
+      this.get('propConfigs').forEach(obj => {
+        obj.save();
+      });
+    },
   },
 
 });

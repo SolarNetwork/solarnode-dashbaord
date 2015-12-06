@@ -12,7 +12,7 @@ export default {
     "hide" : "Hide",
     "login" : "Login",
     "logout" : "Logout",
-    "manageDataProperties" : "Manage data sources",
+    "manageDataProperties" : "Manage Data Sources",
     "remove" : "Remove",
     "removeItem" : "Remove {{item}}",
     "save" : "Save",
