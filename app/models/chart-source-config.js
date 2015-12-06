@@ -6,15 +6,9 @@ export default DS.Model.extend({
   source: DS.attr('string'),
   title: DS.attr('string'),
 
-  displayName: Ember.computed('source', 'title', {
-    get() {
-      const title = this.get('title');
-      return (title ? title : this.get('source'));
-    },
-    set(key, value) {
-      this.set('title', value);
-      return value;
-    }
+  displayName: Ember.computed('source', 'title', function() {
+    const title = this.get('title');
+    return (title && title !== '' ? title : this.get('source'));
   }),
 
 });

@@ -46,7 +46,7 @@ export default DS.Model.extend({
     const unit = property.unit;
     const prop = property.prop;
     const title = this.get('title');
-    var name = (title ? title : prop);
+    var name = (title && title !== '' ? title : prop);
     if ( unit ) {
       if ( name ) {
         name += ' - ';
