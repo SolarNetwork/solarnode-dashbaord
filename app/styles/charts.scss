@@ -18,6 +18,10 @@
 	text-anchor: middle;
 }
 
+.app-chart g.ticks text.major {
+	font-weight: bold;
+}
+
 .app-chart g.ticks text.agg {
 	fill: black;
 	font-weight: bold;
