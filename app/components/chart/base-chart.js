@@ -79,7 +79,7 @@ export default Ember.Component.extend({
 
   chartConfigChanged: Ember.on('init', Ember.observer('chartConfig', 'chartConfig.isUsePeriod', 'chartConfig.period',
       'chartConfig.periodAggregate', 'chartConfig.startDate', 'chartConfig.endDate', 'chartConfig.aggregate',
-      'chartConfig.propertyConfigs.@each.{sourceId,prop}', 'chartConfig.groups.@each.groupProp',
+      'propConfigs.[]', 'chartConfig.groups.@each.groupProp',
       function() {
     Ember.run.once(this, function() {
       const chart = this.get('chart');
