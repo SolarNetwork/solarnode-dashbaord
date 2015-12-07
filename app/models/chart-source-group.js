@@ -34,6 +34,15 @@ export default DS.Model.extend({
     };
   }),
 
+  allSourceConfigs: Ember.computed.alias('chart.profile.chartSources'),
+
+  sourceConfigs: Ember.computed('sourceIds.[]', 'allSourceConfigs.[]', function() {
+    const sourceIds = this.get('sourceIds');
+    return this.get('allSourceConfigs').filter(sourceConfig => {
+      return (sourceIds && sourceIds.contains(sourceConfig.get('source')));
+    });
+  }),
+
   /**
    Get an array of all configured sources and properties.
 

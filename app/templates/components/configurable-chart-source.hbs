@@ -24,24 +24,3 @@
     </div>
   </div>
 {{/each}}
-{{#if (and (gt availableSourceProperties.length 0) isShowAddPropertyForm)}}
-  <div class="uk-panel uk-panel-box uk-panel-box-primary uk-margin-top">
-    <div class="uk-grid"  style="align-items: center;">
-      <div class="uk-flex-item-1">
-        <select onchange={{action 'selectNewProperty' value="target.value"}} autocomplete="off">
-          <option selected={{if hasSelectedNewPropertyId null 'selected'}}></option>
-          {{#each availableSourceProperties as |propConfig|}}
-            <option value={{propConfig.id}} selected={{if (eq propConfig.id selectedNewPropertyId) 'selected' null}}>{{propConfig.displayName}}</option>
-          {{/each}}
-        </select>
-        <button class="uk-button uk-button-success" disabled={{if canAddNewProperty null true}} {{action 'addNewProperty' propConfig}}>{{t 'action.add'}}</button>
-        <p>
-          {{t 'chart.edit.props.manageHint'}} {{#link-to 'data-props.source' dataSourceConfig}}{{t 'chart.edit.props.manageHintAction'}}{{/link-to}}
-        </p>
-      </div>
-      <div class="uk-flex-item-none">
-        <a {{action 'hideAddNewPropertyForm'}} class="uk-close"></a>
-      </div>
-    </div>
-  </div>
-{{/if}}

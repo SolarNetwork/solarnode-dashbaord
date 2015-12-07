@@ -13,7 +13,15 @@ export default Ember.Component.extend({
 
   actions : {
     togglePropertyVisibility(prop) {
-      prop.toggleProperty('isHidden');
+      this.sendAction('togglePropertyVisibility', prop);
+    },
+
+    setPropertyColor(prop, color) {
+      this.sendAction('setPropertyColor', prop, color);
+    },
+
+    removeProperty(propConfigId) {
+      this.sendAction('removeProperty', propConfigId);
     },
   },
 

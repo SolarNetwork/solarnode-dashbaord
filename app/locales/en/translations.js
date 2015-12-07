@@ -104,6 +104,7 @@ export default {
       "endDate" : "End date",
       "aggregate" : "Detail level",
       "sources" : "Sources",
+      "sourceGroups" : "Source Groups",
       "source" : {
         "title" : "Name",
         "source" : "Source ID",
