@@ -83,6 +83,9 @@ export default Ember.Component.extend({
       function() {
     Ember.run.once(this, function() {
       const chart = this.get('chart');
+      if ( !chart ) {
+        return;
+      }
       const chartConfig = this.get('chartConfig');
       if ( chartConfig ) {
         const isUsePeriod = chartConfig.get('isUsePeriod');

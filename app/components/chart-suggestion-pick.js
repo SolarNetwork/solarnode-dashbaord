@@ -22,8 +22,7 @@ export default Ember.Component.extend({
     return DS.PromiseArray.create({promise:promise});
   }),
 
-  selected: Ember.computed('matchingCharts.[]', 'suggestion', function() {
-    const suggestion = this.get('suggestion');
+  selected: Ember.computed('matchingCharts.[]', function() {
     const matchingCharts = this.get('matchingCharts');
     return (matchingCharts.get('length') > 0);
   }),

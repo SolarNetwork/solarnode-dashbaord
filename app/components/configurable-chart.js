@@ -156,7 +156,7 @@ export default Ember.Component.extend({
         const propConfig = propConfigs.findBy('id', prop.get('id'));
         if ( propConfig ) {
           propConfig.set('color', color);
-        };
+        }
       });
     },
 

@@ -82,7 +82,7 @@ export default Ember.Route.extend(AuthenticatedRouteMixin, {
             allPropConfigs: allPropConfigs,
           });
           this.transitionTo('data-props.source', model);
-        })
+        });
       });
     }
   },

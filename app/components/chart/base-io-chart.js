@@ -138,7 +138,7 @@ export default BaseChart.extend({
     const chartConfig = this.get('chartConfig');
     const data = this.get('data');
     const chart = this.get('chart');
-    const prop = this.get('prop');
+    //const prop = this.get('prop');
     var scale = 1;
     if ( data && chart ) {
       chart.reset();

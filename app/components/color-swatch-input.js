@@ -20,7 +20,7 @@ export default Ember.Component.extend(Ember.TextSupport, {
   },
 
   inserted: Ember.on('didInsertElement', function() {
-    var container = this.$().spectrum({
+    this.$().spectrum({
       preferredFormat: 'hex',
       showInput: true,
       showInitial: true,

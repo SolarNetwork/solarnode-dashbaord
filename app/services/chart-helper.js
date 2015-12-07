@@ -207,14 +207,6 @@ function sourceGroupForSuggestions(suggestions, key, title, prop, flags, colors)
   };
 }
 
-/**
- Reverse an array in-place, and return the array for method chaining.
- */
-function reversedArray(array) {
-  array.reverse();
-  return array;
-}
-
 function groupedChartSuggestionsFromSuggestions(suggestions, i18n) {
   if ( !Array.isArray(suggestions) || suggestions.length < 2 ) {
     return [];

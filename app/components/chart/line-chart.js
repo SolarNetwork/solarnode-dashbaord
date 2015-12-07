@@ -15,7 +15,7 @@ export default BaseChart.extend({
     var chart = this.get('snChart');
     if ( !chart ) {
       chart = sn.chart.basicLineChart(container, chartConfiguration)
-        .colors(['#f7c819'])
+        .colors(['#f7c819']);
       this.set('snChart', chart);
       this.computeChartColors();
       this.computePropVisibilityMap();
@@ -107,7 +107,7 @@ export default BaseChart.extend({
   },
 
   colors: Ember.computed('chart', {
-    get(key) {
+    get() {
       const chart = this.get('snChart');
       return (chart ? chart.colors() : undefined);
     },
