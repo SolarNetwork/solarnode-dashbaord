@@ -92,17 +92,23 @@
           {{configurable-chart-source-group sourceGroup=sourceGroup groupIndex=groupIndex
             sourceConfigs=sourceGroup.sourceConfigs
             propConfigs=propConfigs
+            availableSourceConfigs=availableSourceConfigs
+            hasAvailableSourceConfigs=hasAvailableSourceConfigs
+            availablePropConfigs=availablePropConfigs
+            hasAvailablePropConfigs=hasAvailablePropConfigs
             togglePropertyVisibility=(action 'togglePropertyVisibility')
             setPropertyColor=(action 'setPropertyColor')
             removeProperty=(action 'removeProperty')
             addNewGroupedSourceProperty=(action 'addNewGroupedSourceProperty')
+            removeGroupedProperty=(action 'removeGroupedProperty')
             }}
         {{/each}}
       {{else}}
         <fieldset>
           <legend> {{t 'chart.edit.sources'}}</legend>
           {{#each uniqueSourceConfigs as |sourceConfig|}}
-            {{configurable-chart-source sourceConfig=sourceConfig chartConfig=chart
+            {{configurable-chart-source sourceConfig=sourceConfig
+              canRemoveProperty=(gt chart.properties.length 1)
               propConfigs=propConfigs
               togglePropertyVisibility=(action 'togglePropertyVisibility')
               setPropertyColor=(action 'setPropertyColor')

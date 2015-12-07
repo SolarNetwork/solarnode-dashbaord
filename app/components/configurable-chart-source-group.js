@@ -11,6 +11,40 @@ export default Ember.Component.extend({
   isFixedGroupCount: true,
   fixedGroupCount: 2,
 
+  /**
+   Filters the available source configs to just those with available property configs with a sourceGroup.groupProp property.
+   */
+  availableGroupSourceConfigs: Ember.computed('availableSourceConfigs.[]', 'availablePropConfigs.[]', 'sourceGroup.groupProp', function() {
+    const groupProp = this.get('sourceGroup.groupProp');
+    const sourceConfigs = this.get('availableSourceConfigs');
+    var filteredPropConfigs = this.get('availablePropConfigs');
+    if ( !(sourceConfigs && filteredPropConfigs) ) {
+      return null;
+    }
+    filteredPropConfigs = filteredPropConfigs.filterBy('prop', groupProp);
+    const availableSourceIds = filteredPropConfigs.mapBy('source');
+    return sourceConfigs.filter(function(sourceConfig) {
+      return availableSourceIds.contains(sourceConfig.get('source'));
+    });
+  }),
+
+  hasAvailableGroupSourceConfigs: Ember.computed.notEmpty('availableGroupSourceConfigs'),
+
+  availableGroupPropConfigs: Ember.computed('availableGroupSourceConfigs.[]', 'availablePropConfigs.[]', 'sourceGroup.groupProp', function() {
+    const groupProp = this.get('sourceGroup.groupProp');
+    const sourceConfigs = this.get('availableGroupSourceConfigs');
+    const propConfigs = this.get('availablePropConfigs');
+    if ( !(groupProp && sourceConfigs) ) {
+      return null;
+    }
+    const availableSourceIds = sourceConfigs.mapBy('source');
+    return propConfigs.filter(function(propConfig) {
+      return availableSourceIds.contains(propConfig.get('source'));
+    });
+  }),
+
+  hasAvailableGroupPropConfigs: Ember.computed.notEmpty('availableGroupPropConfigs'),
+
   actions : {
     togglePropertyVisibility(prop) {
       this.sendAction('togglePropertyVisibility', prop);
@@ -21,7 +55,8 @@ export default Ember.Component.extend({
     },
 
     removeProperty(propConfigId) {
-      this.sendAction('removeProperty', propConfigId);
+      const groupConfigId = this.get('sourceGroup.id');
+      this.sendAction('removeGroupedProperty', groupConfigId, propConfigId);
     },
 
     addNewSourceProperty(propConfigId) {

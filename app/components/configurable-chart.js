@@ -173,8 +173,27 @@ export default Ember.Component.extend({
         var sourceId = propConfig.get('source');
         var groupSourceIds = groupConfig.get('sourceIds').slice();
         if ( !groupSourceIds.contains(sourceId) ) {
-          groupSourceIds.push(sourceId).sort();
+          groupSourceIds.push(sourceId);
+          groupSourceIds.sort();
           groupConfig.set('sourceIds', groupSourceIds);
+          groupConfig.save();
+        }
+      }
+    },
+
+    removeGroupedProperty(groupConfigId, propConfigId) {
+      const propConfig = this.get('propConfigs').findBy('id', propConfigId);
+      const chart = this.get('chart');
+      const groupConfig = chart.get('groups').findBy('id', groupConfigId);
+      this.send('removeProperty', propConfigId);
+      if ( propConfig && groupConfig ) {
+        var sourceId = propConfig.get('source');
+        var groupSourceIds = groupConfig.get('sourceIds').slice();
+        var idx = groupSourceIds.indexOf(sourceId);
+        if ( idx !== -1 ) {
+          groupSourceIds.splice(idx, 1);
+          groupConfig.set('sourceIds', groupSourceIds);
+          groupConfig.save();
         }
       }
     },

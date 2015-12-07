@@ -2,13 +2,23 @@ import Ember from 'ember';
 
 export default Ember.Component.extend({
 
-  availableNewSourceProperties: Ember.computed('selectedNewSourceId', 'availablePropConfigs.[]', function() {
+  /**
+   Set to a specific property to only allow picking a specific property value.
+   */
+  fixedProp: null,
+
+  availableNewSourceProperties: Ember.computed('selectedNewSourceId', 'availablePropConfigs.[]', 'fixedProp', function() {
     const propConfigs = this.get('availablePropConfigs');
     const sourceId = this.get('selectedNewSourceId');
+    const fixedProp = this.get('fixedProp');
     if ( !(propConfigs && sourceId) ) {
       return new Ember.A();
     }
-    return propConfigs.filterBy('source', sourceId).sort((l, r) => {
+    var filteredPropConfigs = propConfigs.filterBy('source', sourceId);
+    if ( fixedProp ) {
+      filteredPropConfigs = filteredPropConfigs.filterBy('prop', fixedProp);
+    }
+    return filteredPropConfigs.sort((l, r) => {
       const lS = l.get('source');
       const rS = r.get('source');
       return (lS < rS ? -1 : lS > rS ? 1 : 0);
