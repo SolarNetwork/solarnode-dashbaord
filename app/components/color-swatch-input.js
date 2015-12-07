@@ -29,5 +29,11 @@ export default Ember.Component.extend(Ember.TextSupport, {
       cancelText: this.get('i18n').t('action.cancel'),
       chooseText: this.get('i18n').t('action.choose')
     });
-  })
+  }),
+
+  destroy() {
+    this.$().spectrum('destroy');
+    this._super.apply(this, arguments);
+  },
+
 });
