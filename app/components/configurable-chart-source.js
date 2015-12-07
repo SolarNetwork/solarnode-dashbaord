@@ -17,6 +17,10 @@ export default Ember.Component.extend({
     return this.get('allPropConfigs').filterBy('source', sourceId);
   }),
 
+  availableSourceProperties: Ember.computed.setDiff('allSourceProperties', 'sourceProperties'),
+
+  hasAvailableSourceProperties: Ember.computed.notEmpty('availableSourceProperties'),
+
   inserted: Ember.on('didInsertElement', function() {
     var container = this.$().find('input[type=color]').spectrum({
       preferredFormat: 'hex',
@@ -25,7 +29,11 @@ export default Ember.Component.extend({
     });
   }),
 
-  canAddNewProperty: Ember.computed.notEmpty('selectedNewPropertyId'),
+  hasSelectedNewPropertyId: Ember.computed.notEmpty('selectedNewPropertyId'),
+
+  canAddNewProperty: Ember.computed.and('hasAvailableSourceProperties', 'hasSelectedNewPropertyId'),
+
+  canRemoveProperty: Ember.computed.gt('sourceProperties.length', 1),
 
   actions : {
     togglePropertyVisibility(prop) {
@@ -46,10 +54,7 @@ export default Ember.Component.extend({
     },
 
     removeProperty(prop) {
-      return;// TODO
-      const sourceConfig = this.get('sourceConfig');
-      prop.destroyRecord();
-      sourceConfig.save();
+      this.sendAction('removeProperty', prop.get('id'));
     },
 
     addNewProperty() {

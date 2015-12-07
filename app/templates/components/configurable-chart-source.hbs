@@ -3,7 +3,7 @@
 {{#each sourceProperties as |prop|}}
   <div class="uk-form-row uk-margin-top">
     <div class="uk-grid" style="align-items: center;">
-      {{#if (and (gt sourceProperties.length 1) (gt allSourceProperties.length sourceProperties.length))}}
+      {{#if canRemoveProperty}}
         <div class="uk-flex-item-none">
           <a {{action 'removeProperty' prop}} title={{t 'action.removeItem' item=(t 'chart.edit.prop.prop')}} class="uk-icon-hover uk-icon-small">
             {{fa-icon 'minus'}}
@@ -32,13 +32,13 @@
     </div>
   </div>
 {{/each}}
-{{#if isShowAddPropertyForm}}
+{{#if (and (gt availableSourceProperties.length 0) isShowAddPropertyForm)}}
   <div class="uk-panel uk-panel-box uk-panel-box-primary uk-margin-top">
     <div class="uk-grid"  style="align-items: center;">
       <div class="uk-flex-item-1">
         <select onchange={{action 'selectNewProperty' value="target.value"}} autocomplete="off">
           <option></option>
-          {{#each allSourceProperties as |propConfig|}}
+          {{#each availableSourceProperties as |propConfig|}}
             <option value={{propConfig.id}} selected={{if (eq prop.id propConfig.id) 'selected' null}}>{{propConfig.displayName}}</option>
           {{/each}}
         </select>
@@ -50,7 +50,7 @@
     </div>
   </div>
 {{/if}}
-{{#if (gt allSourceProperties.length sourceProperties.length)}}
+{{#if (gt availableSourceProperties.length 0)}}
   <div class="uk-flex uk-flex-right uk-margin-top">
     <div class="uk-flex-none">
       <a {{action 'showAddNewPropertyForm'}} title={{t 'action.addItem' item=(t 'chart.edit.prop.prop')}} class="uk-icon-hover uk-icon-small">

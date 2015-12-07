@@ -133,13 +133,21 @@ export default Ember.Component.extend({
       this.get('store').findRecord('chart-property-config', propConfigId).then(propConfig => {
         chart.get('properties').then(propConfigs => {
           propConfigs.pushObject(propConfig);
+          propConfig.save();
           chart.save();
         });
       });
     },
 
     removeProperty(propConfigId) {
-      // TODO
+      const chart = this.get('chart');
+      this.get('store').findRecord('chart-property-config', propConfigId).then(propConfig => {
+        chart.get('properties').then(propConfigs => {
+          propConfigs.removeObject(propConfig);
+          propConfig.save();
+          chart.save();
+        });
+      });
     },
 
     save() {
