@@ -13,6 +13,8 @@ export default Ember.Component.extend({
     return this.get('propConfigs').filterBy('source', sourceId);
   }),
 
+  canRemoveProperty: Ember.computed.gt('chartConfig.properties.length', 1),
+
   actions : {
     togglePropertyVisibility(prop) {
       this.sendAction('togglePropertyVisibility', prop);

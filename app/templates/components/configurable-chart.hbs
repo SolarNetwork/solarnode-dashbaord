@@ -7,13 +7,13 @@
 		  {{/if}}
 		</h2>
     {{#liquid-if (eq chart.style 'io-area-overlap')}}
-      {{chart.io-area-overlap-chart width=chartWidth height=320 chartConfig=chart}}
+      {{chart.io-area-overlap-chart width=chartWidth height=320 chartConfig=chart propConfigs=propConfigs}}
     {{else if (eq chart.style 'io-bar')}}
-      {{chart.io-bar-chart width=chartWidth height=320 chartConfig=chart}}
+      {{chart.io-bar-chart width=chartWidth height=320 chartConfig=chart propConfigs=propConfigs}}
     {{else if (eq chart.style 'io-pie')}}
-      {{chart.io-pie-chart width=chartWidth height=320 chartConfig=chart}}
+      {{chart.io-pie-chart width=chartWidth height=320 chartConfig=chart propConfigs=propConfigs}}
     {{else}}
-		  {{chart.line-chart width=chartWidth height=320 chartConfig=chart}}
+		  {{chart.line-chart width=chartWidth height=320 chartConfig=chart propConfigs=propConfigs}}
 		{{/liquid-if}}
 	</div>
 	<div class="uk-hidden-small uk-width-large-1-10 uk-text-right uk-margin-bottom app-chart-settings-toggle-horizontal">
@@ -86,20 +86,46 @@
           {{/liquid-if}}
 			  {{/liquid-spacer}}
 			</fieldset>
-			<fieldset class="uk-margin-top">
-			  <legend>{{t 'chart.edit.sources'}}</legend>
 
-			  {{#if canGroupSources}}
-			    {{#each chart.groups as |sourceGroup groupIndex|}}
-            {{configurable-chart-source-group sourceGroup=sourceGroup groupIndex=groupIndex}}
-			    {{/each}}
-			  {{else}}
-			    {{#each chart.groups as |sourceGroup groupIndex|}}
-            {{configurable-chart-source-list sourceGroup=sourceGroup groupIndex=groupIndex}}
-			    {{/each}}
-			  {{/if}}
+      {{#if canGroupSources}}
+        {{#each chart.groups as |sourceGroup groupIndex|}}
+          {{configurable-chart-source-group sourceGroup=sourceGroup groupIndex=groupIndex
+            sourceConfigs=sourceGroup.sourceConfigs
+            propConfigs=propConfigs
+            availableProps=availableProps
+            availableSourceConfigs=availableSourceConfigs
+            hasAvailableSourceConfigs=hasAvailableSourceConfigs
+            availablePropConfigs=availablePropConfigs
+            hasAvailablePropConfigs=hasAvailablePropConfigs
+            togglePropertyVisibility=(action 'togglePropertyVisibility')
+            setPropertyColor=(action 'setPropertyColor')
+            removeProperty=(action 'removeProperty')
+            addNewGroupedSourceProperty=(action 'addNewGroupedSourceProperty')
+            removeGroupedProperty=(action 'removeGroupedProperty')
+            }}
+        {{/each}}
+      {{else}}
+        <fieldset>
+          <legend> {{t 'chart.edit.sources'}}</legend>
+          {{#each uniqueSourceConfigs as |sourceConfig|}}
+            {{configurable-chart-source sourceConfig=sourceConfig
+              canRemoveProperty=(gt chart.properties.length 1)
+              propConfigs=propConfigs
+              togglePropertyVisibility=(action 'togglePropertyVisibility')
+              setPropertyColor=(action 'setPropertyColor')
+              removeProperty=(action 'removeProperty')
+              }}
+          {{/each}}
+        </fieldset>
+        {{add-configurable-chart-property-form
+          availableSourceConfigs=availableSourceConfigs
+          hasAvailableSourceConfigs=hasAvailableSourceConfigs
+          availablePropConfigs=availablePropConfigs
+          hasAvailablePropConfigs=hasAvailablePropConfigs
+          addNewSourceProperty=(action 'addNewProperty')
+        }}
+      {{/if}}
 
-			</fieldset>
 		</form>
 	</div>
 	{{/if}}

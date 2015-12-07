@@ -17,7 +17,6 @@ export default BaseIOChart.extend({
   chart: Ember.computed('height', 'width', function() {
     var chartConfiguration = this.get('chartConfiguration');
     const container = this.$().get(0);
-    const colorMap = this.get('colorMap');
     var chart = this.get('snChart');
     if ( !chart ) {
       chart = sn.chart.energyIOPieChart(container, chartConfiguration);

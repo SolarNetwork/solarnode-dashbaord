@@ -98,10 +98,12 @@ function propertiesForSourceData(sourceData, flags) {
   }
 
   // get properties of first object only
-  var templateObj = sourceData.values[0];
-  var propKeys = Object.keys(templateObj).filter(function(key) {
-    return (!ignoreSourceDataProps[key] && typeof templateObj[key] === 'number');
-  }).sort();
+  var firstDatum = sourceData.values[0];
+  return propertiesForDatum(firstDatum, flags);
+}
+
+function propertiesForDatum(datum, flags) {
+  var propKeys = datumNumericPropertyKeys(datum);
   return propKeys.map(function(key) {
     if ( flags ) {
       // look for "watts" for electricity
@@ -117,7 +119,7 @@ function propertiesForSourceData(sourceData, flags) {
       } else if ( key === "phaseVoltage" || key === "frequency" || key === "powerFactor" ) {
         // look for signs of AC power
         flags.ac = true;
-        if ( templateObj.phase && templateObj.phase !== 'Total' ) {
+        if ( datum.phase && datum.phase !== 'Total' ) {
           flags.phase = true;
         }
       } else  if ( key === "temp" ) {
@@ -126,6 +128,19 @@ function propertiesForSourceData(sourceData, flags) {
     }
     return {prop:key};
   });
+}
+
+/**
+ Get all numeric property keys for a given datum.
+
+ @param {Object} datum - A datum returned by a SolarNetwork query.
+ @return {Array} - An array of property keys.
+ */
+export function datumNumericPropertyKeys(datum) {
+  var propKeys = Object.keys(datum).filter(function(key) {
+    return (!ignoreSourceDataProps[key] && typeof datum[key] === 'number');
+  }).sort();
+  return propKeys;
 }
 
 /**
@@ -190,14 +205,6 @@ function sourceGroupForSuggestions(suggestions, key, title, prop, flags, colors)
     prop: prop,
     colors: colors,
   };
-}
-
-/**
- Reverse an array in-place, and return the array for method chaining.
- */
-function reversedArray(array) {
-  array.reverse();
-  return array;
 }
 
 function groupedChartSuggestionsFromSuggestions(suggestions, i18n) {
@@ -286,6 +293,8 @@ export default Ember.Service.extend({
     );
   },
 
+  datumNumericPropertyKeys: datumNumericPropertyKeys,
+
   /**
     Get a promise for a set of data for a single chart configuration.
 
@@ -309,22 +318,17 @@ export default Ember.Service.extend({
       return Ember.RSVP.reject(new Error('Incomplete chart range, cannot load data.'));
     }
 
-    return chartConfig.get('sourceGroups').then(groups => {
-      // first resolve all sources for all groups...
-      var sources = groups.getEach('sources');
-      return Ember.RSVP.all(sources).then(function() {
-        return groups.slice(); // NOT a PromiseArray, we want a regular map() function below
-      });
-    }).then(groups => {
-      // now the sources properties are resolved, so map them to source sets
-      return groups.map(function (group) {
-        var sources = group.get('sources'); // these are already resolved
-        var sourceSet = sources.reduce(function(sourceSet, sourceConfig) {
-          sourceSet.sourceIds.push(sourceConfig.get('source'));
-          return sourceSet;
-        }, {group:group, sourceIds:[]});
-        return sourceSet;
-      });
+    return Ember.RSVP.all([chartConfig.get('uniqueSources'), chartConfig.get('properties'), chartConfig.get('groups')])
+    .then(([uniqueSourceIds, propConfigs, groupConfigs]) => {
+      // compute source sets as a GROUP BY of groups
+      if ( groupConfigs && groupConfigs.get('length') > 0 ) {
+        return groupConfigs.map(groupConfig => {
+          return {groupId:groupConfig.get('id'), sourceIds:groupConfig.get('sourceIds')};
+        });
+      } else {
+        // a single "group"
+        return [{groupId:null, sourceIds:uniqueSourceIds}];
+      }
     }).then(sourceSets => {
       const loadSets = sourceSets.map(sourceSet => {
         return sn.api.datum.loader(sourceSet.sourceIds, urlHelper, range.start, range.end, range.aggregate);
@@ -335,8 +339,7 @@ export default Ember.Service.extend({
         }
         var finalData = sourceSets.map((sourceSet, index) => {
           return {
-            group:sourceSet.group,
-            groupId:sourceSet.group.get('id'),
+            groupId:sourceSet.groupId,
             sourceIds:sourceSet.sourceIds,
             data:results[index]
           };

@@ -8,14 +8,15 @@ export default Ember.Component.extend({
       const store  = this.get('store');
 	    const profile = this.get('userProfile');
       const sampleConfiguration = suggestion.get('sampleConfiguration');
-      profile.get('charts').then(function(charts) {
+      Ember.RSVP.all([profile.get('charts'), profile.get('chartSources'), profile.get('chartProperties')])
+      .then(([chartConfigs, sourceConfigs, propConfigs]) => {
         var chartConfig = store.createRecord('chart-config', {
+          profile: profile,
           type: suggestion.get('type'),
           subtype: suggestion.get('subtype'),
           style: (suggestion.get('style') ? suggestion.get('style') : 'line'),
           flags: suggestion.get('flags'),
           isSettingsVisible: true,
-          profile: profile,
           title: suggestion.get('title')
         });
         if ( suggestion.sourceGroups ) {
@@ -25,44 +26,62 @@ export default Ember.Component.extend({
               title : group.groupId,
               flags: group.flags,
               groupProp: group.prop,
+              sourceIds: group.sourceIds,
             });
             group.sourceIds.forEach(function(sourceId, index) {
-              var sourceConfig = store.createRecord('chart-source-config', {
-                group: sourceGroup,
-                source : sourceId
-              });
-              var propConfig = store.createRecord('chart-property-config', {
-                prop: group.prop
-              });
-              if ( group.colors && index < group.colors.length ) {
-                propConfig.set('color', group.colors[index]);
+              // sourceConfig may already exist here
+              if ( !sourceConfigs.findBy('source', sourceId) ) {
+                var sourceConfig = store.createRecord('chart-source-config', {
+                  profile: profile,
+                  source : sourceId
+                });
+                sourceConfig.save();
               }
-              sourceConfig.get('props').pushObject(propConfig);
+              // propertyConfig may already exist here
+              var propConfig = propConfigs.find(propConfig => {
+                return (propConfig.get('source') === sourceId && propConfig.get('prop') === group.prop);
+              });
+              if ( !propConfig ) {
+                 propConfig = store.createRecord('chart-property-config', {
+                  profile: profile,
+                  source: sourceId,
+                  prop: group.prop
+                });
+                if ( group.colors && index < group.colors.length ) {
+                  propConfig.set('color', group.colors[index]);
+                }
+              }
+              chartConfig.get('properties').pushObject(propConfig);
               propConfig.save();
-              sourceConfig.save();
             });
             sourceGroup.save();
           });
         } else {
-          // single source group
-          var sourceGroup = store.createRecord('chart-source-group', {
-            chart: chartConfig,
-            title : sampleConfiguration.source
+          // ungrouped
+          // sourceConfig may already exist here
+          if ( !sourceConfigs.findBy('source', sampleConfiguration.source) ) {
+            var sourceConfig = store.createRecord('chart-source-config', {
+              profile: profile,
+              source : sampleConfiguration.source
+            });
+            sourceConfig.save();
+          }
+          // propertyConfig may already exist here
+          var propConfig = propConfigs.find(propConfig => {
+            return (propConfig.get('source') === sampleConfiguration.source && propConfig.get('prop') === sampleConfiguration.prop);
           });
-          var sourceConfig = store.createRecord('chart-source-config', {
-            group: sourceGroup,
-            source : sampleConfiguration.source,
-          });
-          var propConfig = store.createRecord('chart-property-config', {
-            prop: sampleConfiguration.prop
-          });
-          sourceConfig.get('props').pushObject(propConfig);
+          if ( !propConfig ) {
+             propConfig = store.createRecord('chart-property-config', {
+              profile: profile,
+              source: sampleConfiguration.source,
+              prop: sampleConfiguration.prop
+            });
+          }
+          chartConfig.get('properties').pushObject(propConfig);
           propConfig.save();
-          sourceConfig.save();
-          sourceGroup.save();
         }
         chartConfig.save();
-        charts.pushObject(chartConfig);
+        //chartConfig.pushObject(chartConfig);
         profile.save();
       });
 	  },
@@ -72,21 +91,19 @@ export default Ember.Component.extend({
 	    if ( !charts ) {
 	      return;
 	    }
-	    // note we are cleaning up all child relationship records to conserve space in local storage
+	    // also remove groups associated with chart
 	    charts.forEach(chart => {
-	      chart.get('sourceGroups').then(sourceGroups => {
+	      chart.get('groups').then(sourceGroups => {
 	        sourceGroups.forEach(sourceGroup => {
-            sourceGroup.get('sources').then(sourceConfigs => {
-              sourceConfigs.forEach(sourceConfig => {
-                sourceConfig.get('props').then(props => {
-                  props.forEach(prop => {
-                    prop.destroyRecord();
-                  });
-                });
-                sourceConfig.destroyRecord();
-              });
-            });
             sourceGroup.destroyRecord();
+	        });
+	      });
+	      chart.get('properties').then(propConfigs => {
+	        propConfigs.forEach(propConfig => {
+	          propConfig.get('charts').then(charts => {
+	            charts.removeObject(chart);
+	            propConfig.save();
+	          });
 	        });
 	      });
 	      chart.destroyRecord();

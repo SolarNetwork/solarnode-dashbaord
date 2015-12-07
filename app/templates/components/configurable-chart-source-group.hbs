@@ -1,44 +1,36 @@
-<h3>{{sourceGroup.title}}</h3>
-<div class="uk-form-row app-chart-property-form">
+<fieldset class="app-chart-property-form">
+  <legend>{{sourceGroup.title}}</legend>
   <div class="uk-grid">
     <div class="uk-width-4-10">
       {{input value=sourceGroup.title class="uk-width-1-1" placeholder=(t 'chart.edit.sourceGroup.title')}}
     </div>
     <div class="uk-width-3-10">
-      {{input value=sourceGroup.groupProp class="uk-width-1-1" placeholder=(t 'chart.edit.source.prop')}}
+      <select onchange={{action 'selectGroupProp' value="target.value"}} autocomplete="off">
+        {{#each availableProps as |prop|}}
+          <option value={{prop}} selected={{if (eq prop sourceGroup.groupProp) 'selected' null}}>{{prop}}</option>
+        {{/each}}
+      </select>
     </div>
     <div class="uk-width-3-10">
       {{input value=sourceGroup.groupUnit class="uk-width-1-1" placeholder=(if sourceGroup.groupProperty.unit (t 'chart.edit.source.unitWithDefault' default=sourceGroup.groupProperty.unit) (t 'chart.edit.source.unit'))}}
     </div>
   </div>
-</div>
-<!--
-<div class="uk-grid uk-margin-top">
-  <div class="uk-width-1-2">
-  </div>
-  <div class="uk-width-1-2">
-  </div>
-</div>
--->
-{{#each sourceGroup.sources as |sourceConfig|}}
-  {{#each sourceConfig.props as |prop|}}
-    <div class="uk-form-row uk-margin-top app-chart-property-form">
-      <div class="uk-grid" style="align-items: center;">
-        <div class="uk-flex-item-none">
-          {{color-swatch-input color=prop.color onChangeColor=(action (mut prop.color))}}
-        </div>
-        <div class="uk-flex-item-1">
-          {{input value=sourceConfig.source class="uk-width-1-1" placeholder=(t 'chart.edit.source.source')}}
-        </div>
-        <div class="uk-flex-item-1">
-          {{input value=sourceConfig.title class="uk-width-1-1" placeholder=(t 'chart.edit.source.title')}}
-        </div>
-        <div class="uk-flex-item-none">
-          <a {{action 'togglePropertyVisibility' prop}} title={{if prop.isHidden (t 'action.show') (t 'action.hide')}} class="uk-icon-hover uk-icon-small">
-            {{fa-icon (if prop.isHidden 'eye-slash' 'eye')}}
-          </a>
-        </div>
-      </div>
-    </div>
-  {{/each}}
+</fieldset>
+
+{{#each sourceConfigs as |sourceConfig|}}
+  {{configurable-chart-source-group-source sourceConfig=sourceConfig
+    propConfigs=propConfigs
+    canRemoveProperty=(gt sourceGroup.sourceIds.length 1)
+    togglePropertyVisibility=(action 'togglePropertyVisibility')
+    setPropertyColor=(action 'setPropertyColor')
+    removeProperty=(action 'removeProperty')}}
 {{/each}}
+
+{{add-configurable-chart-property-form
+  availableSourceConfigs=availableGroupSourceConfigs
+  hasAvailableSourceConfigs=hasAvailableGroupSourceConfigs
+  availablePropConfigs=availableGroupPropConfigs
+  hasAvailablePropConfigs=hasAvailableGroupPropConfigs
+  fixedProp=sourceGroup.groupProp
+  addNewSourceProperty=(action 'addNewSourceProperty')
+}}

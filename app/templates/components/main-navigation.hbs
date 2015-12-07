@@ -5,20 +5,28 @@
   <div class="uk-navbar-content app-title">
     {{session.data.authenticated.nodeId}}
   </div>
-  <!--
-  <ul class="uk-navbar-nav">
-    <li class="{{if isHome 'uk-active'}}">
-      {{#link-to 'home'}}{{t 'nav.home'}}{{/link-to}}
-    </li>
-  </ul>
-  -->
 {{/if}}
-<div class="uk-navbar-content uk-navbar-flip">
+<div class="uk-navbar-flip">
+  {{#if (and session.isAuthenticated isSetup)}}
+    <ul class="uk-navbar-nav">
+      <li class="uk-parent" data-uk-dropdown>
+        <a>{{fa-icon 'cog' class="uk-icon-small uk-icon-hover"}}</a>
+        <div class="uk-dropdown uk-dropdown-navbar">
+          <ul class="uk-nav uk-nav-navbar">
+            <li>{{#link-to 'data-props'}}{{t 'action.manageDataProperties'}}{{/link-to}}</li>
+            <li>{{#link-to 'get-started'}}{{t 'action.getStarted'}}{{/link-to}}</li>
+          </ul>
+        </div>
+      </li>
+    </ul>
+  {{/if}}
 	{{#unless isLogin}}
-    {{#if session.isAuthenticated}}
-      <a {{action 'logout'}} class="uk-button uk-button-danger">{{t 'action.logout'}}</a>
-    {{else}}
-      <a {{action 'login'}} class="uk-button uk-button-primary">{{t 'action.login'}}</a>
-    {{/if}}
+	  <div class="uk-navbar-content">
+      {{#if session.isAuthenticated}}
+        <a {{action 'logout'}} class="uk-button uk-button-danger">{{t 'action.logout'}}</a>
+      {{else}}
+        <a {{action 'login'}} class="uk-button uk-button-primary">{{t 'action.login'}}</a>
+      {{/if}}
+    </div>
   {{/unless}}
 </div>

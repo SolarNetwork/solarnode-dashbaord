@@ -21,14 +21,12 @@ export default Ember.Component.extend({
   chartUnit: Ember.computed.alias('chart.unit'),
   chartWidth: 550,
   canSave: Ember.computed('chart.hasDirtyAttributes',
-    'chart.sourceGroups.@each.{hasDirtyAttributes,isNew}',
-    'chart.sourceConfigs.@each.{hasDirtyAttributes,isNew}',
-    'chart.propertyConfigs.@each.{hasDirtyAttributes,isNew}',
+    'chart.groups.@each.{hasDirtyAttributes,isNew}',
+    'chart.properties.@each.{hasDirtyAttributes,isNew}',
     function() {
     return (this.get('chart.hasDirtyAttributes')
-        || this.get('chart.sourceGroups').any(function(obj) { return obj.get('hasDirtyAttributes') || obj.get('isNew'); })
-        || this.get('chart.sourceConfigs').any(function(obj) { return obj.get('hasDirtyAttributes') || obj.get('isNew'); })
-        || this.get('chart.propertyConfigs').any(function(obj) { return obj.get('hasDirtyAttributes') || obj.get('isNew'); })
+        || this.get('chart.groups').any(function(obj) { return obj.get('hasDirtyAttributes') || obj.get('isNew'); })
+        || this.get('chart.properties').any(function(obj) { return obj.get('hasDirtyAttributes') || obj.get('isNew'); })
         );
   }),
   startDate: Ember.computed('chart.startDate', datePropertyAccessor),
@@ -66,13 +64,49 @@ export default Ember.Component.extend({
     return (style !== 'line'); // TODO: set this to what styles are explicitly supported
   }),
 
-  willDestroy: Ember.on('willDestroyElement', function() {
-    this.get('resizeService').off('debouncedDidResize', this, this.didResize);
+  uniqueSourceConfigs: Ember.computed('chart.uniqueSources.[]', 'allSourceConfigs.@each.source', function() {
+    const sources = this.get('chart.uniqueSources');
+    const sourceConfigs = this.get('allSourceConfigs');
+    if ( !sourceConfigs ) {
+      return Ember.RSVP.resolve(new Ember.A());
+    }
+    return this.get('allSourceConfigs').filter(sourceConfig => {
+      return sources.indexOf(sourceConfig.get('source')) !== -1;
+    }).sort((l, r) => {
+      const lIndex = sources.indexOf(l.get('source'));
+      const rIndex = sources.indexOf(r.get('source'));
+      return (lIndex < rIndex ? -1 : lIndex > rIndex ? 1 : 0);
+    });
   }),
+
+  props: Ember.computed.mapBy('allPropConfigs', 'prop'),
+  uniqueProps: Ember.computed.uniq('props'),
+  availableProps: Ember.computed.sort('uniqueProps', function(l, r) {
+    return (l < r ? -1 : l > r ? 1 : 0);
+  }),
+
+  availableSourceConfigs: Ember.computed('availablePropConfigs.[]', 'allSourceConfigs.[]', function() {
+    const allSourceConfigs = this.get('allSourceConfigs');
+    const propConfigs = this.get('availablePropConfigs');
+    const availableSourceIds = propConfigs.mapBy('source');
+    return allSourceConfigs.filter(function(sourceConfig) {
+      return availableSourceIds.contains(sourceConfig.get('source'));
+    });
+  }),
+
+  hasAvailableSourceConfigs: Ember.computed.notEmpty('availableSourceConfigs'),
+
+  availablePropConfigs: Ember.computed.setDiff('allPropConfigs', 'propConfigs'),
+
+  hasAvailablePropConfigs: Ember.computed.notEmpty('availablePropConfigs'),
 
   inserted: Ember.on('didInsertElement', function() {
     this.get('resizeService').on('debouncedDidResize', this, this.didResize);
     Ember.run.next(this, 'didResize');
+  }),
+
+  willDestroy: Ember.on('willDestroyElement', function() {
+    this.get('resizeService').off('debouncedDidResize', this, this.didResize);
   }),
 
   didResize() {
@@ -95,16 +129,88 @@ export default Ember.Component.extend({
       Ember.run.next(this, 'didResize');
     },
 
+    togglePropertyVisibility(prop) {
+      this.get('chart.properties').then(propConfigs => {
+        const propConfig = propConfigs.findBy('id', prop.get('id'));
+        if ( propConfig ) {
+          propConfig.toggleProperty('isHidden');
+        }
+      });
+    },
+
+    setPropertyColor(prop, color) {
+      this.get('chart.properties').then(propConfigs => {
+        const propConfig = propConfigs.findBy('id', prop.get('id'));
+        if ( propConfig ) {
+          propConfig.set('color', color);
+        }
+      });
+    },
+
+    addNewProperty(propConfigId) {
+      const chart = this.get('chart');
+      const allPropConfigs = this.get('allPropConfigs');
+      const propConfigs = this.get('propConfigs');
+      const propConfig = allPropConfigs.findBy('id', propConfigId);
+      if ( propConfig && !propConfigs.contains(propConfig) ) {
+        propConfigs.pushObject(propConfig);
+        propConfig.save();
+        chart.save();
+      }
+    },
+
+    removeProperty(propConfigId) {
+      const chart = this.get('chart');
+      const propConfigs = this.get('propConfigs');
+      const propConfig = propConfigs.findBy('id', propConfigId);
+      if ( propConfig ) {
+        propConfigs.removeObject(propConfig);
+        propConfig.save();
+        chart.save();
+      }
+    },
+
+    addNewGroupedSourceProperty(groupConfigId, propConfigId) {
+      this.send('addNewProperty', propConfigId);
+      const chart = this.get('chart');
+      const propConfig = this.get('propConfigs').findBy('id', propConfigId);
+      const groupConfig = chart.get('groups').findBy('id', groupConfigId);
+      if ( propConfig && groupConfig ) {
+        var sourceId = propConfig.get('source');
+        var groupSourceIds = groupConfig.get('sourceIds').slice();
+        if ( !groupSourceIds.contains(sourceId) ) {
+          groupSourceIds.push(sourceId);
+          groupSourceIds.sort();
+          groupConfig.set('sourceIds', groupSourceIds);
+          groupConfig.save();
+        }
+      }
+    },
+
+    removeGroupedProperty(groupConfigId, propConfigId) {
+      const propConfig = this.get('propConfigs').findBy('id', propConfigId);
+      const chart = this.get('chart');
+      const groupConfig = chart.get('groups').findBy('id', groupConfigId);
+      this.send('removeProperty', propConfigId);
+      if ( propConfig && groupConfig ) {
+        var sourceId = propConfig.get('source');
+        var groupSourceIds = groupConfig.get('sourceIds').slice();
+        var idx = groupSourceIds.indexOf(sourceId);
+        if ( idx !== -1 ) {
+          groupSourceIds.splice(idx, 1);
+          groupConfig.set('sourceIds', groupSourceIds);
+          groupConfig.save();
+        }
+      }
+    },
+
     save() {
       const chart = this.get('chart');
       chart.save();
-      chart.get('sourceGroups').forEach(obj => {
+      chart.get('groups').forEach(obj => {
         obj.save();
       });
-      chart.get('sourceConfigs').forEach(obj => {
-        obj.save();
-      });
-      chart.get('propertyConfigs').forEach(obj => {
+      chart.get('properties').forEach(obj => {
         obj.save();
       });
     }

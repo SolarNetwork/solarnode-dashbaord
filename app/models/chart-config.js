@@ -2,7 +2,6 @@ import Ember from 'ember';
 import DS from 'ember-data';
 import d3 from 'npm:d3';
 import sn from 'npm:solarnetwork-d3';
-import ChartSuggestion from './chart-suggestion';
 
 export default DS.Model.extend({
   profile: DS.belongsTo('user-profile', {inverse:'charts'}),
@@ -11,7 +10,12 @@ export default DS.Model.extend({
   subtype: DS.attr('string'),
   style: DS.attr('string', { defaultValue: 'line' }),
   flags: DS.attr(),
-  sourceGroups: DS.hasMany('chart-source-group', {inverse:'chart'}),
+  properties: DS.hasMany('chart-property-config', {inverse:'charts'}),
+  groups: DS.hasMany('chart-source-group', {inverse:'chart'}),
+
+  sources: Ember.computed.mapBy('properties', 'source'),
+  uniqueSources: Ember.computed.uniq('sources'),
+
   isSettingsVisible: DS.attr('boolean', { defaultValue: true }),
 
   isUsePeriod: DS.attr('boolean', { defaultValue: true }),
@@ -37,6 +41,14 @@ export default DS.Model.extend({
 
   aggregate: DS.attr('string', { defaultValue: 'Day' }),
 
+  /**
+   A transient display scale, for example <code>1000</code> for <em>kilo</em>.
+   This can be set after a chart loads based on the actual data.
+
+   @return {number} The display scale.
+  */
+  displayScale: 1,
+
   isValid: Ember.computed('isUsePeriod', 'period', 'startDate', 'endDate', function() {
     const isUsePeriod = this.get('isUsePeriod');
     if ( isUsePeriod ) {
@@ -47,87 +59,27 @@ export default DS.Model.extend({
     return (startDate && endDate && endDate.getTime() > startDate.getTime());
   }),
 
-  groups: Ember.computed('sourceGroups.[]', function() {
-    const promise = this.get('sourceGroups').then(sourceGroups => {
-      return sourceGroups;
-    });
-    return DS.PromiseArray.create({promise:promise});
-  }),
-
-  /**
-   Get an array of all configured sources and properties.
-
-   @return {Array} Array of objects like <code>{source:X, prop:Y}</code>
-   */
-  sourceProperties: Ember.computed('sourceGroups.@each.sourceProperties', function() {
-    const promise = this.get('sourceGroups').then(sourceGroups => {
-      return Ember.RSVP.all(sourceGroups.mapBy('sourceProperties'));
-    }).then(arrays => {
-      var merged = Ember.A();
-      arrays.forEach(array => {
-        merged.pushObjects(array);
-      });
-      return merged;
-    });
-    return DS.PromiseArray.create({promise:promise});
-  }),
-
-  /**
-   Get an array of all configured ChartSourceConfig objects.
-
-   @return {Array} Array of ChartSourceConfig objects.
-   */
-  sourceConfigs: Ember.computed('sourceGroups.@each.sourceConfigs', function() {
-    const promise = this.get('sourceGroups').then(sourceGroups => {
-      return Ember.RSVP.all(sourceGroups.mapBy('sourceConfigs'));
-    }).then(arrays => {
-      var merged = Ember.A();
-      arrays.forEach(array => {
-        array.forEach(item => {
-          merged.pushObject(item);
-        });
-      });
-      return merged;
-    });
-    return DS.PromiseArray.create({promise:promise});
-  }),
-
-  /**
-   Get an array of all configured ChartPropertyConfig objects.
-
-   @return {Array} Array of ChartPropertyConfig objects.
-   */
-  propertyConfigs: Ember.computed('sourceGroups.@each.propertyConfigs', function() {
-    const promise = this.get('sourceGroups').then(sourceGroups => {
-      return Ember.RSVP.all(sourceGroups.mapBy('propertyConfigs'));
-    }).then(arrays => {
-      var merged = Ember.A();
-      arrays.forEach(array => {
-        merged.pushObjects(array);
-      });
-      return merged;
-    });
-    return DS.PromiseArray.create({promise:promise});
-  }),
-
   /**
    Get a single, chart-wide unit metadata to use, if all configured properties use the same unit.
 
    @return {Object} a unit metadata object, like <code>{unit:'W', unitName:'watts'}</code>
    */
-  unit: Ember.computed('sourceProperties', 'displayScale', function() {
-    const promise = this.get('sourceProperties').then(sProps => {
+  unit: Ember.computed('properties.@each.unit', 'displayScale', function() {
+    // FIXME: handle groupProp
+    const promise = this.get('properties').then(propConfigs => {
       var result = null;
-      var allSame = sProps.every(function(sProp) {
-        if ( !(sProp && sProp.unit && sProp.unitName) ) {
+      var allSame = propConfigs.every(propConfig => {
+        const unit = propConfig.get('unit');
+        const unitName = propConfig.get('unitName');
+        if ( !(unit && unitName) ) {
           return true;
         }
         if ( !result ) {
           // first result... take it
-          result = {unit:sProp.unit, unitName:sProp.unitName};
+          result = {unit:unit, unitName:unitName};
           return true;
         }
-        if ( result && result.unit === sProp.unit && result.unitName === sProp.unitName ) {
+        if ( result && result.unit === unit && result.unitName === unitName ) {
           return true;
         }
         return !result;
@@ -140,13 +92,6 @@ export default DS.Model.extend({
     });
     return DS.PromiseObject.create({promise:promise});
   }),
-
-  /**
-   A transient display scale, which can be set after a chart loads based on the actual data.
-
-   @return {number} The display scale.
-  */
-  displayScale: 1,
 
   /**
    Test if a suggestion matches the receiver.
@@ -169,16 +114,18 @@ export default DS.Model.extend({
     }, {});
 
     // verify sources are the same (i.e. source + props)
-    const promise = this.get('sourceProperties').then(sProps => {
-      const sPropsCount = sProps.get('length');
-      if ( sPropsCount !== suggestionSourceProperties.length ) {
+    const promise = this.get('properties').then(propConfigs => {
+      const propConfigsCount = propConfigs.get('length');
+      if ( propConfigsCount !== suggestionSourceProperties.length ) {
         return false;
       }
-      return sProps.every(function(sProp) {
-        return (suggestionSourcePropsObj[sProp.source] && suggestionSourcePropsObj[sProp.source] === sProp.prop);
+      return propConfigs.every(function(propConfig) {
+        const sourceId = propConfig.get('source');
+        const prop = propConfig.get('prop');
+        return (suggestionSourcePropsObj[sourceId] && suggestionSourcePropsObj[sourceId] === prop);
       });
     });
-    return promise;//DS.PromiseObject.create({promise:promise});
+    return promise;
   }
 
 });

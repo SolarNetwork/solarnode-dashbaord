@@ -8,9 +8,11 @@ export default {
     "cancel" : "Cancel",
     "choose" : "Choose",
     "done" : "Done",
+    "getStarted" : "Chart Suggestions",
     "hide" : "Hide",
     "login" : "Login",
     "logout" : "Logout",
+    "manageDataProperties" : "Manage Data Sources",
     "remove" : "Remove",
     "removeItem" : "Remove {{item}}",
     "save" : "Save",
@@ -102,6 +104,7 @@ export default {
       "endDate" : "End date",
       "aggregate" : "Detail level",
       "sources" : "Sources",
+      "sourceGroups" : "Source Groups",
       "source" : {
         "title" : "Name",
         "source" : "Source ID",
@@ -115,8 +118,58 @@ export default {
       "prop" : {
         "title" : "Name",
         "prop" : "Property",
-      }
+      },
+      "props" : {
+        "manageHint" : "Expecting to see more properties?",
+        "manageHintAction" : "Manage your data properties.",
+      },
+      "sourceProps" : {
+        "manageHint" : "Expecting to see more sources or properties?",
+        "manageHintAction" : "Manage your data sources.",
+      },
     },
     "export" : "Export"
+  },
+  "data-props" : {
+    "title" : "Manage data sources",
+    "intro" : "Here are all the available data sources posted by your SolarNode. Each data source can have any number of properties associated with it. Use this page to assign friendly names, colors, and other information to any of these properties.",
+    "edit" : {
+      "help" : "Choose a <b>source</b> from the list on the left to start. All the available <b>properties</b> for that source will then be shown to the right.",
+      "noSourceSelected" : "Select a data source.",
+      "sources" : {
+        "title" : "Sources",
+      },
+      "source" : {
+        "id" : "Source ID",
+        "heading" : "{{name}} Source",
+        "title" : "Name",
+        "placeholder" : "Enter a friendly name",
+        "caption" : "You can give this source a more friendly name here. This name will be used for display purposes only.",
+      },
+      "props" : {
+        "title" : "{{source}} Properties",
+      },
+      "prop" : {
+        "prop" : {
+          "title" : "Property",
+          "placeholder" : "Property name",
+          "caption" : "This is the property name as it is posted by the SolarNode.",
+        },
+        "title" : {
+          "title" : "Name",
+          "placeholder" : "Friendly name",
+          "caption" : "You can give this property a more friendly name, for display purposes only.",
+        },
+        "color" : {
+          "title" : "Color",
+        },
+        "unit" : {
+          "title" : "Unit",
+          "placeholder" : "Unit of measurement",
+          "placeholderWithDefault" : "Unit ({{default}})",
+          "caption" : "Enter the unit of measurement used by this property."
+        },
+      },
+    }
   }
 };

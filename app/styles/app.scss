@@ -82,3 +82,7 @@ h1 {
 .app-chart-property-form .uk-grid > * + * {
   padding-left: ($utility-margin/3) !important;
 }
+
+.uk-form fieldset + fieldset {
+  margin-top: $utility-margin;
+}

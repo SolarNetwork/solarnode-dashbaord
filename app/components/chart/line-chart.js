@@ -15,45 +15,47 @@ export default BaseChart.extend({
     var chart = this.get('snChart');
     if ( !chart ) {
       chart = sn.chart.basicLineChart(container, chartConfiguration)
-        .colors(['#f7c819'])
+        .colors(['#f7c819']);
       this.set('snChart', chart);
+      this.computeChartColors();
+      this.computePropVisibilityMap();
     }
     return chart;
   }),
 
   computeChartColors() {
-    const chartConfig = this.get('chartConfig');
-    if ( !chartConfig ) {
+    const propConfigs = this.get('propConfigs');
+    if ( !propConfigs ) {
       return;
     }
-    chartConfig.get('propertyConfigs').then(propertyConfigs => {
-      const colors = [];
-      propertyConfigs.forEach(propertyConfig => {
-        colors.push(propertyConfig.get('color'));
-      });
-      this.set('colors', colors);
+    const colors = [];
+    propConfigs.forEach(propConfig => {
+      colors.push(propConfig.get('color'));
     });
+    this.set('colors', colors);
   },
 
-  colorPropertiesChanged: Ember.on('init', Ember.observer('chartConfig.propertyConfigs.@each.color', function() {
+  colorPropertiesChanged: Ember.observer('propConfigs.@each.color', function() {
     this.computeChartColors();
-  })),
+  }),
 
-  propVisibilityChanged: Ember.observer('chartConfig.propertyConfigs.@each.isHidden', function() {
+  propVisibilityChanged: Ember.observer('propConfigs.@each.isHidden', function() {
     this.computePropVisibilityMap();
   }),
 
   computePropVisibilityMap() {
-    this.get('chartConfig.propertyConfigs').then(propertyConfigs => {
-      const vizMap = {};
-      propertyConfigs.forEach(propertyConfig => {
-        const sourceId = propertyConfig.get('source.source');
-        const prop = propertyConfig.get('prop');
-        const lineId = lineIdForProperty(sourceId, prop);
-        vizMap[lineId] = propertyConfig.get('isHidden');
-      });
-      this.set('visibilityMap', vizMap);
+    const propConfigs = this.get('propConfigs');
+    if ( !propConfigs ) {
+      return;
+    }
+    const vizMap = {};
+    propConfigs.forEach(propConfig => {
+      const sourceId = propConfig.get('source');
+      const prop = propConfig.get('prop');
+      const lineId = lineIdForProperty(sourceId, prop);
+      vizMap[lineId] = propConfig.get('isHidden');
     });
+    this.set('visibilityMap', vizMap);
   },
 
   visibilityMapChanged: Ember.observer('snChart', 'visibilityMap', function() {
@@ -77,13 +79,19 @@ export default BaseChart.extend({
     var scale = 1;
     if ( data && chart ) {
       chart.reset();
-      if ( Array.isArray(data) && data.length > 0 && data[0].data && data[0].groupId ) {
+      if ( Array.isArray(data) && data.length > 0 && Array.isArray(data[0].data) && Array.isArray(data[0].sourceIds) ) {
         data.forEach(function(groupData) {
           // line chart does not do groups... just load data for each configured property
-          groupData.group.get('sources').forEach(function(sourceConfig) {
-            const sourceId = sourceConfig.get('source');
-            sourceConfig.get('propertyConfigs').forEach(function(propConfig) {
-              chart.load(groupData.data, lineIdForProperty(sourceId, propConfig.get('prop')), propConfig.get('prop'));
+          var dataBySource = d3.nest()
+            .key(function(d) { return d.sourceId; })
+            .sortKeys(d3.ascending)
+            .entries(groupData.data);
+          dataBySource.forEach(function(sourceData) {
+            const sourceId = sourceData.key;
+            const data = sourceData.values;
+            const propConfigsForSource = chartConfig.get('properties').filterBy('source', sourceId);
+            propConfigsForSource.forEach(function(propConfig) {
+              chart.load(data, lineIdForProperty(sourceId, propConfig.get('prop')), propConfig.get('prop'));
             });
           });
         });
@@ -99,12 +107,12 @@ export default BaseChart.extend({
   },
 
   colors: Ember.computed('chart', {
-    get(key) {
-      const chart = this.get('chart');
+    get() {
+      const chart = this.get('snChart');
       return (chart ? chart.colors() : undefined);
     },
     set(key, value) {
-      const chart = this.get('chart');
+      const chart = this.get('snChart');
       if ( chart && Array.isArray(value) ) {
         chart.colors(value);
         this.regenerateChart();
