@@ -1,7 +1,7 @@
 <h3>{{sourceConfig.displayName}}</h3>
 
 {{#each sourceProperties as |prop|}}
-  <div class="uk-form-row uk-margin-top app-chart-property-form">
+  <div class="uk-form-row uk-margin-top">
     <div class="uk-grid" style="align-items: center;">
       {{#if (and (gt sourceProperties.length 1) (gt allSourceProperties.length sourceProperties.length))}}
         <div class="uk-flex-item-none">
@@ -14,15 +14,7 @@
         {{color-swatch-input color=prop.color colorContext=prop onChangeColor=(action 'setPropertyColor')}}
       </div>
       <div class="uk-flex-item-1">
-        {{#if (gt allSourceProperties.length sourceProperties.length)}}
-          <select onchange={{action 'selectProperty' value="target.value"}} autocomplete="off">
-            {{#each allSourceProperties as |propConfig|}}
-              <option value={{propConfig.id}} selected={{if (eq prop.id propConfig.id) 'selected' null}}>{{propConfig.displayName}}</option>
-            {{/each}}
-          </select>
-        {{else}}
-          <p>{{prop.displayName}}</p>
-        {{/if}}
+        <p>{{prop.displayName}}</p>
       </div>
       <!--
       <div class="uk-flex-item-1">
@@ -40,12 +32,30 @@
     </div>
   </div>
 {{/each}}
-{{#if (gt allSourceProperties.length sourceProperties.length)}}
-<div class="uk-flex uk-flex-right uk-margin-top">
-  <div class="uk-flex-none">
-    <a {{action 'addNewProperty'}} title={{t 'action.addItem' item=(t 'chart.edit.prop.prop')}} class="uk-icon-hover uk-icon-small">
-      {{fa-icon 'plus'}}
-    </a>
+{{#if isShowAddPropertyForm}}
+  <div class="uk-panel uk-panel-box uk-panel-box-primary uk-margin-top">
+    <div class="uk-grid"  style="align-items: center;">
+      <div class="uk-flex-item-1">
+        <select onchange={{action 'selectNewProperty' value="target.value"}} autocomplete="off">
+          <option></option>
+          {{#each allSourceProperties as |propConfig|}}
+            <option value={{propConfig.id}} selected={{if (eq prop.id propConfig.id) 'selected' null}}>{{propConfig.displayName}}</option>
+          {{/each}}
+        </select>
+        <button class="uk-button uk-button-success" disabled={{if canAddNewProperty null true}} {{action 'addNewProperty' propConfig}}>{{t 'action.add'}}</button>
+      </div>
+      <div class="uk-flex-item-none">
+        <a {{action 'hideAddNewPropertyForm'}} class="uk-close"></a>
+      </div>
+    </div>
   </div>
-</div>
+{{/if}}
+{{#if (gt allSourceProperties.length sourceProperties.length)}}
+  <div class="uk-flex uk-flex-right uk-margin-top">
+    <div class="uk-flex-none">
+      <a {{action 'showAddNewPropertyForm'}} title={{t 'action.addItem' item=(t 'chart.edit.prop.prop')}} class="uk-icon-hover uk-icon-small">
+        {{fa-icon 'plus'}}
+      </a>
+    </div>
+  </div>
 {{/if}}

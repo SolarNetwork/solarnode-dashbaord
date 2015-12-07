@@ -15,6 +15,8 @@ var datePropertyAccessor = {
 };
 
 export default Ember.Component.extend({
+  store: Ember.inject.service(),
+
   classNames: ['app-configurable-chart'],
 
   chartName: Ember.computed.alias('chart.title'),
@@ -124,6 +126,20 @@ export default Ember.Component.extend({
           propConfig.set('color', color);
         };
       });
+    },
+
+    addNewProperty(propConfigId) {
+      const chart = this.get('chart');
+      this.get('store').findRecord('chart-property-config', propConfigId).then(propConfig => {
+        chart.get('properties').then(propConfigs => {
+          propConfigs.pushObject(propConfig);
+          chart.save();
+        });
+      });
+    },
+
+    removeProperty(propConfigId) {
+      // TODO
     },
 
     save() {

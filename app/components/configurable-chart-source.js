@@ -25,6 +25,8 @@ export default Ember.Component.extend({
     });
   }),
 
+  canAddNewProperty: Ember.computed.notEmpty('selectedNewPropertyId'),
+
   actions : {
     togglePropertyVisibility(prop) {
       this.sendAction('togglePropertyVisibility', prop);
@@ -35,24 +37,26 @@ export default Ember.Component.extend({
       this.sendAction('setPropertyColor', prop, color);
    },
 
-    selectProperty(propConfigId) {
-      // TODO
+    selectNewProperty(propConfigId) {
+      this.set('selectedNewPropertyId', propConfigId);
+    },
+
+    showAddNewPropertyForm() {
+      this.set('isShowAddPropertyForm', true);
     },
 
     removeProperty(prop) {
+      return;// TODO
       const sourceConfig = this.get('sourceConfig');
       prop.destroyRecord();
       sourceConfig.save();
     },
 
     addNewProperty() {
-      const sourceConfig = this.get('sourceConfig');
-      var propConfig = this.get('store').createRecord('chart-property-config');
-      sourceConfig.get('props').then(props => {
-        props.pushObject(propConfig);
-        propConfig.save();
-        sourceConfig.save();
-      });
+      const newPropId = this.get('selectedNewPropertyId');
+      if ( newPropId ) {
+        this.sendAction('addNewProperty', newPropId);
+      }
     },
   },
 
