@@ -112,7 +112,7 @@
                       <option value={{sourceConfig.source}} selected={{if (eq sourceConfig.source hasSelectedNewSourceId) 'selected' null}}>{{sourceConfig.displayName}}</option>
                     {{/each}}
                   </select>
-                  <select onchange={{action 'selectNewSourceProperty' value="target.value"}} autocomplete="off">
+                  <select disabled={{if hasSelectedNewSourceId null 'disabled'}} onchange={{action 'selectNewSourceProperty' value="target.value"}} autocomplete="off">
                     <option selected={{if hasSelectedNewSourcePropertyId null 'selected'}}></option>
                     {{#each availableNewSourceProperties as |propConfig|}}
                       <option value={{propConfig.id}} selected={{if (eq propConfig.id selectedNewSourcePropertyId) 'selected' null}}>{{propConfig.displayName}}</option>
@@ -129,11 +129,16 @@
               </div>
             </div>
           {{/if}}
-          {{#if hasAvailableSourceConfigs}}
-            <button class="uk-button uk-margin-top" {{action 'showAddSourceConfigForm'}}>{{t 'action.addItem' item=(t 'chart.edit.source.source')}}</button>
+          {{#if hasAvailablePropConfigs}}
+            <div class="uk-flex uk-flex-right uk-margin-top">
+              <div class="uk-flex-none">
+                <a {{action 'showAddSourceConfigForm'}} title={{t 'action.addItem' item=(t 'chart.edit.prop.prop')}} class="uk-icon-hover uk-icon-small">
+                  {{fa-icon 'plus'}}
+                </a>
+              </div>
+            </div>
           {{/if}}
 			  {{/if}}
-
 			</fieldset>
 		</form>
 	</div>

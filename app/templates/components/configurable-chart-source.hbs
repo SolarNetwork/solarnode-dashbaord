@@ -45,12 +45,3 @@
     </div>
   </div>
 {{/if}}
-{{#if (gt availableSourceProperties.length 0)}}
-  <div class="uk-flex uk-flex-right uk-margin-top">
-    <div class="uk-flex-none">
-      <a {{action 'showAddNewPropertyForm'}} title={{t 'action.addItem' item=(t 'chart.edit.prop.prop')}} class="uk-icon-hover uk-icon-small">
-        {{fa-icon 'plus'}}
-      </a>
-    </div>
-  </div>
-{{/if}}

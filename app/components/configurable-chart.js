@@ -79,12 +79,19 @@ export default Ember.Component.extend({
     });
   }),
 
-  availableSourceConfigs: Ember.computed.setDiff('allSourceConfigs', 'uniqueSourceConfigs'),
+  availableSourceConfigs: Ember.computed('availablePropConfigs.[]', 'allSourceConfigs.[]', function() {
+    const allSourceConfigs = this.get('allSourceConfigs');
+    const propConfigs = this.get('availablePropConfigs');
+    const availableSourceIds = propConfigs.mapBy('source');
+    return allSourceConfigs.filter(function(sourceConfig) {
+      return availableSourceIds.contains(sourceConfig.get('source'));
+    });
+  }),
 
   hasAvailableSourceConfigs: Ember.computed.notEmpty('availableSourceConfigs'),
 
-  availableNewSourceProperties: Ember.computed('selectedNewSourceId', 'allPropConfigs.[]', function() {
-    const propConfigs = this.get('allPropConfigs');
+  availableNewSourceProperties: Ember.computed('selectedNewSourceId', 'availablePropConfigs.[]', function() {
+    const propConfigs = this.get('availablePropConfigs');
     const sourceId = this.get('selectedNewSourceId');
     if ( !(propConfigs && sourceId) ) {
       return new Ember.A();
@@ -95,6 +102,10 @@ export default Ember.Component.extend({
       return (lS < rS ? -1 : lS > rS ? 1 : 0);
     });
   }),
+
+  availablePropConfigs: Ember.computed.setDiff('allPropConfigs', 'propConfigs'),
+
+  hasAvailablePropConfigs: Ember.computed.notEmpty('availablePropConfigs'),
 
   hasSelectedNewSourceId: Ember.computed.notEmpty('selectedNewSourceId'),
 
@@ -191,9 +202,11 @@ export default Ember.Component.extend({
     addNewSourceProperty() {
       const propConfigId = this.get('selectedNewSourcePropertyId');
       this.send('addNewProperty', propConfigId);
-      this.send('hideAddSourceConfigForm');
-      this.set('selectedNewSourceId', null);
       this.set('selectedNewSourcePropertyId', null);
+      if ( !this.get('hasAvailablePropConfigs') ) {
+        this.send('hideAddSourceConfigForm');
+        this.set('selectedNewSourceId', null);
+      }
     },
 
     save() {
