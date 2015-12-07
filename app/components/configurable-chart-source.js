@@ -53,6 +53,10 @@ export default Ember.Component.extend({
       this.set('isShowAddPropertyForm', true);
     },
 
+    hideAddNewPropertyForm() {
+      this.set('isShowAddPropertyForm', false);
+    },
+
     removeProperty(prop) {
       this.sendAction('removeProperty', prop.get('id'));
     },

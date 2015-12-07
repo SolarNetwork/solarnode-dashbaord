@@ -326,7 +326,8 @@ export default Ember.Service.extend({
       return Ember.RSVP.reject(new Error('Incomplete chart range, cannot load data.'));
     }
 
-    return Ember.RSVP.all([chartConfig.get('properties'), chartConfig.get('groups')]).then(([propConfigs, groupConfigs]) => {
+    return Ember.RSVP.all([chartConfig.get('uniqueSources'), chartConfig.get('properties'), chartConfig.get('groups')])
+    .then(([uniqueSourceIds, propConfigs, groupConfigs]) => {
       // compute source sets as a GROUP BY of groups
       if ( groupConfigs && groupConfigs.get('length') > 0 ) {
         return groupConfigs.map(groupConfig => {
@@ -334,8 +335,7 @@ export default Ember.Service.extend({
         });
       } else {
         // a single "group"
-        var allSourceIds = propConfigs.mapBy('source');
-        return [{groupId:null, sourceIds:allSourceIds}];
+        return [{groupId:null, sourceIds:uniqueSourceIds}];
       }
     }).then(sourceSets => {
       const loadSets = sourceSets.map(sourceSet => {

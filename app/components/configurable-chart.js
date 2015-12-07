@@ -15,8 +15,6 @@ var datePropertyAccessor = {
 };
 
 export default Ember.Component.extend({
-  store: Ember.inject.service(),
-
   classNames: ['app-configurable-chart'],
 
   chartName: Ember.computed.alias('chart.title'),
@@ -130,24 +128,25 @@ export default Ember.Component.extend({
 
     addNewProperty(propConfigId) {
       const chart = this.get('chart');
-      this.get('store').findRecord('chart-property-config', propConfigId).then(propConfig => {
-        chart.get('properties').then(propConfigs => {
-          propConfigs.pushObject(propConfig);
-          propConfig.save();
-          chart.save();
-        });
-      });
+      const allPropConfigs = this.get('allPropConfigs');
+      const propConfigs = this.get('propConfigs');
+      const propConfig = allPropConfigs.findBy('id', propConfigId);
+      if ( propConfig && !propConfigs.contains(propConfig) ) {
+        propConfigs.pushObject(propConfig);
+        propConfig.save();
+        chart.save();
+      }
     },
 
     removeProperty(propConfigId) {
       const chart = this.get('chart');
-      this.get('store').findRecord('chart-property-config', propConfigId).then(propConfig => {
-        chart.get('properties').then(propConfigs => {
-          propConfigs.removeObject(propConfig);
-          propConfig.save();
-          chart.save();
-        });
-      });
+      const propConfigs = this.get('propConfigs');
+      const propConfig = propConfigs.findBy('id', propConfigId);
+      if ( propConfig ) {
+        propConfigs.removeObject(propConfig);
+        propConfig.save();
+        chart.save();
+      }
     },
 
     save() {
