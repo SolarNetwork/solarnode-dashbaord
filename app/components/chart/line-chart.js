@@ -82,10 +82,16 @@ export default BaseChart.extend({
       if ( Array.isArray(data) && data.length > 0 && Array.isArray(data[0].data) && Array.isArray(data[0].sourceIds) ) {
         data.forEach(function(groupData) {
           // line chart does not do groups... just load data for each configured property
-          groupData.sourceIds.forEach(function(sourceId) {
+          var dataBySource = d3.nest()
+            .key(function(d) { return d.sourceId; })
+            .sortKeys(d3.ascending)
+            .entries(groupData.data);
+          dataBySource.forEach(function(sourceData) {
+            const sourceId = sourceData.key;
+            const data = sourceData.values;
             const propConfigsForSource = chartConfig.get('properties').filterBy('source', sourceId);
             propConfigsForSource.forEach(function(propConfig) {
-              chart.load(groupData.data, lineIdForProperty(sourceId, propConfig.get('prop')), propConfig.get('prop'));
+              chart.load(data, lineIdForProperty(sourceId, propConfig.get('prop')), propConfig.get('prop'));
             });
           });
         });
