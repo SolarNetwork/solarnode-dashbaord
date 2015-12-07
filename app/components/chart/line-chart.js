@@ -17,6 +17,8 @@ export default BaseChart.extend({
       chart = sn.chart.basicLineChart(container, chartConfiguration)
         .colors(['#f7c819'])
       this.set('snChart', chart);
+      this.computeChartColors();
+      this.computePropVisibilityMap();
     }
     return chart;
   }),
