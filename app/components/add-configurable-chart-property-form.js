@@ -43,6 +43,15 @@ export default Ember.Component.extend({
 
     selectNewSource(sourceId) {
       this.set('selectedNewSourceId', sourceId);
+
+      // if we are fixed on a prop, then auto-select that now
+      const fixedProp = this.get('fixedProp');
+      if ( fixedProp ) {
+        const firstPropConfig = this.get('availableNewSourceProperties.firstObject');
+        if ( firstPropConfig ) {
+          this.send('selectNewSourceProperty', firstPropConfig.get('id'));
+        }
+      }
     },
 
     selectNewSourceProperty(propConfigId) {
