@@ -40,7 +40,7 @@ export default BaseChart.extend({
   }),
 
   forEachGroupedProperty(callback) {
-    return Ember.RSVP.all([this.get('chartConfig.properties'), this.get('chartConfig.groups')]).then(([propConfigs, sourceGroups]) => {
+    return Ember.RSVP.all([this.get('propConfigs'), this.get('chartConfig.groups')]).then(([propConfigs, sourceGroups]) => {
       sourceGroups.forEach(sourceGroup => {
         const groupId = sourceGroup.get('id');
         sourceGroup.get('sourceIds').forEach(sourceId => {
@@ -76,8 +76,7 @@ export default BaseChart.extend({
 
   colorMap: Ember.computed.reads('dataColorMap'),
 
-  colorPropertiesChanged: Ember.observer('chartConfig.propertyConfigs.@each.color',
-    'chartConfig.propertyConfigs.@each.sourceId', function() {
+  colorPropertiesChanged: Ember.observer('propConfigs.@each.color', function() {
     this.computeChartConfigColorMap();
   }),
 
@@ -105,7 +104,7 @@ export default BaseChart.extend({
     this.regenerateChart();
   }),
 
-  propVisibilityChanged: Ember.observer('chartConfig.propertyConfigs.@each.isHidden', function() {
+  propVisibilityChanged: Ember.observer('propConfigs.@each.isHidden', function() {
     this.computePropVisibilityMap();
   }),
 

@@ -1,1 +1,24 @@
-{{yield}}
+{{#each sourceProperties as |prop|}}
+  <div class="uk-form-row uk-margin-top">
+    <div class="uk-grid" style="align-items: center;">
+      {{#if canRemoveProperty}}
+        <div class="uk-flex-item-none">
+          <a {{action 'removeProperty' prop}} title={{t 'action.removeItem' item=(t 'chart.edit.prop.prop')}} class="uk-icon-hover uk-icon-small">
+            {{fa-icon 'minus'}}
+          </a>
+        </div>
+      {{/if}}
+      <div class="uk-flex-item-none">
+        {{color-swatch-input color=prop.color colorContext=prop onChangeColor=(action 'setPropertyColor')}}
+      </div>
+      <div class="uk-flex-item-1">
+        <p>{{sourceConfig.displayName}}</p>
+      </div>
+      <div class="uk-flex-item-none">
+        <a {{action 'togglePropertyVisibility' prop}} title={{if prop.isHidden (t 'action.show') (t 'action.hide')}} class="uk-icon-hover uk-icon-small">
+          {{fa-icon (if prop.isHidden 'eye-slash' 'eye')}}
+        </a>
+      </div>
+    </div>
+  </div>
+{{/each}}
