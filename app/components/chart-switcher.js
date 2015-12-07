@@ -2,13 +2,13 @@ import Ember from 'ember';
 
 export default Ember.Component.extend({
   init() {
-    this._super.apply(this, arguments);
+    this._super(...arguments);
     this.eventBus.subscribe('chartRoute.ChartLoaded', this, 'onChartLoaded');
   },
 
   destroy() {
-    this.get('eventBus').unsubscribe('chartRoute.ChartLoaded');
-    this._super.apply(this, arguments);
+    this.eventBus.unsubscribe('chartRoute.ChartLoaded');
+    this._super(...arguments);
   },
 
   onChartLoaded(chart) {
