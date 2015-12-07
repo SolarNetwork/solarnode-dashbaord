@@ -34,7 +34,7 @@ export default Ember.Component.extend({
 
   canAddNewProperty: Ember.computed.and('hasAvailableSourceProperties', 'hasSelectedNewPropertyId'),
 
-  canRemoveProperty: Ember.computed.gt('sourceProperties.length', 1),
+  canRemoveProperty: Ember.computed.gt('chartConfig.properties.length', 1),
 
   dataSourceConfig: Ember.computed('sourceConfig', 'allPropConfigs', function() {
     return DataSourceConfig.create({
@@ -74,6 +74,7 @@ export default Ember.Component.extend({
       const newPropId = this.get('selectedNewPropertyId');
       if ( newPropId ) {
         this.sendAction('addNewProperty', newPropId);
+        this.set('selectedNewPropertyId', null);
       }
     },
   },

@@ -16,14 +16,6 @@
       <div class="uk-flex-item-1">
         <p>{{prop.displayName}}</p>
       </div>
-      <!--
-      <div class="uk-flex-item-1">
-        {{input value=prop.title class="uk-width-1-1" placeholder=(t 'chart.edit.prop.title')}}
-      </div>
-      <div class="uk-flex-item-1">
-        {{input value=prop.unit class="uk-width-1-1" placeholder=(if prop.property.unit (t 'chart.edit.source.unitWithDefault' default=prop.property.unit) (t 'chart.edit.source.unit'))}}
-      </div>
-      -->
       <div class="uk-flex-item-none">
         <a {{action 'togglePropertyVisibility' prop}} title={{if prop.isHidden (t 'action.show') (t 'action.hide')}} class="uk-icon-hover uk-icon-small">
           {{fa-icon (if prop.isHidden 'eye-slash' 'eye')}}
@@ -37,9 +29,9 @@
     <div class="uk-grid"  style="align-items: center;">
       <div class="uk-flex-item-1">
         <select onchange={{action 'selectNewProperty' value="target.value"}} autocomplete="off">
-          <option></option>
+          <option selected={{if hasSelectedNewPropertyId null 'selected'}}></option>
           {{#each availableSourceProperties as |propConfig|}}
-            <option value={{propConfig.id}} selected={{if (eq prop.id propConfig.id) 'selected' null}}>{{propConfig.displayName}}</option>
+            <option value={{propConfig.id}} selected={{if (eq propConfig.id selectedNewPropertyId) 'selected' null}}>{{propConfig.displayName}}</option>
           {{/each}}
         </select>
         <button class="uk-button uk-button-success" disabled={{if canAddNewProperty null true}} {{action 'addNewProperty' propConfig}}>{{t 'action.add'}}</button>

@@ -79,6 +79,29 @@ export default Ember.Component.extend({
     });
   }),
 
+  availableSourceConfigs: Ember.computed.setDiff('allSourceConfigs', 'uniqueSourceConfigs'),
+
+  hasAvailableSourceConfigs: Ember.computed.notEmpty('availableSourceConfigs'),
+
+  availableNewSourceProperties: Ember.computed('selectedNewSourceId', 'allPropConfigs.[]', function() {
+    const propConfigs = this.get('allPropConfigs');
+    const sourceId = this.get('selectedNewSourceId');
+    if ( !(propConfigs && sourceId) ) {
+      return new Ember.A();
+    }
+    return propConfigs.filterBy('source', sourceId).sort((l, r) => {
+      const lS = l.get('source');
+      const rS = r.get('source');
+      return (lS < rS ? -1 : lS > rS ? 1 : 0);
+    });
+  }),
+
+  hasSelectedNewSourceId: Ember.computed.notEmpty('selectedNewSourceId'),
+
+  hasSelectedNewSourcePropertyId: Ember.computed.notEmpty('selectedNewSourcePropertyId'),
+
+  canAddNewSourceProperty: Ember.computed.and('hasAvailableSourceConfigs', 'hasSelectedNewSourceId', 'hasSelectedNewSourcePropertyId'),
+
   inserted: Ember.on('didInsertElement', function() {
     this.get('resizeService').on('debouncedDidResize', this, this.didResize);
     Ember.run.next(this, 'didResize');
@@ -147,6 +170,30 @@ export default Ember.Component.extend({
         propConfig.save();
         chart.save();
       }
+    },
+
+    showAddSourceConfigForm() {
+      this.set('isShowAddSourceConfigForm', true);
+    },
+
+    hideAddSourceConfigForm() {
+      this.set('isShowAddSourceConfigForm', false);
+    },
+
+    selectNewSource(sourceId) {
+      this.set('selectedNewSourceId', sourceId);
+    },
+
+    selectNewSourceProperty(propConfigId) {
+      this.set('selectedNewSourcePropertyId', propConfigId);
+    },
+
+    addNewSourceProperty() {
+      const propConfigId = this.get('selectedNewSourcePropertyId');
+      this.send('addNewProperty', propConfigId);
+      this.send('hideAddSourceConfigForm');
+      this.set('selectedNewSourceId', null);
+      this.set('selectedNewSourcePropertyId', null);
     },
 
     save() {

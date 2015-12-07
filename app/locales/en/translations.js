@@ -121,7 +121,11 @@ export default {
       "props" : {
         "manageHint" : "Expecting to see more properties?",
         "manageHintAction" : "Manage your data properties.",
-      }
+      },
+      "sourceProps" : {
+        "manageHint" : "Expecting to see more sources or properties?",
+        "manageHintAction" : "Manage your data sources.",
+      },
     },
     "export" : "Export"
   },
