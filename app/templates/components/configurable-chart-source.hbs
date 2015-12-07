@@ -43,6 +43,9 @@
           {{/each}}
         </select>
         <button class="uk-button uk-button-success" disabled={{if canAddNewProperty null true}} {{action 'addNewProperty' propConfig}}>{{t 'action.add'}}</button>
+        <p>
+          {{t 'chart.edit.props.manageHint'}} {{#link-to 'data-props.source' dataSourceConfig}}{{t 'chart.edit.props.manageHintAction'}}{{/link-to}}
+        </p>
       </div>
       <div class="uk-flex-item-none">
         <a {{action 'hideAddNewPropertyForm'}} class="uk-close"></a>

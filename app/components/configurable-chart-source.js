@@ -1,10 +1,11 @@
 import Ember from 'ember';
+import DataSourceConfig from '../models/data-source-config';
 
 export default Ember.Component.extend({
   tagName: 'fieldset',
   canRemove: false,
 
-  store: Ember.inject.service(),
+  profile: Ember.computed.alias('sourceConfig.profile'),
 
   source: Ember.computed.alias('sourceConfig.source'),
   sourceProperties: Ember.computed('propConfigs.@each.source', 'source', function() {
@@ -22,7 +23,7 @@ export default Ember.Component.extend({
   hasAvailableSourceProperties: Ember.computed.notEmpty('availableSourceProperties'),
 
   inserted: Ember.on('didInsertElement', function() {
-    var container = this.$().find('input[type=color]').spectrum({
+    this.$().find('input[type=color]').spectrum({
       preferredFormat: 'hex',
       showInput: true,
       chooseText: this.get('i18n').t('action.choose')
@@ -34,6 +35,14 @@ export default Ember.Component.extend({
   canAddNewProperty: Ember.computed.and('hasAvailableSourceProperties', 'hasSelectedNewPropertyId'),
 
   canRemoveProperty: Ember.computed.gt('sourceProperties.length', 1),
+
+  dataSourceConfig: Ember.computed('sourceConfig', 'allPropConfigs', function() {
+    return DataSourceConfig.create({
+      profile: this.get('profile'),
+      sourceConfig: this.get('sourceConfig'),
+      allPropConfigs: this.get('allPropConfigs'),
+    });
+  }),
 
   actions : {
     togglePropertyVisibility(prop) {

@@ -31,8 +31,12 @@ export default Ember.Component.extend({
 
   actions : {
     selectSource(sourceConfig) {
-      this.set('selectedSourceId', sourceConfig.get('source'));
-      this.sendAction('selectedSource', sourceConfig);
+      const curr = this.get('selectedSourceId');
+      const dest = sourceConfig.get('source');
+      if ( curr !== dest ) {
+        this.set('selectedSourceId', sourceConfig.get('source'));
+        this.sendAction('selectedSource', sourceConfig);
+      }
     },
 
     hideDataPropHelp() {

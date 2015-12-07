@@ -117,6 +117,10 @@ export default {
       "prop" : {
         "title" : "Name",
         "prop" : "Property",
+      },
+      "props" : {
+        "manageHint" : "Expecting to see more properties?",
+        "manageHintAction" : "Manage your data properties.",
       }
     },
     "export" : "Export"

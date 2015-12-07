@@ -14,13 +14,21 @@ export default Ember.Route.extend({
             sourceConfig: sourceConfig,
             allPropConfigs: allPropConfigs,
           });
-          Ember.run.next(() => {
-            this.eventBus.publish('data-props.source.DataSourceConfigLoaded', model);
-          });
           return model;
         });
       });
     });
+  },
+
+  redirect(model, transition) {
+    var targetSourceId = (transition && transition.params && transition.params['data-props.source']
+      ? transition.params['data-props.source'].sourceId : undefined);
+    var chart;
+    if ( targetSourceId && model ) {
+      Ember.run.next(() => {
+        this.eventBus.publish('data-props.source.DataSourceConfigLoaded', model);
+      });
+    }
   },
 
 });
