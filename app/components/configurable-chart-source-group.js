@@ -69,7 +69,32 @@ export default Ember.Component.extend({
       }
     },
 
+    selectGroupProp(prop) {
+      const currValue = this.get('sourceGroup.groupProp');
+      if ( currValue === prop ) {
+        return;
+      }
+      this.set('sourceGroup.groupProp', prop);
 
+      // remove all existing prop configs, and try to switch them to the new group prop
+      const removedSourceIds = this.get('sourceGroup.sourceIds');
+      const removedPropConfigIds = [];
+      const propConfigs = this.get('propConfigs');
+      propConfigs.forEach(propConfig => {
+        if ( removedSourceIds.contains(propConfig.get('source')) ) {
+          removedPropConfigIds.push(propConfig.get('id'));
+        }
+      });
+      removedPropConfigIds.forEach(propConfigId => {
+        this.send('removeProperty', propConfigId);
+      });
+      const filteredPropConfigIds = this.get('availablePropConfigs').filter(propConfig => {
+        return (propConfig.get('prop') === prop && removedSourceIds.contains(propConfig.get('source')));
+      }).mapBy('id');
+      filteredPropConfigIds.forEach(propConfigId => {
+        this.send('addNewSourceProperty', propConfigId);
+      });
+    },
   },
 
 });

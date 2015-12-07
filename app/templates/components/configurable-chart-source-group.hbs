@@ -5,7 +5,11 @@
       {{input value=sourceGroup.title class="uk-width-1-1" placeholder=(t 'chart.edit.sourceGroup.title')}}
     </div>
     <div class="uk-width-3-10">
-      {{input value=sourceGroup.groupProp class="uk-width-1-1" placeholder=(t 'chart.edit.source.prop')}}
+      <select onchange={{action 'selectGroupProp' value="target.value"}} autocomplete="off">
+        {{#each availableProps as |prop|}}
+          <option value={{prop}} selected={{if (eq prop sourceGroup.groupProp) 'selected' null}}>{{prop}}</option>
+        {{/each}}
+      </select>
     </div>
     <div class="uk-width-3-10">
       {{input value=sourceGroup.groupUnit class="uk-width-1-1" placeholder=(if sourceGroup.groupProperty.unit (t 'chart.edit.source.unitWithDefault' default=sourceGroup.groupProperty.unit) (t 'chart.edit.source.unit'))}}

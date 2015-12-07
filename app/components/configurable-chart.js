@@ -79,6 +79,12 @@ export default Ember.Component.extend({
     });
   }),
 
+  props: Ember.computed.mapBy('allPropConfigs', 'prop'),
+  uniqueProps: Ember.computed.uniq('props'),
+  availableProps: Ember.computed.sort('uniqueProps', function(l, r) {
+    return (l < r ? -1 : l > r ? 1 : 0);
+  }),
+
   availableSourceConfigs: Ember.computed('availablePropConfigs.[]', 'allSourceConfigs.[]', function() {
     const allSourceConfigs = this.get('allSourceConfigs');
     const propConfigs = this.get('availablePropConfigs');
