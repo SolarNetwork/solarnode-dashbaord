@@ -23,6 +23,18 @@ export default Ember.Component.extend({
     removeProperty(propConfigId) {
       this.sendAction('removeProperty', propConfigId);
     },
+
+    addNewSourceProperty(propConfigId) {
+      const groupConfigId = this.get('sourceGroup.id');
+      this.sendAction('addNewGroupedSourceProperty', groupConfigId, propConfigId);
+      this.set('selectedNewSourcePropertyId', null);
+      if ( !this.get('hasAvailablePropConfigs') ) {
+        this.send('hideAddSourceConfigForm');
+        this.set('selectedNewSourceId', null);
+      }
+    },
+
+
   },
 
 });

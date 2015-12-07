@@ -164,13 +164,18 @@ export default Ember.Component.extend({
       }
     },
 
-    addNewSourceProperty(propConfigId) {
-      //const propConfigId = this.get('selectedNewSourcePropertyId');
+    addNewGroupedSourceProperty(groupConfigId, propConfigId) {
       this.send('addNewProperty', propConfigId);
-      this.set('selectedNewSourcePropertyId', null);
-      if ( !this.get('hasAvailablePropConfigs') ) {
-        this.send('hideAddSourceConfigForm');
-        this.set('selectedNewSourceId', null);
+      const chart = this.get('chart');
+      const propConfig = this.get('propConfigs').findBy('id', propConfigId);
+      const groupConfig = chart.get('groups').findBy('id', groupConfigId);
+      if ( propConfig && groupConfig ) {
+        var sourceId = propConfig.get('source');
+        var groupSourceIds = groupConfig.get('sourceIds').slice();
+        if ( !groupSourceIds.contains(sourceId) ) {
+          groupSourceIds.push(sourceId).sort();
+          groupConfig.set('sourceIds', groupSourceIds);
+        }
       }
     },
 
