@@ -213,6 +213,13 @@ export default Ember.Component.extend({
       chart.get('properties').forEach(obj => {
         obj.save();
       });
-    }
+    },
+
+    downloadData() {
+      const chartConfig = this.get('chart');
+      if ( chartConfig ) {
+        this.eventBus.publish('ChartConfig.exportDataRequest', chartConfig.get('id'));
+      }
+    },
   }
 });

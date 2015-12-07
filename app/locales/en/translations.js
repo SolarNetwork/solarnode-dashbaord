@@ -8,6 +8,7 @@ export default {
     "cancel" : "Cancel",
     "choose" : "Choose",
     "done" : "Done",
+    "downloadData" : "Download Data",
     "getStarted" : "Chart Suggestions",
     "hide" : "Hide",
     "login" : "Login",

@@ -17,9 +17,13 @@
 		{{/liquid-if}}
 	</div>
 	<div class="uk-hidden-small uk-width-large-1-10 uk-text-right uk-margin-bottom app-chart-settings-toggle-horizontal">
-    <a {{action 'toggleSettingsVisibility'}} title={{t 'chart.edit.toggleSettingsVisibility'}} class="uk-icon-hover uk-icon-large">
+    <a {{action 'toggleSettingsVisibility'}} title={{t 'chart.edit.toggleSettingsVisibility'}} class="uk-icon-hover uk-icon-medium">
       {{fa-icon (if isSettingsVisible 'angle-double-right' 'angle-double-left')}}
     </a>
+    <br>
+	  <a {{action 'downloadData'}} title={{t 'action.downloadData'}} class="uk-icon-hover uk-icon-small uk-margin-top">
+	    {{fa-icon 'download'}}
+	  </a>
 	</div>
 	{{#if isSettingsVisible}}
 	<div class="uk-width-small-1-1 uk-width-large-3-10">

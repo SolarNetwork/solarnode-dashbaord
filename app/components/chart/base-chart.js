@@ -31,6 +31,16 @@ export default Ember.Component.extend({
   refreshTimer : null,
   refreshInterval : (5*60*1000),
 
+  init() {
+    this._super(...arguments);
+    this.eventBus.subscribe('ChartConfig.exportDataRequest', this, 'onExportDataRequest');
+  },
+
+  destroy() {
+    this.eventBus.unsubscribe('ChartConfig.exportDataRequest');
+    this._super(...arguments);
+  },
+
   willDestroy: Ember.on('willDestroyElement', function() {
     const refreshTimer = this.get('refreshTimer');
     if ( refreshTimer ) {
@@ -168,6 +178,14 @@ export default Ember.Component.extend({
     // extending classes should implement
     console.log(`Drawing chart ${this}`);
     this.set('hasDrawn', true);
-  }
+  },
+
+  onExportDataRequest(exportChartConfigId) {
+    const chartConfigId = this.get('chartConfig.id');
+    if ( chartConfigId !== exportChartConfigId ) {
+      return;
+    }
+    console.log('export chart ' +chartConfigId);
+  },
 
 });
