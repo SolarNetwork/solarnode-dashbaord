@@ -6,6 +6,7 @@ export default DS.Model.extend({
   chart: DS.belongsTo('chart-config', {inverse:'groups'}),
   sourceIds: DS.attr(), // array of source IDs
   title: DS.attr('string'),
+  displayName: Ember.computed.alias('title'),
   flags: DS.attr(),
   scaleFactor: DS.attr('number', {default: 1}),
 

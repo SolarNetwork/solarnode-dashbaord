@@ -191,7 +191,41 @@ export default Ember.Component.extend({
 
   exportChartData() {
     // extending classes should implement this
-    console.warn(`Chart ${this.get('chartConfig.id')} does not implement data export!`);
+    console.warn(`Chart ${this.get('chartConfig.id')} does not implement exportChartData!`);
   },
+
+  chartGenerateCSV() {
+    console.warn(`Chart ${this.get('chartConfig.id')} does not implement chartGenerateCSV!`);
+  },
+
+	chartExportDataCSV() {
+	  const urlHelper = this.get('chartHelper.clientHelper.nodeUrlHelper');
+	  const title = this.get('chartConfig.title');
+	  const csvContent = this.chartGenerateCSV(this.get('snChart'));
+	  if ( !csvContent ) {
+	    return;
+	  }
+		var blob = new Blob([csvContent],{type: 'text/csv;charset=utf-8;'}),
+			url = URL.createObjectURL(blob),
+			fileName = 'data-export-' +urlHelper.nodeId +'-' +(title.replace(/\W/g, '-')) +'.csv',
+			link;
+
+		if ( navigator && navigator.msSaveBlob ) {
+			navigator.msSaveBlob(blob, fileName);
+		} else {
+			link = document.createElement('a');
+			link.setAttribute('href', url);
+			if ( link.download !== undefined ) {
+				link.setAttribute('download', fileName);
+			} else {
+				link.setAttribute('target', '_blank');
+			}
+			link.setAttribute('style', 'visibility: hidden;');
+
+			document.body.appendChild(link);
+			link.click();
+			document.body.removeChild(link);
+    }
+	},
 
 });
