@@ -198,7 +198,7 @@ export default BaseChart.extend({
 		var csvContent = this.chartGenerateCSV(this.get('snChart')),
 			blob = new Blob([csvContent],{type: 'text/csv;charset=utf-8;'}),
 			url = URL.createObjectURL(blob),
-			fileName = 'data-export-' +urlHelper.nodeId +(title.replace(/\W/g, '-')) +'.csv',
+			fileName = 'data-export-' +urlHelper.nodeId +'-' +(title.replace(/\W/g, '-')) +'.csv',
 			link;
 
 		if ( navigator && navigator.msSaveBlob ) {
