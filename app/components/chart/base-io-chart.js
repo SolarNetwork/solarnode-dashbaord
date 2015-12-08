@@ -152,4 +152,78 @@ export default BaseChart.extend({
     }
   },
 
+	/* === CSV Export Support === */
+
+	chartGenerateCSV(chart) {
+		var records = [];
+		var header = ['Date (' + chart.aggregate() +')', 'Source'];
+		var propKeys;
+		records.push(header);
+		chart.enumerateDataOverTime(function timeIterator(data, date) {
+			var keys = Object.keys(data).sort();
+			var localDate;
+			keys.forEach(function sourceIterator(sourceId) {
+				var d = data[sourceId],
+					row;
+				if ( localDate === undefined ) {
+					localDate = d.localDate + ' ' + d.localTime;
+				}
+				row = [localDate, sourceId];
+				if ( !propKeys ) {
+				  propKeys = Object.keys(d).filter(function(propKey) {
+				    return (propKey !== 'sourceId'
+				      && propKey !== 'date'
+				      && propKey !== 'localDate'
+				      && propKey !== 'localTime'
+				      && propKey !== 'y'
+				      && propKey !== 'y0'
+				      && !propKey.match(/^_/));
+				  }).sort();
+				  propKeys.forEach(function(propKey) {
+				    header.push(propKey);
+				  });
+				}
+				propKeys.forEach(function(propKey) {
+				  row.push(d[propKey]);
+				});
+				records.push(row);
+			});
+		});
+		return d3.csv.format(records);
+	},
+
+	chartExportDataCSV() {
+	  const urlHelper = this.get('chartHelper.clientHelper.nodeUrlHelper');
+	  const title = this.get('chartConfig.title');
+		var csvContent = this.chartGenerateCSV(this.get('snChart')),
+			blob = new Blob([csvContent],{type: 'text/csv;charset=utf-8;'}),
+			url = URL.createObjectURL(blob),
+			fileName = 'data-export-' +urlHelper.nodeId +(title.replace(/\W/g, '-')) +'.csv',
+			link;
+
+		if ( navigator && navigator.msSaveBlob ) {
+			navigator.msSaveBlob(blob, fileName);
+		} else {
+			link = document.createElement('a');
+			link.setAttribute('href', url);
+			if ( link.download !== undefined ) {
+				link.setAttribute('download', fileName);
+			} else {
+				link.setAttribute('target', '_blank');
+			}
+			link.setAttribute('style', 'visibility: hidden;');
+
+			document.body.appendChild(link);
+			link.click();
+			document.body.removeChild(link);
+    }
+	},
+
+  exportChartData() {
+    const snChart = this.get('snChart');
+    if ( snChart.enumerateDataOverTime ) {
+      this.chartExportDataCSV();
+    }
+  },
+
 });

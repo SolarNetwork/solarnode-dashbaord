@@ -186,6 +186,12 @@ export default Ember.Component.extend({
       return;
     }
     console.log('export chart ' +chartConfigId);
+    this.exportChartData();
+  },
+
+  exportChartData() {
+    // extending classes should implement this
+    console.warn(`Chart ${this.get('chartConfig.id')} does not implement data export!`);
   },
 
 });
