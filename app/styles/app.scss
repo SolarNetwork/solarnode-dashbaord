@@ -74,9 +74,8 @@ h1 {
   color: #666;
 }
 
-.app-chart-settings-toggle-horizontal {
-  margin-top: -0.3em;
-  padding-right: ($utility-margin/2);
+.app-chart-settings-visible {
+  padding-right: $utility-margin !important;
 }
 
 .app-chart-property-form .uk-grid > * + * {

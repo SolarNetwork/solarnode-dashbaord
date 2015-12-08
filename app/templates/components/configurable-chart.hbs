@@ -16,7 +16,7 @@
 		  {{chart.line-chart width=chartWidth height=320 chartConfig=chart propConfigs=propConfigs}}
 		{{/liquid-if}}
 	</div>
-	<div class="uk-hidden-small uk-width-large-1-10 uk-text-right uk-margin-bottom app-chart-settings-toggle-horizontal">
+	<div class="uk-width-large-1-10 uk-text-right uk-margin-bottom {{if isSettingsVisible 'app-chart-settings-visible'}}">
     <a {{action 'toggleSettingsVisibility'}} title={{t 'chart.edit.toggleSettingsVisibility'}} class="uk-icon-hover uk-icon-medium">
       {{fa-icon (if isSettingsVisible 'angle-double-right' 'angle-double-left')}}
     </a>
