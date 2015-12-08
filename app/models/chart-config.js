@@ -64,13 +64,14 @@ export default DS.Model.extend({
 
    @return {Object} a unit metadata object, like <code>{unit:'W', unitName:'watts'}</code>
    */
-  unit: Ember.computed('properties.@each.unit', 'displayScale', function() {
+  unit: Ember.computed('properties.@each.property', 'displayScale', function() {
     // FIXME: handle groupProp
     const promise = this.get('properties').then(propConfigs => {
       var result = null;
       var allSame = propConfigs.every(propConfig => {
-        const unit = propConfig.get('unit');
-        const unitName = propConfig.get('unitName');
+        const property = propConfig.get('property');
+        const unit = property.unit;
+        const unitName = property.unitName;
         if ( !(unit && unitName) ) {
           return true;
         }
