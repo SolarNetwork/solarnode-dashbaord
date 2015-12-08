@@ -1,26 +1,11 @@
 import Ember from 'ember';
-import BaseChart, { ConfigurationAccessor } from './base-chart';
+import BaseChart, { ConfigurationAccessor, datumChartPropsForExport } from './base-chart';
 import d3 from 'npm:d3';
 import sn from 'npm:solarnetwork-d3';
 import colorbrewer from 'npm:colorbrewer';
 import { reverseColorGroupColors, bestColorSetFromColorGroup } from '../../services/chart-helper';
 
 export { ConfigurationAccessor } from './base-chart';
-
-function datumChartPropsForExport(d) {
-  if ( !d ) {
-    return [];
-  }
-  return Object.keys(d).filter(function(propKey) {
-    return (propKey !== 'key'
-      && propKey !== 'date'
-      && propKey !== 'localDate'
-      && propKey !== 'localTime'
-      && propKey !== 'y'
-      && propKey !== 'y0'
-      && !propKey.match(/^_/));
-  }).sort()
-}
 
 export default BaseChart.extend({
   negativeGroupIds: ['Consumption'],
@@ -212,7 +197,10 @@ export default BaseChart.extend({
           }
           row = [localDate, sourceId];
           if ( !propKeys ) {
-            propKeys = datumChartPropsForExport(d);
+            propKeys = datumChartPropsForExport(d).filter(function(propKey) {
+              // also exclude sourceId
+              return (propKey !== 'sourceId');
+            });
             propKeys.forEach(function(propKey) {
               header.push(propKey);
             });

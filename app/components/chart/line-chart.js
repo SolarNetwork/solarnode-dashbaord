@@ -1,5 +1,5 @@
 import Ember from 'ember';
-import BaseChart from './base-chart';
+import BaseChart, { datumChartPropsForExport } from './base-chart';
 import d3 from 'npm:d3';
 import sn from 'npm:solarnetwork-d3';
 
@@ -119,6 +119,48 @@ export default BaseChart.extend({
       }
       return (chart ? chart.colors() : undefined);
     }
-  })
+  }),
+
+	/* === CSV Export Support === */
+
+	chartGenerateCSV(chart) {
+		const records = [];
+		const header = [];
+		var propKeys;
+		records.push(header);
+    header.push('Date' +(chart.aggregate ? ' (' +chart.aggregate() +')' : ''));
+    header.push('Source');
+    chart.enumerateDataOverTime(function timeIterator(data, date) {
+      var keys = Object.keys(data).sort();
+      var localDate;
+      keys.forEach(function sourceIterator(sourceId) {
+        var d = data[sourceId],
+          row;
+        if ( localDate === undefined ) {
+          localDate = d.localDate + ' ' + d.localTime;
+        }
+        row = [localDate, sourceId];
+        if ( !propKeys ) {
+          propKeys = datumChartPropsForExport(d).filter(function(propKey) {
+            // also exclude sourceId
+            return (propKey !== 'sourceId');
+          });
+          propKeys.forEach(function(propKey) {
+            header.push(propKey);
+          });
+        }
+        propKeys.forEach(function(propKey) {
+          row.push(d[propKey]);
+        });
+        records.push(row);
+      });
+    });
+		return d3.csv.format(records);
+	},
+
+  exportChartData() {
+    const snChart = this.get('snChart');
+    this.chartExportDataCSV();
+  },
 
 });

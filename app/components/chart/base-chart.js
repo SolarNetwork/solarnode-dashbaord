@@ -14,6 +14,21 @@ export const ConfigurationAccessor = {
   }
 };
 
+export function datumChartPropsForExport(d) {
+  if ( !d ) {
+    return [];
+  }
+  return Object.keys(d).filter(function(propKey) {
+    return (propKey !== 'key'
+      && propKey !== 'date'
+      && propKey !== 'localDate'
+      && propKey !== 'localTime'
+      && propKey !== 'y'
+      && propKey !== 'y0'
+      && !propKey.match(/^_/));
+  }).sort()
+}
+
 export default Ember.Component.extend({
   tagName: 'svg',
   attributeBindings: ['width', 'height'],
