@@ -15,4 +15,9 @@ App = Ember.Application.extend({
 
 loadInitializers(App, config.modulePrefix);
 
+// support for some UIkit data attributes
+Ember.TextField.reopen({
+  attributeBindings: ['data-uk-datepicker']
+});
+
 export default App;

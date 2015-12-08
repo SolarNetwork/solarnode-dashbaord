@@ -2,49 +2,145 @@ import Ember from 'ember';
 import ChartSuggestion from '../models/chart-suggestion';
 import d3 from 'npm:d3';
 import sn from 'npm:solarnetwork-d3';
+import colorbrewer from 'npm:colorbrewer';
 
 const ignoreSourceDataProps = { 'nodeId' : true };
 
+/**
+ Create a reversed copy of a Colorbrewer style group of colors, for example
+ <code>{3:['red', 'white', 'blue'], 5:['red', 'white', 'blue', 'green', 'yellow']}</code>
+ would become
+ <code>{3:['blue', 'white', 'red'], 5:['yellow', 'green', 'blue', 'white''red']}</code>
+
+ @param {Object} - The color group to reverse.
+ @return {Object} - A new object with all color sets reversed.
+ */
+export function reverseColorGroupColors(colorGroup) {
+  const result = {};
+  Object.keys(colorGroup).forEach(function(key) {
+    var copy = colorGroup[key].slice();
+    copy.reverse();
+    result[key] = copy;
+  });
+  return result;
+}
+
+/**
+ Choose the best color set from a color group, based on a desired number of colors.
+
+ @param {Number} desiredCount - The desired number of colors.
+ @param {Object} colorGroup - The Colorbrewer style group of colors.
+ @return {Array} An array of colors.
+ */
+export function bestColorSetFromColorGroup(desiredCount, colorGroup) {
+  // find the closest number of color groups, so colors as far apart as possible
+  if ( colorGroup[desiredCount] ) {
+    return colorGroup[desiredCount].slice();
+  }
+  // search for closest key that is larger than the desired key
+  var colorKey;
+  const keys = Object.keys(colorGroup);
+  var i, len, key;
+  for ( i = 0, len = keys.length; i < len; i += 1 ) {
+    key = keys[i];
+    if ( key > desiredCount ) {
+      if ( !colorKey || (key < colorKey) ) {
+        // take this key, it's closer than the previous key (or the first key)
+        colorKey = key;
+      }
+    }
+  }
+  var array = (colorKey ? colorGroup[colorKey] : undefined);
+  if ( array ) {
+    array = array.slice(0, desiredCount);
+  }
+  return array;
+}
+
 function dataPerPropertyPerSource(urlHelper) {
-  // get all available data within the last week
+  // get all available data within the last day
   const endDate = new Date();
   const startDate = d3.time.day.offset(endDate, -1);
-  return new Ember.RSVP.Promise((resolve, reject) => {
-    sn.api.datum.loader([], urlHelper, startDate, endDate, 'Hour').callback((error, results) => {
-      if ( !results || !Array.isArray(results) ) {
-        sn.log("Unable to load data: {1}", error);
-        reject(error);
-      }
+  const load = Ember.RSVP.denodeify(sn.api.datum.loader([], urlHelper, startDate, endDate, 'Hour'));
+  return load().then(function(results) {
+    if ( !results || !Array.isArray(results) ) {
+      throw new Error("Unable to load data");
+    }
 
-      var dataBySource = d3.nest()
-        .key(function(d) { return d.sourceId; })
-        .sortKeys(d3.ascending)
-        .entries(results);
+    var dataBySource = d3.nest()
+      .key(function(d) { return d.sourceId; })
+      .sortKeys(d3.ascending)
+      .entries(results);
 
-      var dataByLine = [];
-      dataBySource.forEach((sourceData) => {
-        var sourcePlotProperties = propertiesForSourceData(sourceData);
-        sourcePlotProperties.forEach((plotProp) => {
-          var lineId = sourceData.key + '-' + plotProp,
-            lineData = { key : lineId, source : sourceData.key, prop : plotProp, values : sourceData.values };
-          dataByLine.push(lineData);
-        });
+    var dataByLine = [];
+    dataBySource.forEach((sourceData) => {
+      var sourcePlotProperties = propertiesForSourceData(sourceData);
+      sourcePlotProperties.forEach((plotProp) => {
+        var lineId = sourceData.key + '-' + plotProp,
+          lineData = { key : lineId, source : sourceData.key, prop : plotProp, values : sourceData.values };
+        dataByLine.push(lineData);
       });
-      resolve({dataBySource:dataBySource, dataByLine:dataByLine});
-    }).load();
+    });
+    return {dataBySource:dataBySource, dataByLine:dataByLine};
   });
 }
 
-function propertiesForSourceData(sourceData) {
+/**
+ Get an array of ChartPropertyConfig objects based on a set of data.
+
+ @param {Array} sourceData - The array of source data to inspect.
+ @param {Object} flags - An object to populate flag keys into.
+ @return {Array} Array of ChartPropertyConfig compatible objects.
+ */
+function propertiesForSourceData(sourceData, flags) {
   if ( !(sourceData && sourceData.values && sourceData.values.length > 0) ) {
     return [];
   }
 
   // get properties of first object only
-  var templateObj = sourceData.values[0];
-  return Object.keys(templateObj).filter(function(key) {
-    return (!ignoreSourceDataProps[key] && typeof templateObj[key] === 'number');
+  var firstDatum = sourceData.values[0];
+  return propertiesForDatum(firstDatum, flags);
+}
+
+function propertiesForDatum(datum, flags) {
+  var propKeys = datumNumericPropertyKeys(datum);
+  return propKeys.map(function(key) {
+    if ( flags ) {
+      // look for "watts" for electricity
+      if ( key === 'watts' ) {
+        flags.electricity = true;
+      } else if ( key === "dcVoltage" ) {
+        // "dcVoltage" take for PV generation
+        flags.generation = true;
+        flags.pv = true;
+      } else if ( key === "wattHoursReverse" ) {
+        // "wattHoursReverse" take for a meter
+        flags.meter = true;
+      } else if ( key === "phaseVoltage" || key === "frequency" || key === "powerFactor" ) {
+        // look for signs of AC power
+        flags.ac = true;
+        if ( datum.phase && datum.phase !== 'Total' ) {
+          flags.phase = true;
+        }
+      } else  if ( key === "temp" ) {
+        flags.atmosphere = true;
+      }
+    }
+    return {prop:key};
+  });
+}
+
+/**
+ Get all numeric property keys for a given datum.
+
+ @param {Object} datum - A datum returned by a SolarNetwork query.
+ @return {Array} - An array of property keys.
+ */
+export function datumNumericPropertyKeys(datum) {
+  var propKeys = Object.keys(datum).filter(function(key) {
+    return (!ignoreSourceDataProps[key] && typeof datum[key] === 'number');
   }).sort();
+  return propKeys;
 }
 
 /**
@@ -54,35 +150,14 @@ function propertiesForSourceData(sourceData) {
  @return {Array} An array of ChartSuggestion objects
  */
 function chartSuggestionsFromSourceData(sourceData, i18n) {
-  var props = propertiesForSourceData(sourceData);
-
-  var flags = {};
-
-  // look for "watts" for electricity
-  if ( props.indexOf("watts") !== -1 ) {
-    flags.electricity = true;
-
-    // "dcVoltage" take for PV generation
-    if ( props.indexOf("dcVoltage") !== -1 ) {
-      flags.generation = true;
-      flags.pv = true;
-    }
-
-    // "wattHoursReverse" take for a meter
-    if ( props.indexOf("wattHoursReverse") !== -1 ) {
-      flags.meter = true;
-    }
-
-    // look for signs of AC power
-    if ( props.indexOf("phaseVoltage") !== -1 || props.indexOf("frequency") !== -1 || props.indexOf("powerFactor") !== -1 ) {
-      flags.ac = true;
-    }
-  }
+  const flags = {};
+  const props = propertiesForSourceData(sourceData, flags); // array of ChartPropertyConfig
 
   if ( flags.electricity && flags.generation ) {
     return [ChartSuggestion.create({
       type: 'Generation',
       subtype: 'PV',
+      style: 'line',
       flags: flags,
       title: i18n.t('chartSuggestion.generation.title', {source: sourceData.key, subtype:'PV'}).toString(),
       sources: [{source:sourceData.key, props:props}],
@@ -92,6 +167,7 @@ function chartSuggestionsFromSourceData(sourceData, i18n) {
   } else if ( flags.electricity ) {
     return [ChartSuggestion.create({
       type: 'Consumption',
+      style: 'line',
       flags: flags,
       title: i18n.t('chartSuggestion.consumption.title', {source: sourceData.key}).toString(),
       sources: [{source:sourceData.key, props:props}],
@@ -101,13 +177,92 @@ function chartSuggestionsFromSourceData(sourceData, i18n) {
   } else {
     // unknown, use General
     return [ChartSuggestion.create({
+      style: 'line',
       flags: flags,
       title: i18n.t('chartSuggestion.general.title', {source:sourceData.key}).toString(),
       sources: [{source:sourceData.key, props:props}],
       data: sourceData.values,
-      sampleConfiguration: {source:sourceData.key, prop:props[0]}
+      sampleConfiguration: {source:sourceData.key, prop:props[0].prop}
     })];
   }
+}
+
+function sourceGroupForSuggestions(suggestions, key, title, prop, flags, colors) {
+  const sources = [];
+  const data = [];
+  suggestions.forEach(function(suggestion) {
+    sources.push.apply(sources, suggestion.get('sources').map(function(source) {
+      return source.source;
+    }));
+    data.splice.apply(data, [data.length, 0].concat(suggestion.get('data')));
+  });
+  return {
+    groupId: key,
+    title: title,
+    flags: flags,
+    sourceIds: sources,
+    data: data,
+    prop: prop,
+    colors: colors,
+  };
+}
+
+function groupedChartSuggestionsFromSuggestions(suggestions, i18n) {
+  if ( !Array.isArray(suggestions) || suggestions.length < 2 ) {
+    return [];
+  }
+  const typeGroups = d3.nest().key(function(d) {
+    return d.get('type');
+  }).map(suggestions);
+  const results = [];
+  if ( typeGroups.Generation && typeGroups.Consumption ) {
+    // we've got IO chart potential here
+    const generationFlags = typeGroups.Generation.reduce(function(l, r) {
+      return Ember.merge(l, r.get('flags'));
+    }, {});
+
+    // exclude phase consumption sources
+    const consumptionSuggestions = typeGroups.Consumption.filter(function(suggestion) {
+      return !suggestion.flags.phase;
+    });
+    if ( consumptionSuggestions.length > 0 ) {
+      const consumptionFlags = consumptionSuggestions.reduce(function(l, r) {
+        return Ember.merge(l, r.get('flags'));
+      }, {});
+      const ioFlags = Ember.merge(generationFlags, consumptionFlags);
+      const generationGroup = sourceGroupForSuggestions(typeGroups.Generation, 'Generation',
+        i18n.t('chartSuggestion.group.generation').toString(), 'wattHours', generationFlags,
+        bestColorSetFromColorGroup(consumptionSuggestions.length, reverseColorGroupColors(colorbrewer.Greens)));
+      const consumptionGroup = sourceGroupForSuggestions(consumptionSuggestions, 'Consumption',
+        i18n.t('chartSuggestion.group.consumption').toString(), 'wattHours', consumptionFlags,
+        bestColorSetFromColorGroup(consumptionSuggestions.length, reverseColorGroupColors(colorbrewer.Blues)));
+      results.push(ChartSuggestion.create({
+        type: 'Energy I/O',
+        style: 'io-bar',
+        flags: ioFlags,
+        title: i18n.t('chartSuggestion.energy-io.title').toString(),
+        sourceGroups: [consumptionGroup, generationGroup],
+        sampleConfiguration: {prop:generationGroup.prop}
+      }));
+      results.push(ChartSuggestion.create({
+        type: 'Energy I/O Pie',
+        style: 'io-pie',
+        flags: ioFlags,
+        title: i18n.t('chartSuggestion.energy-io-pie.title').toString(),
+        sourceGroups: [consumptionGroup, generationGroup],
+        sampleConfiguration: {prop:generationGroup.prop}
+      }));
+      results.push(ChartSuggestion.create({
+        type: 'Energy I/O Overlap',
+        style: 'io-area-overlap',
+        flags: ioFlags,
+        title: i18n.t('chartSuggestion.energy-io-overlap.title').toString(),
+        sourceGroups: [consumptionGroup, generationGroup],
+        sampleConfiguration: {prop:generationGroup.prop}
+      }));
+    }
+  }
+  return results;
 }
 
 export default Ember.Service.extend({
@@ -129,34 +284,67 @@ export default Ember.Service.extend({
             results.push.apply(results, suggestions);
           }
         });
+
+        // look for grouped charts, e.g. energy IO
+        results = groupedChartSuggestionsFromSuggestions(results, i18n).concat(results);
+
         return {dataBySource:data.dataBySource, dataByLine:data.dataByLine, suggestions:results};
       }
     );
   },
 
+  datumNumericPropertyKeys: datumNumericPropertyKeys,
+
+  /**
+    Get a promise for a set of data for a single chart configuration.
+
+    @return {Array} An array of objects like <code>{group:ChartGroup, groupId:X, sourceIds:[A,...], data:[...]}</code>.
+  */
   dataForChart(chartConfig) {
     // TODO: start, end, aggregate etc in ChartConfig model
-
+    var range = {}; // start, end
     const urlHelper = this.get('clientHelper.nodeUrlHelper');
-    const endDate = new Date();
-    const aggregate = 'Hour';
-    const range = sn.api.datum.loaderQueryRange(aggregate, 7, endDate); // note 7 is days!
+    if ( chartConfig.get('isUsePeriod') ) {
+      var period = +chartConfig.get('period');
+      range = sn.api.datum.loaderQueryRange(chartConfig.get('periodAggregate'), (period < 1 ? 1 : period), new Date());
+      range.aggregate = chartConfig.get('periodAggregate');
+    } else {
+      range.end = chartConfig.get('endDate');
+      range.start = chartConfig.get('startDate');
+      range.aggregate = chartConfig.get('aggregate');
+    }
 
-    return chartConfig.get('sources').then(sources => {
-      const loadSets = sources.map(sourceProfile => {
-        return sn.api.datum.loader([sourceProfile.get('source')], urlHelper, range.start, range.end, aggregate);
+    if ( !(range.start && range.end && range.aggregate) ) {
+      return Ember.RSVP.reject(new Error('Incomplete chart range, cannot load data.'));
+    }
+
+    return Ember.RSVP.all([chartConfig.get('uniqueSources'), chartConfig.get('properties'), chartConfig.get('groups')])
+    .then(([uniqueSourceIds, propConfigs, groupConfigs]) => {
+      // compute source sets as a GROUP BY of groups
+      if ( groupConfigs && groupConfigs.get('length') > 0 ) {
+        return groupConfigs.map(groupConfig => {
+          return {groupId:groupConfig.get('id'), sourceIds:groupConfig.get('sourceIds')};
+        });
+      } else {
+        // a single "group"
+        return [{groupId:null, sourceIds:uniqueSourceIds}];
+      }
+    }).then(sourceSets => {
+      const loadSets = sourceSets.map(sourceSet => {
+        return sn.api.datum.loader(sourceSet.sourceIds, urlHelper, range.start, range.end, range.aggregate);
       });
-      return new Ember.RSVP.Promise((resolve, reject) => {
-        sn.api.datum.multiLoader(loadSets).callback((error, results) => {
-          if ( !results || !Array.isArray(results) || results.length !== sources.length ) {
-            sn.log("Unable to load data: {1}", error);
-            reject(error);
-          }
-          var finalData = sources.map((sourceProfile, index) => {
-            return {source: sourceProfile, data: results[index]};
-          });
-          resolve(finalData);
-        }).load();
+      return Ember.RSVP.denodeify(sn.api.datum.multiLoader(loadSets))().then(results => {
+        if ( !results || !Array.isArray(results) || results.length !== sourceSets.length ) {
+          throw new Error("No data available.");
+        }
+        var finalData = sourceSets.map((sourceSet, index) => {
+          return {
+            groupId:sourceSet.groupId,
+            sourceIds:sourceSet.sourceIds,
+            data:results[index]
+          };
+        });
+        return finalData;
       });
     });
   }

@@ -68,3 +68,20 @@ h1 {
 .app-padded {
   padding: ($utility-margin/2) $utility-margin;
 }
+
+.app-configurable-chart .unit {
+  font-weight: 200;
+  color: #666;
+}
+
+.app-chart-settings-visible {
+  padding-right: $utility-margin !important;
+}
+
+.app-chart-property-form .uk-grid > * + * {
+  padding-left: ($utility-margin/3) !important;
+}
+
+.uk-form fieldset + fieldset {
+  margin-top: $utility-margin;
+}

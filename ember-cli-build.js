@@ -18,6 +18,9 @@ module.exports = function(defaults) {
   app.import('bower_components/uikit/fonts/fontawesome-webfont.woff2');
   app.import('bower_components/uikit/fonts/FontAwesome.otf');
 
+  app.import('bower_components/spectrum/spectrum.js');
+  app.import('bower_components/spectrum/spectrum.css');
+
   // Use `app.import` to add additional libraries to the generated
   // output files.
   //

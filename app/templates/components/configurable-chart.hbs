@@ -1,8 +1,31 @@
 <div class="uk-flex uk-flex-wrap uk-flex-wrap-space-around">
-	<div class="uk-width-small-1-1 uk-width-large-7-10">
-		<h2>{{chartName}}</h2>
-		{{stream-chart width=550 height=320 chartConfig=chart}}
+	<div class="app-chart-container uk-width-small-1-1 uk-margin-bottom {{if isSettingsVisible 'uk-width-large-6-10' 'uk-width-large-9-10'}}">
+		<h2>
+		  {{chartName}}
+		  {{#if chartUnit}}
+		    <span class="unit">{{chartUnit.unit}}</span>
+		  {{/if}}
+		</h2>
+    {{#liquid-if (eq chart.style 'io-area-overlap')}}
+      {{chart.io-area-overlap-chart width=chartWidth height=320 chartConfig=chart propConfigs=propConfigs}}
+    {{else if (eq chart.style 'io-bar')}}
+      {{chart.io-bar-chart width=chartWidth height=320 chartConfig=chart propConfigs=propConfigs}}
+    {{else if (eq chart.style 'io-pie')}}
+      {{chart.io-pie-chart width=chartWidth height=320 chartConfig=chart propConfigs=propConfigs}}
+    {{else}}
+		  {{chart.line-chart width=chartWidth height=320 chartConfig=chart propConfigs=propConfigs}}
+		{{/liquid-if}}
 	</div>
+	<div class="uk-width-large-1-10 uk-text-right uk-margin-bottom {{if isSettingsVisible 'app-chart-settings-visible'}}">
+    <a {{action 'toggleSettingsVisibility'}} title={{t 'chart.edit.toggleSettingsVisibility'}} class="uk-icon-hover uk-icon-medium">
+      {{fa-icon (if isSettingsVisible 'angle-double-right' 'angle-double-left')}}
+    </a>
+    <br>
+	  <a {{action 'downloadData'}} title={{t 'action.downloadData'}} class="uk-icon-hover uk-icon-small uk-margin-top">
+	    {{fa-icon 'download'}}
+	  </a>
+	</div>
+	{{#if isSettingsVisible}}
 	<div class="uk-width-small-1-1 uk-width-large-3-10">
 		<form class="uk-form uk-form-stacked">
 			<fieldset>
@@ -11,7 +34,7 @@
 						<h2>{{t 'chart.edit.title'}}</h2>
 					</div>
 					<div class="uk-flex-item-none">
-						<button {{action 'save'}} class="uk-button uk-button-primary" disabled={{if canSave null true}}>{{t 'action.save'}}</button>
+						<button {{action 'save'}} class="uk-button uk-button-success" disabled={{if canSave null true}}>{{t 'action.save'}}</button>
 					</div>
 				</div>
 				<div class="uk-form-row">
@@ -20,19 +43,94 @@
 						{{input value=chartName class='uk-width-1-1'}}
 					</div>
 				</div>
-				<div class="uk-form-row">
-					<label class="uk-form-label" for="chartStartDate">{{t 'chart.edit.startDate'}}</label>
-					<div class="uk-form-controls">
-						<input type="text" data-uk-datepicker="{format:'DD.MM.YYYY'}" class="uk-width-1-1">
-					</div>
-				</div>
-				<div class="uk-form-row">
-					<label class="uk-form-label" for="chartEndDate">{{t 'chart.edit.endDate'}}</label>
-					<div class="uk-form-controls">
-						<input type="text" data-uk-datepicker="{format:'DD.MM.YYYY'}" class="uk-width-1-1">
-					</div>
-				</div>
 			</fieldset>
+			<fieldset class="uk-margin-top">
+			  <legend>{{t 'chart.edit.dateRange'}}</legend>
+			  <ul class="uk-subnav uk-subnav-pill">
+			    <li class="{{if isUsePeriod 'uk-active' null}}"><a {{action 'toggleUsePeriod'}}>{{t 'chart.edit.timePeriod'}}</a></li>
+			    <li class="{{if isUsePeriod null 'uk-active'}}"><a {{action 'toggleUsePeriod'}}>{{t 'chart.edit.timeDuration'}}</a></li>
+			  </ul>
+			  {{#liquid-spacer growEasing="easeOutQuint"}}
+			    {{#liquid-if isUsePeriod class="show-period"}}
+            <fieldset>
+              <div class="uk-form-row">
+                {{input type='number' value=period min=1}}
+                <select onchange={{action (mut periodType) value="target.value"}} autocomplete="off">
+                  {{#each periodChoices as |periodChoice|}}
+                    <option value={{periodChoice.key}} selected={{if (eq periodType periodChoice.key) 'selected' null}}>{{periodChoice.label}}</option>
+                  {{/each}}
+                </select>
+              </div>
+            </fieldset>
+          {{else}}
+            <fieldset>
+              <div class="uk-form-row">
+                <label class="uk-form-label" for="chartStartDate">{{t 'chart.edit.startDate'}}</label>
+                <div class="uk-form-controls">
+                  {{input value=startDate data-uk-datepicker="{format:'DD.MM.YYYY'}" class="uk-width-1-1"}}
+                </div>
+              </div>
+              <div class="uk-form-row">
+                <label class="uk-form-label" for="chartEndDate">{{t 'chart.edit.endDate'}}</label>
+                <div class="uk-form-controls">
+                  {{input value=endDate data-uk-datepicker="{format:'DD.MM.YYYY'}" class="uk-width-1-1"}}
+                </div>
+              </div>
+              <div class="uk-form-row">
+                <label class="uk-form-label" for="chartEndDate">{{t 'chart.edit.aggregate'}}</label>
+                <div class="uk-form-controls">
+                  <select onchange={{action (mut aggregate) value="target.value"}} autocomplete="off">
+                    {{#each aggregateChoices as |aggregateChoice|}}
+                      <option value={{aggregateChoice.key}} selected={{if (eq aggregate aggregateChoice.key) 'selected' null}}>{{aggregateChoice.label}}</option>
+                    {{/each}}
+                  </select>
+                </div>
+              </div>
+            </fieldset>
+          {{/liquid-if}}
+			  {{/liquid-spacer}}
+			</fieldset>
+
+      {{#if canGroupSources}}
+        {{#each chart.groups as |sourceGroup groupIndex|}}
+          {{configurable-chart-source-group sourceGroup=sourceGroup groupIndex=groupIndex
+            sourceConfigs=sourceGroup.sourceConfigs
+            propConfigs=propConfigs
+            availableProps=availableProps
+            availableSourceConfigs=availableSourceConfigs
+            hasAvailableSourceConfigs=hasAvailableSourceConfigs
+            availablePropConfigs=availablePropConfigs
+            hasAvailablePropConfigs=hasAvailablePropConfigs
+            togglePropertyVisibility=(action 'togglePropertyVisibility')
+            setPropertyColor=(action 'setPropertyColor')
+            removeProperty=(action 'removeProperty')
+            addNewGroupedSourceProperty=(action 'addNewGroupedSourceProperty')
+            removeGroupedProperty=(action 'removeGroupedProperty')
+            }}
+        {{/each}}
+      {{else}}
+        <fieldset>
+          <legend> {{t 'chart.edit.sources'}}</legend>
+          {{#each uniqueSourceConfigs as |sourceConfig|}}
+            {{configurable-chart-source sourceConfig=sourceConfig
+              canRemoveProperty=(gt chart.properties.length 1)
+              propConfigs=propConfigs
+              togglePropertyVisibility=(action 'togglePropertyVisibility')
+              setPropertyColor=(action 'setPropertyColor')
+              removeProperty=(action 'removeProperty')
+              }}
+          {{/each}}
+        </fieldset>
+        {{add-configurable-chart-property-form
+          availableSourceConfigs=availableSourceConfigs
+          hasAvailableSourceConfigs=hasAvailableSourceConfigs
+          availablePropConfigs=availablePropConfigs
+          hasAvailablePropConfigs=hasAvailablePropConfigs
+          addNewSourceProperty=(action 'addNewProperty')
+        }}
+      {{/if}}
+
 		</form>
 	</div>
+	{{/if}}
 </div>

@@ -23,4 +23,15 @@ export default function() {
     this.toRoute('login'),
     this.useAndReverse('crossFade')
   );
+
+  // Configurable chart
+  this.transition(
+    this.hasClass('show-period'),
+    this.useAndReverse('crossFade')
+  );
+
+  this.transition(
+    this.withinRoute('home.chart'),
+    this.useAndReverse('crossFade')
+  );
 }

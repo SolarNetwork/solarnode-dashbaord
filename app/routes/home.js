@@ -8,15 +8,20 @@ export default Ember.Route.extend(AuthenticatedRouteMixin, {
 
   model() {
     return this.get('userService.activeUserProfile').then(profile => {
-      return profile.get('charts');
-    }).then(charts => {
-      var selectableCharts = charts.map(chart => {
-        return SelectableChart.create({
-          chart: chart,
-          selected: false
+      return Ember.RSVP.all([profile.get('charts'), profile.get('chartSources'), profile.get('chartProperties')])
+      .then(([allCharts, allSourceConfigs, allPropConfigs]) => {
+        var selectableCharts = allCharts.map(chart => {
+          return SelectableChart.create({
+            chart: chart,
+            selected: false,
+            profile: profile,
+            allCharts: allCharts,
+            allSourceConfigs : allSourceConfigs,
+            allPropConfigs : allPropConfigs,
+          });
         });
+        return ChartGroup.create({charts:selectableCharts});
       });
-      return ChartGroup.create({charts:selectableCharts});
     });
   },
 
@@ -37,6 +42,16 @@ export default Ember.Route.extend(AuthenticatedRouteMixin, {
 
   actions : {
     selectChart(chart) {
+      if ( !chart.get('propConfigs') ) {
+        chart.get('chart.properties').then(propConfigs => {
+          chart.set('propConfigs', propConfigs);
+          chart.set('selected', true);
+          return chart;
+        }).then(finalChart => {
+          this.transitionTo('chart', finalChart);
+        });
+        return;
+      }
       chart.set('selected', true);
       this.transitionTo('chart', chart);
     }

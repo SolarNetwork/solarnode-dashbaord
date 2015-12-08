@@ -1,0 +1,36 @@
+{{#if (and (gt availableSourceConfigs.length 0) isShowAddSourceConfigForm)}}
+  <div class="uk-panel uk-panel-box uk-panel-box-primary uk-margin-top">
+    <div class="uk-grid"  style="align-items: center;">
+      <div class="uk-flex-item-1">
+        <select onchange={{action 'selectNewSource' value="target.value"}} autocomplete="off">
+          <option selected={{if hasSelectedNewSourceId null 'selected'}}></option>
+          {{#each availableSourceConfigs as |sourceConfig|}}
+            <option value={{sourceConfig.source}} selected={{if (eq sourceConfig.source hasSelectedNewSourceId) 'selected' null}}>{{sourceConfig.displayName}}</option>
+          {{/each}}
+        </select>
+        <select disabled={{if hasSelectedNewSourceId null 'disabled'}} onchange={{action 'selectNewSourceProperty' value="target.value"}} autocomplete="off">
+          <option selected={{if hasSelectedNewSourcePropertyId null 'selected'}}></option>
+          {{#each availableNewSourceProperties as |propConfig|}}
+            <option value={{propConfig.id}} selected={{if (eq propConfig.id selectedNewSourcePropertyId) 'selected' null}}>{{propConfig.displayName}}</option>
+          {{/each}}
+        </select>
+        <button class="uk-button uk-button-success" disabled={{if canAddNewSourceProperty null true}} {{action 'addNewSourceProperty'}}>{{t 'action.add'}}</button>
+        <p>
+          {{t 'chart.edit.sourceProps.manageHint'}} {{#link-to 'data-props'}}{{t 'chart.edit.sourceProps.manageHintAction'}}{{/link-to}}
+        </p>
+      </div>
+      <div class="uk-flex-item-none">
+        <a {{action 'hideAddSourceConfigForm'}} class="uk-close"></a>
+      </div>
+    </div>
+  </div>
+{{/if}}
+{{#if hasAvailablePropConfigs}}
+  <div class="uk-flex uk-flex-right uk-margin-top">
+    <div class="uk-flex-none">
+      <a {{action 'showAddSourceConfigForm'}} title={{t 'action.addItem' item=(t 'chart.edit.prop.prop')}} class="uk-icon-hover uk-icon-small">
+        {{fa-icon 'plus'}}
+      </a>
+    </div>
+  </div>
+{{/if}}

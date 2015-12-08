@@ -1,0 +1,36 @@
+<fieldset class="app-chart-property-form">
+  <legend>{{sourceGroup.title}}</legend>
+  <div class="uk-grid">
+    <div class="uk-width-4-10">
+      {{input value=sourceGroup.title class="uk-width-1-1" placeholder=(t 'chart.edit.sourceGroup.title')}}
+    </div>
+    <div class="uk-width-3-10">
+      <select onchange={{action 'selectGroupProp' value="target.value"}} autocomplete="off">
+        {{#each availableProps as |prop|}}
+          <option value={{prop}} selected={{if (eq prop sourceGroup.groupProp) 'selected' null}}>{{prop}}</option>
+        {{/each}}
+      </select>
+    </div>
+    <div class="uk-width-3-10">
+      {{input value=sourceGroup.groupUnit class="uk-width-1-1" placeholder=(if sourceGroup.groupProperty.unit (t 'chart.edit.source.unitWithDefault' default=sourceGroup.groupProperty.unit) (t 'chart.edit.source.unit'))}}
+    </div>
+  </div>
+</fieldset>
+
+{{#each sourceConfigs as |sourceConfig|}}
+  {{configurable-chart-source-group-source sourceConfig=sourceConfig
+    propConfigs=propConfigs
+    canRemoveProperty=(gt sourceGroup.sourceIds.length 1)
+    togglePropertyVisibility=(action 'togglePropertyVisibility')
+    setPropertyColor=(action 'setPropertyColor')
+    removeProperty=(action 'removeProperty')}}
+{{/each}}
+
+{{add-configurable-chart-property-form
+  availableSourceConfigs=availableGroupSourceConfigs
+  hasAvailableSourceConfigs=hasAvailableGroupSourceConfigs
+  availablePropConfigs=availableGroupPropConfigs
+  hasAvailablePropConfigs=hasAvailableGroupPropConfigs
+  fixedProp=sourceGroup.groupProp
+  addNewSourceProperty=(action 'addNewSourceProperty')
+}}
