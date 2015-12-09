@@ -86,4 +86,10 @@ export default DS.Model.extend({
     return nodeClientHelper(token, secret);
   }),
 
+  jsonClient: Ember.computed('token', 'secret', function() {
+    const token = this.get('token');
+    const secret = this.get('secret');
+    return jsonClient(token, secret);
+  }),
+
 });
