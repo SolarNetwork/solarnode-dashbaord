@@ -14,6 +14,7 @@ Router.map(function() {
   });
   this.route('data-props', function() {
     this.route('source', { path: '/:sourceId' });
+    this.route('add-node', { path: '/add-node' });
   });
 });
 

@@ -15,18 +15,28 @@ export default Ember.Component.extend({
         );
   }),
 
+  showChildOutlet: Ember.computed.or('selectedSourceId', 'showingAddNodeForm'),
+
   init() {
     this._super(...arguments);
     this.eventBus.subscribe('data-props.source.DataSourceConfigLoaded', this, 'onDataSourceConfigLoaded');
+    this.eventBus.subscribe('data-props.addNode.AddNodeFormLoaded', this, 'onAddNodeFormLoaded');
   },
 
   destroy() {
     this.eventBus.unsubscribe('data-props.source.DataSourceConfigLoaded');
+    this.eventBus.unsubscribe('data-props.addNode.AddNodeFormLoaded');
     this._super(...arguments);
   },
 
   onDataSourceConfigLoaded(dataSourceConfig) {
     this.set('selectedSourceId', dataSourceConfig.get('sourceId'));
+    this.set('showingAddNodeForm', false);
+  },
+
+  onAddNodeFormLoaded() {
+    this.set('selectedSourceId', null);
+    this.set('showingAddNodeForm', true);
   },
 
   actions : {
@@ -35,6 +45,7 @@ export default Ember.Component.extend({
       const dest = sourceConfig.get('source');
       if ( curr !== dest ) {
         this.set('selectedSourceId', sourceConfig.get('source'));
+        this.set('showingAddNodeForm', false);
         this.sendAction('selectedSource', sourceConfig);
       }
     },
@@ -45,6 +56,12 @@ export default Ember.Component.extend({
         profile.set('isHideDataPropHelp', true);
         profile.save();
       }
+    },
+
+    showAddNewNodeForm() {
+      this.set('selectedSourceId', null);
+      this.set('showingAddNodeForm', true);
+      this.sendAction('showAddNewNodeForm');
     },
 
     save() {

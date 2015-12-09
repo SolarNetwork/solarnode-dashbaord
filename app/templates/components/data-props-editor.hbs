@@ -24,8 +24,14 @@
         {{/each}}
       </ul>
 		</fieldset>
+		<fieldset>
+      <a {{action 'showAddNewNodeForm'}} title={{t 'data-props.action.addNode'}}
+        class="{{if showingAddNodeForm 'uk-icon-primary' 'uk-icon-hover'}} uk-icon-medium">
+        {{fa-icon 'plus'}}
+      </a>
+		</fieldset>
 	</form>
-	{{#if selectedSourceId}}
+	{{#if showChildOutlet}}
 		{{outlet}}
 	{{else}}
 	  <div class="uk-width-small-6-10 uk-width-large-4-10">

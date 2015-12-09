@@ -1,23 +1,23 @@
 import Ember from 'ember';
-
-const { service } = Ember.inject;
 const { isEmpty } = Ember;
 
 export default Ember.Component.extend({
-  classNames: ['app-login-form', 'uk-width-1-2', 'uk-container-center'],
-  session: service('session'),
-  actions: {
+  classNames: ['uk-width-1-2'],
 
-    authenticate(props) {
+  actions: {
+    addNode(props) {
       let { identification, token, secret } = props;
       if ( isEmpty(identification) ) {
-        this.set('infoMessage', this.get('i18n').t('login.nodeId.required'));
+        this.set('infoMessage', this.get('i18n').t('data-props.addNode.nodeId.required'));
         this.set('errorMessage', undefined);
         return;
       }
       this.set('infoMessage', undefined);
       this.set('errorMessage', undefined);
       this.set('isProcessing', true);
+
+      // TODO
+      /*
       this.get('session').authenticate('authenticator:solarnetwork', identification, token, secret).catch((reason) => {
         if ( isEmpty(token) || isEmpty(secret) ) {
           this.set('showToken', true);
@@ -27,6 +27,8 @@ export default Ember.Component.extend({
       }).then(() => {
         this.set('isProcessing', false);
       });
+      */
     }
   }
+
 });

@@ -134,6 +134,9 @@ export default {
   "data-props" : {
     "title" : "Manage data sources",
     "intro" : "Here are all the available data sources posted by your SolarNode. Each data source can have any number of properties associated with it. Use this page to assign friendly names, colors, and other information to any of these properties.",
+    "action" : {
+      "addNode" : "Add Another Node",
+    },
     "edit" : {
       "help" : "Choose a <b>source</b> from the list on the left to start. All the available <b>properties</b> for that source will then be shown to the right.",
       "noSourceSelected" : "Select a data source.",
@@ -171,6 +174,12 @@ export default {
           "caption" : "Enter the unit of measurement used by this property."
         },
       },
-    }
+    },
+    "addNode" : {
+      "title" : "Add Node",
+      "intro" : "You can add more data sources from other SolarNodes by filling in the following form:",
+      "submit" : "Add Node",
+      "nodeIdPlaceholder" : "Enter a SolarNode ID.",
+    },
   }
 };

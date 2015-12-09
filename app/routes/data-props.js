@@ -84,7 +84,12 @@ export default Ember.Route.extend(AuthenticatedRouteMixin, {
           this.transitionTo('data-props.source', model);
         });
       });
-    }
+    },
+
+    showAddNewNodeForm() {
+      this.transitionTo('data-props.add-node');
+    },
+
   },
 
 });
