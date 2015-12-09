@@ -29,6 +29,7 @@ export default DS.Model.extend({
   profile: DS.belongsTo('user-profile', {inverse:'chartProperties'}),
   charts: DS.hasMany('chart-config', {inverse:'properties'}),
 
+  nodeId: DS.attr('number'),
   source: DS.attr('string'),
   prop: DS.attr('string'),
   title: DS.attr('string'),

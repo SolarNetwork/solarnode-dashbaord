@@ -4,6 +4,7 @@ import { defaultUnitsForProperty } from './chart-property-config';
 
 export default DS.Model.extend({
   chart: DS.belongsTo('chart-config', {inverse:'groups'}),
+  nodeId: DS.attr('number'),
   sourceIds: DS.attr(), // array of source IDs
   title: DS.attr('string'),
   displayName: Ember.computed.alias('title'),

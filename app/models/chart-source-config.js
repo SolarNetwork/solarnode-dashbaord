@@ -3,6 +3,7 @@ import DS from 'ember-data';
 
 export default DS.Model.extend({
   profile: DS.belongsTo('user-profile', {inverse:'chartSources'}),
+  nodeId: DS.attr('number'),
   source: DS.attr('string'),
   title: DS.attr('string'),
 
