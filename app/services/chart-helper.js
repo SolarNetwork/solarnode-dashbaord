@@ -304,6 +304,7 @@ export default Ember.Service.extend({
     // TODO: start, end, aggregate etc in ChartConfig model
     var range = {}; // start, end
     const urlHelper = this.get('clientHelper.nodeUrlHelper');
+    const jsonClient = this.get('clientHelper.jsonClient');
     if ( chartConfig.get('isUsePeriod') ) {
       var period = +chartConfig.get('period');
       range = sn.api.datum.loaderQueryRange(chartConfig.get('periodAggregate'), (period < 1 ? 1 : period), new Date());
@@ -331,7 +332,8 @@ export default Ember.Service.extend({
       }
     }).then(sourceSets => {
       const loadSets = sourceSets.map(sourceSet => {
-        return sn.api.datum.loader(sourceSet.sourceIds, urlHelper, range.start, range.end, range.aggregate);
+        return sn.api.datum.loader(sourceSet.sourceIds, urlHelper, range.start, range.end, range.aggregate)
+          .jsonClient(jsonClient);
       });
       return Ember.RSVP.denodeify(sn.api.datum.multiLoader(loadSets))().then(results => {
         if ( !results || !Array.isArray(results) || results.length !== sourceSets.length ) {
