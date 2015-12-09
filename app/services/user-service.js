@@ -22,6 +22,13 @@ export default Ember.Service.extend({
       }
       return user.get('profile');
     });
-  })
+  }),
+
+  activeNodeConfig: Ember.computed('activeUserProfile', 'session.data.authenticated.nodeId', function() {
+    const nodeId = this.get('session.data.authenticated.nodeId');
+    return this.get('activeUserProfile').then(profile => {
+      return profile.get('nodes').findBy('nodeId', nodeId);
+    });
+  }),
 
 });
