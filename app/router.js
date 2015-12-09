@@ -8,7 +8,6 @@ var Router = Ember.Router.extend({
 Router.map(function() {
   this.route('login');
   this.route('auth-error');
-  this.route('pick-sources');
   this.route('get-started');
   this.route('home', { path: '/home' }, function() {
     this.route('chart', { path: '/:chartId', resetNamespace: true });
