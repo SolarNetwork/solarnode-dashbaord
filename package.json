@@ -46,6 +46,6 @@
     "ember-simple-auth": "^1.0.0",
     "ember-truth-helpers": "1.2.0",
     "liquid-fire": "^0.21.0",
-    "solarnetwork-d3": "^0.9.0"
+    "solarnetwork-d3": "^0.10.0"
   }
 }
