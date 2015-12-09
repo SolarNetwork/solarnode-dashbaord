@@ -5,17 +5,11 @@ const { isEmpty } = Ember;
 
 export default Ember.Component.extend({
   classNames: ['app-login-form'],
-  attributeBindings: ['isProcessing'],
   session: service('session'),
-  isProcessing: false,
-  hasMessage: Ember.computed('infoMessage', 'errorMessage', function() {
-    return (this.get('infoMessage') || this.get('errorMessage'));
-  }),
-  showToken : false,
   actions: {
 
-    authenticate() {
-      let { identification, token, secret } = this.getProperties('identification', 'token', 'secret');
+    authenticate(props) {
+      let { identification, token, secret } = props;
       if ( isEmpty(identification) ) {
         this.set('infoMessage', this.get('i18n').t('login.nodeId.required'));
         this.set('errorMessage', undefined);
