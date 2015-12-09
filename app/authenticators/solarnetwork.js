@@ -1,5 +1,6 @@
 import Ember from 'ember';
 import Base from 'ember-simple-auth/authenticators/base';
+import CryptoJS from 'npm:crypto-js';
 import d3 from 'npm:d3';
 import sn from 'npm:solarnetwork-d3';
 
@@ -42,7 +43,7 @@ export default Base.extend({
       if ( !(isEmpty(token) || isEmpty(secret)) ) {
         // test auth with token
         sn.config.secureQuery = true;
-        xhr = this.testPrivateQueryAccess(urlHelper);
+        xhr = this.testPrivateQueryAccess(urlHelper, token, secret);
       } else if ( !isEmpty(nodeId) ) {
         // test public auth with node ID
         sn.config.secureQuery = false;
@@ -77,8 +78,8 @@ export default Base.extend({
     return d3.json(url);
   },
 
-  testPrivateQueryAccess(urlHelper) {
+  testPrivateQueryAccess(urlHelper, token, secret) {
     const url = urlHelper.viewActiveInstructionsURL();
-    return d3.json(url);
+    return sn.net.securityHelper(token, secret).json(url);
   }
 });
