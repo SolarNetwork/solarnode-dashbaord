@@ -30,7 +30,14 @@ export default Base.extend({
         var user = store.createRecord('user', {nodeId: nodeId});
         user.save();
         var userId = user.get('id');
-        store.createRecord('user-profile', {user: user}).save();
+        var profile = store.createRecord('user-profile', {user: user});
+        store.createRecord('node-config', {
+          profile: profile,
+          nodeId: nodeId,
+          token: token,
+          secret: secret
+        }).save();
+        profile.save();
         resolve({userId, nodeId, token, secret});
       });
     });
