@@ -70,7 +70,7 @@ export function urlHelper(nodeId, secure) {
 export default DS.Model.extend({
   profile: DS.belongsTo('user-profile', {inverse:'nodes'}),
   nodeId: DS.attr('number'),
-  title: DS.attr('title'),
+  title: DS.attr('string'),
   token: DS.attr('string'),
   secret: DS.attr('string'),
 
