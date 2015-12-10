@@ -16,13 +16,13 @@
   <form class="uk-form uk-width-small-4-10 uk-width-large-2-10">
     <fieldset>
       <legend>{{t 'data-props.edit.sources.title'}}</legend>
-      <div class="uk-accordion" data-uk-accordion>
-        {{#each nodeConfigs as |nodeConfig|}}
-          {{data-props-node-sources nodeConfig=nodeConfig sourceConfigs=sourceConfigs
-            selectedSourceConfig=selectedSourceConfig
-            selectSource=(action 'selectSource')}}
-        {{/each}}
-      </div>
+      {{#each nodeConfigs as |nodeConfig|}}
+        {{data-props-node-sources nodeConfig=nodeConfig sourceConfigs=sourceConfigs
+          selectedSourceConfig=selectedSourceConfig
+          isNodeConfigSelected=(eq nodeConfig selectedNodeConfig)
+          selectNode=(action 'selectNode')
+          selectSource=(action 'selectSource')}}
+      {{/each}}
 		</fieldset>
 		<fieldset>
       <a {{action 'showAddNewNodeForm'}} title={{t 'data-props.action.addNode'}}

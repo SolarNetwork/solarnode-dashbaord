@@ -18,6 +18,9 @@ export default Ember.Component.extend({
       this.sendAction('selectSource', sourceConfig);
     },
 
+    selectNode(nodeConfig) {
+      this.sendAction('selectNode', nodeConfig);
+    },
   },
 
 });

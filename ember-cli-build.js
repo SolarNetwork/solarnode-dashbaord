@@ -11,7 +11,6 @@ module.exports = function(defaults) {
   });
 
   app.import('bower_components/uikit/js/uikit.js');
-  app.import('bower_components/uikit/js/components/accordion.js');
   app.import('bower_components/uikit/js/components/datepicker.js');
   app.import('bower_components/uikit/js/components/form-select.js');
   app.import('bower_components/uikit/fonts/fontawesome-webfont.ttf');

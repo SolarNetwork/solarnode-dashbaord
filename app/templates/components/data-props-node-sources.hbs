@@ -1,10 +1,12 @@
-<h3 class="uk-accordion-title">{{t 'data-props.edit.sources.nodeGroupTitle' name=nodeConfig.displayName}}</h3>
-<div class="uk-accordion-content">
-	<ul class="uk-nav uk-nav-side">
-		{{#each sortedSourceConfigs as |sourceConfig|}}
-			<li class="{{if (eq sourceConfig selectedSourceConfig) 'uk-active' null}}">
-				<a {{action 'selectSource' sourceConfig}}>{{sourceConfig.displayName}}</a>
-			</li>
-		{{/each}}
-	</ul>
-</div>
+<a {{action 'selectNode' nodeConfig}} class="uk-button uk-width-1-1 uk-text-left">
+  <b>{{t 'data-props.edit.sources.nodeGroupTitle' name=nodeConfig.displayName}}</b>
+</a>
+{{#if isNodeConfigSelected}}
+  <ul class="uk-nav uk-nav-side">
+    {{#each sortedSourceConfigs as |sourceConfig|}}
+      <li class="{{if (eq sourceConfig selectedSourceConfig) 'uk-active' null}}">
+        <a {{action 'selectSource' sourceConfig}}>{{sourceConfig.displayName}}</a>
+      </li>
+    {{/each}}
+  </ul>
+{{/if}}

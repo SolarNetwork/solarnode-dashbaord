@@ -1,6 +1,7 @@
 import Ember from 'ember';
 
 export default Ember.Component.extend({
+  selectedNodeConfig: null,
   selectedSourceConfig: null,
 
   sourceConfigsSorting: ['displayName'],
@@ -32,9 +33,15 @@ export default Ember.Component.extend({
   },
 
   onDataSourceConfigLoaded(dataSourceConfig) {
-    this.setProperties({
-      selectedSourceConfig: dataSourceConfig.get('sourceConfig'),
-      showingAddNodeForm: false,
+    const sourceConfig = dataSourceConfig.get('sourceConfig');
+    const nodeId = sourceConfig.get('nodeId');
+    sourceConfig.get('profile.nodes').then(nodeConfigs => {
+      const nodeConfig = nodeConfigs.findBy('nodeId', nodeId);
+      this.setProperties({
+        selectedNodeConfig: nodeConfig,
+        selectedSourceConfig: sourceConfig,
+        showingAddNodeForm: false,
+      });
     });
   },
 
@@ -50,15 +57,28 @@ export default Ember.Component.extend({
   },
 
   actions : {
+    selectNode(nodeConfig) {
+      this.setProperties({
+        selectedNodeConfig: nodeConfig,
+        selectedSourceConfig: null
+      });
+    },
+
     selectSource(sourceConfig) {
       const curr = this.get('selectedSourceConfig');
       const dest = sourceConfig;
+      const nodeId = sourceConfig.get('nodeId');
       if ( curr !== dest ) {
-        this.setProperties({
-          selectedSourceConfig: sourceConfig,
-          showingAddNodeForm: false,
+        // make sure selectedNodeConfig also set, in case of direct URL handling
+        sourceConfig.get('profile.nodes').then(nodeConfigs => {
+          const nodeConfig = nodeConfigs.findBy('nodeId', nodeId);
+          this.setProperties({
+            selectedNodeConfig: nodeConfig,
+            selectedSourceConfig: sourceConfig,
+            showingAddNodeForm: false,
+          });
+          this.sendAction('selectedSource', sourceConfig);
         });
-        this.sendAction('selectedSource', sourceConfig);
       }
     },
 
