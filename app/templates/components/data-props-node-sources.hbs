@@ -1,4 +1,5 @@
 <a {{action 'selectNode' nodeConfig}} class="uk-button uk-width-1-1 uk-text-left">
+  {{fa-icon (if isNodeConfigSelected 'angle-double-down' 'angle-double-right')}}
   <b>{{t 'data-props.edit.sources.nodeGroupTitle' name=nodeConfig.displayName}}</b>
 </a>
 {{#if isNodeConfigSelected}}
