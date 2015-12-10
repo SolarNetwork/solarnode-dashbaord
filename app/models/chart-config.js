@@ -3,6 +3,20 @@ import DS from 'ember-data';
 import d3 from 'npm:d3';
 import sn from 'npm:solarnetwork-d3';
 
+export function sortByNodeIdThenSource(l, r) {
+  const lN = l.get('nodeId');
+  const rN = r.get('nodeId');
+  if ( lN < rN ) {
+    return -1;
+  }
+  if ( lN > rN ) {
+    return 1;
+  }
+  const lS = l.get('source');
+  const rS = r.get('source');
+  return (lS < rS ? -1 : lS > rS ? 1 : 0);
+}
+
 export default DS.Model.extend({
   profile: DS.belongsTo('user-profile', {inverse:'charts'}),
   title: DS.attr('string'),

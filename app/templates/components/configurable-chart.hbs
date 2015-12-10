@@ -116,6 +116,7 @@
           {{#each uniqueSourceConfigs as |sourceConfig|}}
             {{configurable-chart-source sourceConfig=sourceConfig
               canRemoveProperty=(gt chart.properties.length 1)
+              showNodeIds=(gt availableNodeConfigs.length 1)
               propConfigs=propConfigs
               togglePropertyVisibility=(action 'togglePropertyVisibility')
               setPropertyColor=(action 'setPropertyColor')

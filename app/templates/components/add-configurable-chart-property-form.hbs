@@ -5,7 +5,13 @@
         <select onchange={{action 'selectNewSource' value="target.value"}} autocomplete="off">
           <option selected={{if hasSelectedNewSourceId null 'selected'}}></option>
           {{#each availableSourceConfigs as |sourceConfig|}}
-            <option value={{sourceConfig.source}} selected={{if (eq sourceConfig.source hasSelectedNewSourceId) 'selected' null}}>{{sourceConfig.displayName}}</option>
+            <option value={{sourceConfig.id}} selected={{if (eq sourceConfig.id hasSelectedNewSourceId) 'selected' null}}>
+              {{#if (gt availableNodeConfigs.length 1)}}
+                {{t 'data-props.sourceWithNode' node=sourceConfig.nodeId source=sourceConfig.displayName}}
+              {{else}}
+                {{sourceConfig.displayName}}
+              {{/if}}
+            </option>
           {{/each}}
         </select>
         <select disabled={{if hasSelectedNewSourceId null 'disabled'}} onchange={{action 'selectNewSourceProperty' value="target.value"}} autocomplete="off">

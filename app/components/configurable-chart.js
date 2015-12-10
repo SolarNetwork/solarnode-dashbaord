@@ -1,5 +1,6 @@
 import Ember from 'ember';
 import d3 from 'npm:d3';
+import { sortByNodeIdThenSource } from '../models/chart-config';
 
 var dateFormat = d3.time.format("%d.%m.%Y");
 var datePropertyAccessor = {
@@ -76,19 +77,7 @@ export default Ember.Component.extend({
       return sourceKeys.any(function(sourceKey) {
         return (sourceKey.nodeId === nodeId && sourceKey.source === sourceId);
       });
-    }).sort((l, r) => {
-      const lN = l.get('nodeId');
-      const rN = r.get('nodeId');
-      if ( lN < rN ) {
-        return -1;
-      }
-      if ( lN > rN ) {
-        return 1;
-      }
-      const lS = l.get('source');
-      const rS = r.get('source');
-      return (lS < rS ? -1 : lS > rS ? 1 : 0);
-    });
+    }).sort(sortByNodeIdThenSource);
   }),
 
   props: Ember.computed.mapBy('allPropConfigs', 'prop'),

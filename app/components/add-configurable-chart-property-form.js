@@ -1,4 +1,5 @@
 import Ember from 'ember';
+import { sortByNodeIdThenSource } from '../models/chart-config';
 
 export default Ember.Component.extend({
 
@@ -9,20 +10,19 @@ export default Ember.Component.extend({
 
   availableNewSourceProperties: Ember.computed('selectedNewSourceId', 'availablePropConfigs.[]', 'fixedProp', function() {
     const propConfigs = this.get('availablePropConfigs');
-    const sourceId = this.get('selectedNewSourceId');
+    const sourceConfigId = this.get('selectedNewSourceId');
     const fixedProp = this.get('fixedProp');
-    if ( !(propConfigs && sourceId) ) {
+    const sourceConfig = this.get('availableSourceConfigs').findBy('id', sourceConfigId);
+    if ( !(propConfigs && sourceConfig) ) {
       return new Ember.A();
     }
-    var filteredPropConfigs = propConfigs.filterBy('source', sourceId);
+    var filteredPropConfigs = propConfigs.filter(function(propConfig) {
+      return (sourceConfig.get('source') === propConfig.get('source') && sourceConfig.get('nodeId') === propConfig.get('nodeId'));
+    });
     if ( fixedProp ) {
       filteredPropConfigs = filteredPropConfigs.filterBy('prop', fixedProp);
     }
-    return filteredPropConfigs.sort((l, r) => {
-      const lS = l.get('source');
-      const rS = r.get('source');
-      return (lS < rS ? -1 : lS > rS ? 1 : 0);
-    });
+    return filteredPropConfigs.sort(sortByNodeIdThenSource);
   }),
 
   hasSelectedNewSourceId: Ember.computed.notEmpty('selectedNewSourceId'),
@@ -41,8 +41,8 @@ export default Ember.Component.extend({
       this.set('isShowAddSourceConfigForm', false);
     },
 
-    selectNewSource(sourceId) {
-      this.set('selectedNewSourceId', sourceId);
+    selectNewSource(sourceConfigId) {
+      this.set('selectedNewSourceId', sourceConfigId);
 
       // if we are fixed on a prop, then auto-select that now
       const fixedProp = this.get('fixedProp');
