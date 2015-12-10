@@ -14,7 +14,7 @@ export default Ember.Route.extend({
             profile: profile,
             nodeConfig: nodeConfig,
             sourceConfig: sourceConfig,
-            allPropConfigs: allPropConfigs,
+            allPropConfigs: allPropConfigs.filterBy('nodeId', nodeId),
           });
           return model;
         });

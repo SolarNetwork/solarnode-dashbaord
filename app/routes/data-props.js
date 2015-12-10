@@ -96,7 +96,7 @@ export default Ember.Route.extend(AuthenticatedRouteMixin, {
             profile: profile,
             nodeConfig: nodeConfig,
             sourceConfig: sourceConfig,
-            allPropConfigs: allPropConfigs,
+            allPropConfigs: allPropConfigs.filterBy('nodeId', nodeId),
           });
           this.transitionTo('data-props.source', model);
         });
@@ -107,6 +107,11 @@ export default Ember.Route.extend(AuthenticatedRouteMixin, {
       this.transitionTo('data-props.add-node');
     },
 
+    nodeAdded() {
+      this.model().then(model => {
+        this.transitionTo('data-props');
+      });
+    },
   },
 
 });
