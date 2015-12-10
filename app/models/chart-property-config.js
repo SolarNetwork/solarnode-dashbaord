@@ -37,6 +37,14 @@ export default DS.Model.extend({
   unitName: DS.attr('string'),
   color: DS.attr('string', { defaultValue : '#f7c819' }),
 
+  key: Ember.computed('nodeId', 'source', 'prop', function() {
+    return {
+      nodeId: this.get('nodeId'),
+      source: this.get('source'),
+      prop: this.get('prop'),
+    };
+  }),
+
   /**
    Toggle to indicate the property should not appear in charts when drawn.
    */
@@ -61,7 +69,7 @@ export default DS.Model.extend({
    Get a plain object version of this object. Default values for properties will
    be returned if possible.
    */
-  property: Ember.computed('source', 'prop', 'unit', 'unitName', 'color', function() {
+  property: Ember.computed('nodeId', 'source', 'prop', 'unit', 'unitName', 'color', function() {
     const prop = this.get('prop');
     var unit = this.get('unit');
     var unitName = this.get('unitName');
@@ -71,6 +79,7 @@ export default DS.Model.extend({
       unitName = unitName || defaultUnits.unitName;
     }
     return {
+      nodeId: this.get('nodeId'),
       source: this.get('source'),
       prop: prop,
       unit: unit,
