@@ -64,18 +64,30 @@ export default Ember.Component.extend({
     return (style !== 'line'); // TODO: set this to what styles are explicitly supported
   }),
 
-  uniqueSourceConfigs: Ember.computed('chart.uniqueSources.[]', 'allSourceConfigs.@each.source', function() {
-    const sources = this.get('chart.uniqueSources');
+  uniqueSourceConfigs: Ember.computed('chart.uniqueSourceKeys.[]', 'allSourceConfigs.[]', function() {
+    const sourceKeys = this.get('chart.uniqueSourceKeys');
     const sourceConfigs = this.get('allSourceConfigs');
     if ( !sourceConfigs ) {
       return Ember.RSVP.resolve(new Ember.A());
     }
     return this.get('allSourceConfigs').filter(sourceConfig => {
-      return sources.indexOf(sourceConfig.get('source')) !== -1;
+      const nodeId = sourceConfig.get('nodeId');
+      const sourceId = sourceConfig.get('source');
+      return sourceKeys.any(function(sourceKey) {
+        return (sourceKey.nodeId === nodeId && sourceKey.source === sourceId);
+      });
     }).sort((l, r) => {
-      const lIndex = sources.indexOf(l.get('source'));
-      const rIndex = sources.indexOf(r.get('source'));
-      return (lIndex < rIndex ? -1 : lIndex > rIndex ? 1 : 0);
+      const lN = l.get('nodeId');
+      const rN = r.get('nodeId');
+      if ( lN < rN ) {
+        return -1;
+      }
+      if ( lN > rN ) {
+        return 1;
+      }
+      const lS = l.get('source');
+      const rS = r.get('source');
+      return (lS < rS ? -1 : lS > rS ? 1 : 0);
     });
   }),
 
