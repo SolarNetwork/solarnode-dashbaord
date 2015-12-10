@@ -4,16 +4,14 @@ export default Ember.Component.extend({
   store: Ember.inject.service(),
   userService: Ember.inject.service(),
 
-  nodeConfig: Ember.computed.alias('userService.activeNodeConfig'),
-
 	actions: {
 	  selectChartSuggestion(suggestion) {
       const store  = this.get('store');
 	    const profile = this.get('userProfile');
+	    const nodeId = profile.get('user.nodeId');
       const sampleConfiguration = suggestion.get('sampleConfiguration');
-      Ember.RSVP.all([this.get('nodeConfig'), profile.get('charts'), profile.get('chartSources'), profile.get('chartProperties')])
-      .then(([nodeConfig, chartConfigs, sourceConfigs, propConfigs]) => {
-        const nodeId = nodeConfig.get('nodeId');
+      Ember.RSVP.all([profile.get('charts'), profile.get('chartSources'), profile.get('chartProperties')])
+      .then(([chartConfigs, sourceConfigs, propConfigs]) => {
         var chartConfig = store.createRecord('chart-config', {
           profile: profile,
           type: suggestion.get('type'),
