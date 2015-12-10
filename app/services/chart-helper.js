@@ -339,10 +339,11 @@ export default Ember.Service.extend({
             })
             .entries(uniqueSourceKeys);
         return nodeSources.map(function(e) {
-          const nodeConfig = nodeConfigs.findBy('nodeId', e.ke);
+          const nodeId = +e.key;
+          const nodeConfig = nodeConfigs.findBy('nodeId', nodeId);
           return {
             groupId:null,
-            nodeId:e.key,
+            nodeId:nodeId,
             nodeConfig: nodeConfig,
             sourceIds:e.values
           };
