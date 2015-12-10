@@ -20,6 +20,7 @@ export default Base.extend({
         reject();
         return;
       }
+      nodeId = +nodeId;
       var store = this.get('store');
       store.query('user', {nodeId}).then(function(users) {
         // user exists already, cool
