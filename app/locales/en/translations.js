@@ -180,7 +180,11 @@ export default {
       "title" : "Add Node",
       "intro" : "If you’d like to compare your SolarNode against another, you can add more data sources from other SolarNodes by filling in the following form:",
       "submit" : "Add Node",
-      "nodeIdPlaceholder" : "Enter a SolarNode ID.",
+      "nodeId" : {
+        "placeholder" : "Enter a SolarNode ID.",
+        "required" : "A node ID is required.",
+        "exists" : "You’ve already added that node ID.",
+      },
     },
   }
 };

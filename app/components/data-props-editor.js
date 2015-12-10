@@ -21,11 +21,13 @@ export default Ember.Component.extend({
     this._super(...arguments);
     this.eventBus.subscribe('data-props.source.DataSourceConfigLoaded', this, 'onDataSourceConfigLoaded');
     this.eventBus.subscribe('data-props.addNode.AddNodeFormLoaded', this, 'onAddNodeFormLoaded');
+    this.eventBus.subscribe('data-props.addNode.NodeAdded', this, 'onNodeAdded');
   },
 
   destroy() {
     this.eventBus.unsubscribe('data-props.source.DataSourceConfigLoaded');
     this.eventBus.unsubscribe('data-props.addNode.AddNodeFormLoaded');
+    this.eventBus.unsubscribe('data-props.addNode.NodeAdded');
     this._super(...arguments);
   },
 
@@ -41,6 +43,10 @@ export default Ember.Component.extend({
       selectedSourceConfig: null,
       showingAddNodeForm: true,
     });
+  },
+
+  onNodeAdded(nodeConfig) {
+    this.sendAction('nodeAdded');
   },
 
   actions : {
