@@ -13,7 +13,7 @@ Router.map(function() {
     this.route('chart', { path: '/:chartId', resetNamespace: true });
   });
   this.route('data-props', function() {
-    this.route('source', { path: '/:sourceId' });
+    this.route('source', { path: '/:id' });
     this.route('add-node', { path: '/add-node' });
   });
 });

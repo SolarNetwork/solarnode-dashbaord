@@ -142,16 +142,17 @@ export default {
       "noSourceSelected" : "Select a data source.",
       "sources" : {
         "title" : "Sources",
+        "nodeGroupTitle" : "Node {{name}}",
       },
       "source" : {
         "id" : "Source ID",
-        "heading" : "{{name}} Source",
+        "heading" : "Node {{nodeName}} Source “{{sourceName}}”",
         "title" : "Name",
         "placeholder" : "Enter a friendly name",
         "caption" : "You can give this source a more friendly name here. This name will be used for display purposes only.",
       },
       "props" : {
-        "title" : "{{source}} Properties",
+        "title" : "Node {{nodeName}} Source “{{sourceName}}” Properties",
       },
       "prop" : {
         "prop" : {
@@ -177,7 +178,7 @@ export default {
     },
     "addNode" : {
       "title" : "Add Node",
-      "intro" : "You can add more data sources from other SolarNodes by filling in the following form:",
+      "intro" : "If you’d like to compare your SolarNode against another, you can add more data sources from other SolarNodes by filling in the following form:",
       "submit" : "Add Node",
       "nodeIdPlaceholder" : "Enter a SolarNode ID.",
     },

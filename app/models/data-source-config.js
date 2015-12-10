@@ -4,6 +4,7 @@ import Ember from 'ember';
  A source with associated properties.
  */
 export default Ember.Object.extend({
+  id: Ember.computed.alias('sourceConfig.id'),
   sourceConfig: null,
   sourceId: Ember.computed.readOnly('sourceConfig.source'),
 

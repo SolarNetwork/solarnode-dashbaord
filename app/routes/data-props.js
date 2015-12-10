@@ -9,14 +9,19 @@ export default Ember.Route.extend(AuthenticatedRouteMixin, {
   clientHelper:  Ember.inject.service(),
   userService: Ember.inject.service(),
 
+  nodeConfig: Ember.computed.alias('userService.activeNodeConfig'),
+
   model() {
     const urlHelper = this.get('clientHelper.nodeUrlHelper');
     const getSources = Ember.RSVP.denodeify(sn.api.node.availableSources);
     const nodeClient = this.get('clientHelper.nodeClient');
     const store = this.get('store');
-    return this.get('userService.activeUserProfile').then(profile => {
+    return Ember.RSVP.all([this.get('nodeConfig'), this.get('userService.activeUserProfile')])
+    .then(([nodeConfig, profile]) => {
       return Ember.RSVP.hash({
         profile: profile,
+        activeNodeConfig: nodeConfig,
+        allNodeConfigs: profile.get('nodes'),
         allSourceConfigs: profile.get('chartSources'),
         allPropConfigs: profile.get('chartProperties'),
       }).then(model => {
@@ -74,10 +79,13 @@ export default Ember.Route.extend(AuthenticatedRouteMixin, {
 
   actions : {
     selectedSource(sourceConfig) {
+      const nodeId = sourceConfig.get('nodeId');
       sourceConfig.get('profile').then(profile => {
-        profile.get('chartProperties').then(allPropConfigs => {
+        return Ember.RSVP.all([profile.get('nodes').findBy('nodeId', nodeId), profile.get('chartProperties')])
+        .then(([nodeConfig, allPropConfigs]) => {
           const model = DataSourceConfig.create({
             profile: profile,
+            nodeConfig: nodeConfig,
             sourceConfig: sourceConfig,
             allPropConfigs: allPropConfigs,
           });

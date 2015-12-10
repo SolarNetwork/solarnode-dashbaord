@@ -8,12 +8,10 @@ export default Ember.Component.extend({
   sortedPropConfigs: Ember.computed.sort('propConfigs', 'propConfigsSorting'),
 
   actions : {
-    focus(target) {
-      console.log('focus: ' +target);
-    },
 
-    blur(target) {
-      console.log('blur: ' +target);
-    },
+   setPropertyColor(prop, color) {
+      this.sendAction('setPropertyColor', prop, color);
+   },
+
   },
 });

@@ -1,7 +1,7 @@
 import Ember from 'ember';
 
 export default Ember.Component.extend({
-  selectedSourceId: null,
+  selectedSourceConfig: null,
 
   sourceConfigsSorting: ['displayName'],
   sortedSourceConfigs: Ember.computed.sort('sourceConfigs', 'sourceConfigsSorting'),
@@ -15,7 +15,7 @@ export default Ember.Component.extend({
         );
   }),
 
-  showChildOutlet: Ember.computed.or('selectedSourceId', 'showingAddNodeForm'),
+  showChildOutlet: Ember.computed.or('selectedSourceConfig', 'showingAddNodeForm'),
 
   init() {
     this._super(...arguments);
@@ -30,22 +30,28 @@ export default Ember.Component.extend({
   },
 
   onDataSourceConfigLoaded(dataSourceConfig) {
-    this.set('selectedSourceId', dataSourceConfig.get('sourceId'));
-    this.set('showingAddNodeForm', false);
+    this.setProperties({
+      selectedSourceConfig: dataSourceConfig.get('sourceConfig'),
+      showingAddNodeForm: false,
+    });
   },
 
   onAddNodeFormLoaded() {
-    this.set('selectedSourceId', null);
-    this.set('showingAddNodeForm', true);
+    this.setProperties({
+      selectedSourceConfig: null,
+      showingAddNodeForm: true,
+    });
   },
 
   actions : {
     selectSource(sourceConfig) {
-      const curr = this.get('selectedSourceId');
-      const dest = sourceConfig.get('source');
+      const curr = this.get('selectedSourceConfig');
+      const dest = sourceConfig;
       if ( curr !== dest ) {
-        this.set('selectedSourceId', sourceConfig.get('source'));
-        this.set('showingAddNodeForm', false);
+        this.setProperties({
+          selectedSourceConfig: sourceConfig,
+          showingAddNodeForm: false,
+        });
         this.sendAction('selectedSource', sourceConfig);
       }
     },
@@ -59,8 +65,10 @@ export default Ember.Component.extend({
     },
 
     showAddNewNodeForm() {
-      this.set('selectedSourceId', null);
-      this.set('showingAddNodeForm', true);
+        this.setProperties({
+          selectedSourceConfig: null,
+          showingAddNodeForm: true,
+        });
       this.sendAction('showAddNewNodeForm');
     },
 

@@ -2,7 +2,7 @@ import Ember from 'ember';
 const { isEmpty } = Ember;
 
 export default Ember.Component.extend({
-  classNames: ['uk-width-1-2'],
+  classNames: ['uk-width-small-1-1', 'uk-width-medium-1-2'],
 
   actions: {
     addNode(props) {

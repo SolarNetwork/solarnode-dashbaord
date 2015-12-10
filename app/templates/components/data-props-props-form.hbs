@@ -1,9 +1,9 @@
-<legend>{{t 'data-props.edit.props.title' source=sourceConfig.displayName}}</legend>
+<legend>{{t 'data-props.edit.props.title' nodeName=nodeConfig.displayName sourceName=sourceConfig.displayName}}</legend>
 <fieldset class="app-chart-property-form">
 	{{#each sortedPropConfigs as |prop|}}
 		<div class="uk-grid app-chart-property-form" style="align-items: center;">
 			<div class="uk-flex-item-none">
-				{{color-swatch-input color=prop.color onChangeColor=(action (mut prop.color))}}
+				{{color-swatch-input color=prop.color colorContext=prop onChangeColor=(action 'setPropertyColor')}}
 			</div>
 			<div class="uk-flex-item-1">
 				{{input value=prop.prop class="uk-width-1-1" placeholder=(t 'data-props.edit.prop.prop.placeholder')}}

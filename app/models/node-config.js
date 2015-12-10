@@ -70,8 +70,14 @@ export function urlHelper(nodeId, secure) {
 export default DS.Model.extend({
   profile: DS.belongsTo('user-profile', {inverse:'nodes'}),
   nodeId: DS.attr('number'),
+  title: DS.attr('title'),
   token: DS.attr('string'),
   secret: DS.attr('string'),
+
+  displayName: Ember.computed('nodeId', 'title', function() {
+    const title = this.get('title');
+    return (title && title !== '' ? title : this.get('nodeId'));
+  }),
 
   urlHelper: Ember.computed('nodeId', 'token', 'secret', function() {
     const nodeId = this.get('nodeId');
