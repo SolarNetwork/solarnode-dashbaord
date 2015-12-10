@@ -69,6 +69,10 @@ export default Ember.Component.extend({
       }
     },
 
+    selectGroupNode(nodeConfigId) {
+      // TODO
+    },
+
     selectGroupProp(prop) {
       const currValue = this.get('sourceGroup.groupProp');
       if ( currValue === prop ) {
