@@ -100,6 +100,10 @@ export default Ember.Component.extend({
 
   hasAvailablePropConfigs: Ember.computed.notEmpty('availablePropConfigs'),
 
+  availableNodeConfigs: Ember.computed.alias('allNodeConfigs'),
+
+  hasAvailableNodeConfigs: Ember.computed.notEmpty('availableNodeConfigs'),
+
   inserted: Ember.on('didInsertElement', function() {
     this.get('resizeService').on('debouncedDidResize', this, this.didResize);
     Ember.run.next(this, 'didResize');

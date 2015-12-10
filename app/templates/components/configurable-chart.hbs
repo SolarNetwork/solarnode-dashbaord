@@ -97,6 +97,8 @@
             sourceConfigs=sourceGroup.sourceConfigs
             propConfigs=propConfigs
             availableProps=availableProps
+            availableNodeConfigs=availableNodeConfigs
+            hasAvailableNodeConfigs=hasAvailableNodeConfigs
             availableSourceConfigs=availableSourceConfigs
             hasAvailableSourceConfigs=hasAvailableSourceConfigs
             availablePropConfigs=availablePropConfigs
@@ -122,6 +124,8 @@
           {{/each}}
         </fieldset>
         {{add-configurable-chart-property-form
+          availableNodeConfigs=availableNodeConfigs
+          hasAvailableNodeConfigs=hasAvailableNodeConfigs
           availableSourceConfigs=availableSourceConfigs
           hasAvailableSourceConfigs=hasAvailableSourceConfigs
           availablePropConfigs=availablePropConfigs

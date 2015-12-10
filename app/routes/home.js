@@ -8,14 +8,15 @@ export default Ember.Route.extend(AuthenticatedRouteMixin, {
 
   model() {
     return this.get('userService.activeUserProfile').then(profile => {
-      return Ember.RSVP.all([profile.get('charts'), profile.get('chartSources'), profile.get('chartProperties')])
-      .then(([allCharts, allSourceConfigs, allPropConfigs]) => {
+      return Ember.RSVP.all([profile.get('charts'), profile.get('nodes'), profile.get('chartSources'), profile.get('chartProperties')])
+      .then(([allCharts, allNodeConfigs, allSourceConfigs, allPropConfigs]) => {
         var selectableCharts = allCharts.map(chart => {
           return SelectableChart.create({
             chart: chart,
             selected: false,
             profile: profile,
             allCharts: allCharts,
+            allNodeConfigs: allNodeConfigs,
             allSourceConfigs : allSourceConfigs,
             allPropConfigs : allPropConfigs,
           });
