@@ -3,6 +3,20 @@ import DS from 'ember-data';
 import d3 from 'npm:d3';
 import sn from 'npm:solarnetwork-d3';
 
+export function sortByNodeIdThenSource(l, r) {
+  const lN = l.get('nodeId');
+  const rN = r.get('nodeId');
+  if ( lN < rN ) {
+    return -1;
+  }
+  if ( lN > rN ) {
+    return 1;
+  }
+  const lS = l.get('source');
+  const rS = r.get('source');
+  return (lS < rS ? -1 : lS > rS ? 1 : 0);
+}
+
 export default DS.Model.extend({
   profile: DS.belongsTo('user-profile', {inverse:'charts'}),
   title: DS.attr('string'),
@@ -13,8 +27,38 @@ export default DS.Model.extend({
   properties: DS.hasMany('chart-property-config', {inverse:'charts'}),
   groups: DS.hasMany('chart-source-group', {inverse:'chart'}),
 
-  sources: Ember.computed.mapBy('properties', 'source'),
-  uniqueSources: Ember.computed.uniq('sources'),
+  keys: Ember.computed.mapBy('properties', 'key'),
+
+  /**
+   Get a unique set of source key objects, e.g. <code>{nodeId:X, source:Y}</code>.
+   The array will be sorted by node ID, then source ID. Note the returned objects
+   will have <code>prop</code> properties, which should be ignored.
+   */
+  uniqueSourceKeys: Ember.computed('keys.[]', function() {
+    const seen = {};
+    return this.get('keys').filter(key => {
+      if ( seen[key.nodeId] === undefined ) {
+        seen[key.nodeId] = {};
+      }
+      if ( seen[key.nodeId][key.source] === undefined ) {
+        seen[key.nodeId][key.source] = true;
+        return true;
+      }
+      return false;
+    }).sort((l, r) => {
+      const lN = l.nodeId;
+      const rN = r.nodeId;
+      if ( lN < rN ) {
+        return -1;
+      }
+      if ( lN > rN ) {
+        return 1;
+      }
+      const lS = l.source;
+      const rS = r.source;
+      return (lS < rS ? -1 : lS > rS ? 1 : 0);
+    });
+  }),
 
   isSettingsVisible: DS.attr('boolean', { defaultValue: true }),
 

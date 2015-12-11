@@ -1,4 +1,10 @@
-<h3>{{sourceConfig.displayName}}</h3>
+<h3>
+  {{#if showNodeIds}}
+    {{t 'data-props.sourceWithNode' node=sourceConfig.nodeId source=sourceConfig.displayName}}
+  {{else}}
+    {{sourceConfig.displayName}}
+  {{/if}}
+</h3>
 
 {{#each sourceProperties as |prop|}}
   <div class="uk-form-row uk-margin-top">

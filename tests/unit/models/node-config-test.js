@@ -1,6 +1,6 @@
 import { moduleForModel, test } from 'ember-qunit';
 
-moduleForModel('source-profile', 'Unit | Model | source profile', {
+moduleForModel('node-config', 'Unit | Model | node config', {
   // Specify the other units that are required for this test.
   needs: []
 });

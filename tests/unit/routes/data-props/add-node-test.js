@@ -1,6 +1,6 @@
 import { moduleFor, test } from 'ember-qunit';
 
-moduleFor('route:pick-sources', 'Unit | Route | pick sources', {
+moduleFor('route:data-props/add-node', 'Unit | Route | data props/add node', {
   // Specify the other units that are required for this test.
   // needs: ['controller:foo']
 });

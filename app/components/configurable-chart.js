@@ -1,5 +1,6 @@
 import Ember from 'ember';
 import d3 from 'npm:d3';
+import { sortByNodeIdThenSource } from '../models/chart-config';
 
 var dateFormat = d3.time.format("%d.%m.%Y");
 var datePropertyAccessor = {
@@ -64,19 +65,19 @@ export default Ember.Component.extend({
     return (style !== 'line'); // TODO: set this to what styles are explicitly supported
   }),
 
-  uniqueSourceConfigs: Ember.computed('chart.uniqueSources.[]', 'allSourceConfigs.@each.source', function() {
-    const sources = this.get('chart.uniqueSources');
+  uniqueSourceConfigs: Ember.computed('chart.uniqueSourceKeys.[]', 'allSourceConfigs.[]', function() {
+    const sourceKeys = this.get('chart.uniqueSourceKeys');
     const sourceConfigs = this.get('allSourceConfigs');
     if ( !sourceConfigs ) {
       return Ember.RSVP.resolve(new Ember.A());
     }
     return this.get('allSourceConfigs').filter(sourceConfig => {
-      return sources.indexOf(sourceConfig.get('source')) !== -1;
-    }).sort((l, r) => {
-      const lIndex = sources.indexOf(l.get('source'));
-      const rIndex = sources.indexOf(r.get('source'));
-      return (lIndex < rIndex ? -1 : lIndex > rIndex ? 1 : 0);
-    });
+      const nodeId = sourceConfig.get('nodeId');
+      const sourceId = sourceConfig.get('source');
+      return sourceKeys.any(function(sourceKey) {
+        return (sourceKey.nodeId === nodeId && sourceKey.source === sourceId);
+      });
+    }).sort(sortByNodeIdThenSource);
   }),
 
   props: Ember.computed.mapBy('allPropConfigs', 'prop'),
@@ -99,6 +100,10 @@ export default Ember.Component.extend({
   availablePropConfigs: Ember.computed.setDiff('allPropConfigs', 'propConfigs'),
 
   hasAvailablePropConfigs: Ember.computed.notEmpty('availablePropConfigs'),
+
+  availableNodeConfigs: Ember.computed.alias('allNodeConfigs'),
+
+  hasAvailableNodeConfigs: Ember.computed.notEmpty('availableNodeConfigs'),
 
   inserted: Ember.on('didInsertElement', function() {
     this.get('resizeService').on('debouncedDidResize', this, this.didResize);

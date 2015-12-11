@@ -1,24 +1,55 @@
+
 <fieldset class="app-chart-property-form">
-  <legend>{{sourceGroup.title}}</legend>
-  <div class="uk-grid">
-    <div class="uk-width-4-10">
-      {{input value=sourceGroup.title class="uk-width-1-1" placeholder=(t 'chart.edit.sourceGroup.title')}}
+  {{#if showNodeIds}}
+    <legend>{{t 'data-props.sourceWithNode' node=sourceGroup.nodeId source=sourceGroup.displayName}}</legend>
+    <div class="uk-grid">
+      <div class="uk-width-5-10">
+        <select onchange={{action 'selectGroupNodeId' value="target.value"}} autocomplete="off" class="uk-width-1-1">
+          {{#each availableNodeConfigs as |nodeConfig|}}
+            <option value={{nodeConfig.nodeId}} selected={{if (eq nodeConfig.nodeId sourceGroup.nodeId) 'selected' null}}>{{nodeConfig.displayName}}</option>
+          {{/each}}
+        </select>
+      </div>
+      <div class="uk-width-5-10">
+        {{input value=sourceGroup.title class="uk-width-1-1" placeholder=(t 'chart.edit.sourceGroup.title')}}
+      </div>
     </div>
-    <div class="uk-width-3-10">
-      <select onchange={{action 'selectGroupProp' value="target.value"}} autocomplete="off">
-        {{#each availableProps as |prop|}}
-          <option value={{prop}} selected={{if (eq prop sourceGroup.groupProp) 'selected' null}}>{{prop}}</option>
-        {{/each}}
-      </select>
+    <div class="uk-grid">
+      <div class="uk-width-5-10">
+        <select onchange={{action 'selectGroupProp' value="target.value"}} autocomplete="off" class="uk-width-1-1">
+          {{#each availableGroupProps as |prop|}}
+            <option value={{prop}} selected={{if (eq prop sourceGroup.groupProp) 'selected' null}}>{{prop}}</option>
+          {{/each}}
+        </select>
+      </div>
+      <div class="uk-width-5-10">
+        {{input value=sourceGroup.groupUnit class="uk-width-1-1" placeholder=(if sourceGroup.groupProperty.unit (t 'chart.edit.source.unitWithDefault' default=sourceGroup.groupProperty.unit) (t 'chart.edit.source.unit'))}}
+      </div>
     </div>
-    <div class="uk-width-3-10">
-      {{input value=sourceGroup.groupUnit class="uk-width-1-1" placeholder=(if sourceGroup.groupProperty.unit (t 'chart.edit.source.unitWithDefault' default=sourceGroup.groupProperty.unit) (t 'chart.edit.source.unit'))}}
+  {{else}}
+    <legend>{{sourceGroup.displayName}}</legend>
+    <div class="uk-grid">
+      <div class="uk-width-4-10">
+        {{input value=sourceGroup.title class="uk-width-1-1" placeholder=(t 'chart.edit.sourceGroup.title')}}
+      </div>
+      <div class="uk-width-3-10">
+        <select onchange={{action 'selectGroupProp' value="target.value"}} autocomplete="off">
+          {{#each availableProps as |prop|}}
+            <option value={{prop}} selected={{if (eq prop sourceGroup.groupProp) 'selected' null}}>{{prop}}</option>
+          {{/each}}
+        </select>
+      </div>
+      <div class="uk-width-3-10">
+        {{input value=sourceGroup.groupUnit class="uk-width-1-1" placeholder=(if sourceGroup.groupProperty.unit (t 'chart.edit.source.unitWithDefault' default=sourceGroup.groupProperty.unit) (t 'chart.edit.source.unit'))}}
+      </div>
     </div>
-  </div>
+  {{/if}}
 </fieldset>
 
 {{#each sourceConfigs as |sourceConfig|}}
-  {{configurable-chart-source-group-source sourceConfig=sourceConfig
+  {{configurable-chart-source-group-source
+    sourceGroup=sourceGroup
+    sourceConfig=sourceConfig
     propConfigs=propConfigs
     canRemoveProperty=(gt sourceGroup.sourceIds.length 1)
     togglePropertyVisibility=(action 'togglePropertyVisibility')
@@ -27,10 +58,13 @@
 {{/each}}
 
 {{add-configurable-chart-property-form
+  availableNodeConfigs=availableNodeConfigs
+  hasAvailableNodeConfigs=hasAvailableNodeConfigs
   availableSourceConfigs=availableGroupSourceConfigs
   hasAvailableSourceConfigs=hasAvailableGroupSourceConfigs
   availablePropConfigs=availableGroupPropConfigs
   hasAvailablePropConfigs=hasAvailableGroupPropConfigs
+  fixedNodeId=sourceGroup.nodeId
   fixedProp=sourceGroup.groupProp
   addNewSourceProperty=(action 'addNewSourceProperty')
 }}

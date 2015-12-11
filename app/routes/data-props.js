@@ -9,82 +9,110 @@ export default Ember.Route.extend(AuthenticatedRouteMixin, {
   clientHelper:  Ember.inject.service(),
   userService: Ember.inject.service(),
 
+  nodeConfig: Ember.computed.alias('userService.activeNodeConfig'),
+
   model() {
-    const urlHelper = this.get('clientHelper.nodeUrlHelper');
     const getSources = Ember.RSVP.denodeify(sn.api.node.availableSources);
-    const nodeClient = this.get('clientHelper.nodeClient');
     const store = this.get('store');
-    return this.get('userService.activeUserProfile').then(profile => {
-      return Ember.RSVP.hash({
-        profile: profile,
-        allSourceConfigs: profile.get('chartSources'),
-        allPropConfigs: profile.get('chartProperties'),
-      }).then(model => {
-        getSources(urlHelper).then(sourceIds => {
-          var added = false;
-          sourceIds.forEach(sourceId => {
-            const matchingSourceConfig = model.allSourceConfigs.findBy('source', sourceId);
-            if ( !matchingSourceConfig ) {
-              // create one now!
-              var sourceConfig = store.createRecord('chart-source-config', {
-                profile: profile,
-                source : sourceId,
+    return Ember.RSVP.all([this.get('nodeConfig'), this.get('userService.activeUserProfile')])
+    .then(([nodeConfig, profile]) => {
+      return profile.get('nodes').then(allNodeConfigs => {
+        return Ember.RSVP.hash({
+          profile: profile,
+          activeNodeConfig: nodeConfig,
+          allNodeConfigs: allNodeConfigs,
+          allSourceConfigs: profile.get('chartSources'),
+          allPropConfigs: profile.get('chartProperties'),
+        }).then(model => {
+          allNodeConfigs.forEach(nodeConfig => {
+            const nodeId = nodeConfig.get('nodeId');
+            const urlHelper = nodeConfig.get('urlHelper');
+            const jsonClient = nodeConfig.get('jsonClient');
+            const nodeClient = nodeConfig.get('nodeClient');
+            getSources(urlHelper, jsonClient).then(sourceIds => {
+            var added = false;
+            sourceIds.forEach(sourceId => {
+              const matchingSourceConfig = model.allSourceConfigs.find(sourceConfig => {
+                return (sourceConfig.get('nodeId') === nodeId && sourceId === sourceConfig.get('source'));
               });
-              model.allSourceConfigs.pushObject(sourceConfig);
-              sourceConfig.save();
-              added = true;
-            }
-          });
-          if ( added ) {
-            profile.save();
-          }
-          added = false;
-          nodeClient.json(urlHelper.mostRecentURL(sourceIds)).then(data => {
-            if ( !Array.isArray(data.results) ) {
-              return;
-            }
-            data.results.forEach(datum => {
-              const sourceId = datum.sourceId;
-              const propKeys = datumNumericPropertyKeys(datum);
-              propKeys.forEach(prop => {
-                const matchingPropConfig = model.allPropConfigs.find(function(propConfig) {
-                  return (propConfig.get('source') === sourceId && propConfig.get('prop') === prop);
+              if ( !matchingSourceConfig ) {
+                // create one now!
+                var sourceConfig = store.createRecord('chart-source-config', {
+                  profile: profile,
+                  nodeId: nodeId,
+                  source: sourceId,
                 });
-                if ( !matchingPropConfig ) {
-                  var propConfig = store.createRecord('chart-property-config', {
-                    profile: profile,
-                    source: sourceId,
-                    prop: prop,
-                  });
-                  model.allPropConfigs.pushObject(propConfig);
-                  propConfig.save();
-                  added = true;
-                }
-              });
+                model.allSourceConfigs.pushObject(sourceConfig);
+                sourceConfig.save();
+                added = true;
+              }
             });
             if ( added ) {
               profile.save();
             }
+            added = false;
+            nodeClient.json(urlHelper.mostRecentURL(sourceIds)).then(data => {
+              if ( !Array.isArray(data.results) ) {
+                return;
+              }
+              data.results.forEach(datum => {
+                const sourceId = datum.sourceId;
+                const propKeys = datumNumericPropertyKeys(datum);
+                propKeys.forEach(prop => {
+                  const matchingPropConfig = model.allPropConfigs.find(function(propConfig) {
+                    return (propConfig.get('nodeId') === nodeId && propConfig.get('source') === sourceId && propConfig.get('prop') === prop);
+                  });
+                  if ( !matchingPropConfig ) {
+                    var propConfig = store.createRecord('chart-property-config', {
+                      profile: profile,
+                      nodeId: nodeId,
+                      source: sourceId,
+                      prop: prop,
+                    });
+                    model.allPropConfigs.pushObject(propConfig);
+                    propConfig.save();
+                    added = true;
+                  }
+                });
+              });
+              if ( added ) {
+                profile.save();
+              }
+            });
           });
+          });
+          return model;
         });
-        return model;
       });
     });
   },
 
   actions : {
     selectedSource(sourceConfig) {
+      const nodeId = sourceConfig.get('nodeId');
       sourceConfig.get('profile').then(profile => {
-        profile.get('chartProperties').then(allPropConfigs => {
+        return Ember.RSVP.all([profile.get('nodes').findBy('nodeId', nodeId), profile.get('chartProperties')])
+        .then(([nodeConfig, allPropConfigs]) => {
           const model = DataSourceConfig.create({
             profile: profile,
+            nodeConfig: nodeConfig,
             sourceConfig: sourceConfig,
-            allPropConfigs: allPropConfigs,
+            allPropConfigs: allPropConfigs.filterBy('nodeId', nodeId),
           });
           this.transitionTo('data-props.source', model);
         });
       });
-    }
+    },
+
+    showAddNewNodeForm() {
+      this.transitionTo('data-props.add-node');
+    },
+
+    nodeAdded() {
+      this.model().then(model => {
+        this.transitionTo('data-props');
+      });
+    },
   },
 
 });

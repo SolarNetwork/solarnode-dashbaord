@@ -301,9 +301,7 @@ export default Ember.Service.extend({
     @return {Array} An array of objects like <code>{group:ChartGroup, groupId:X, sourceIds:[A,...], data:[...]}</code>.
   */
   dataForChart(chartConfig) {
-    // TODO: start, end, aggregate etc in ChartConfig model
     var range = {}; // start, end
-    const urlHelper = this.get('clientHelper.nodeUrlHelper');
     if ( chartConfig.get('isUsePeriod') ) {
       var period = +chartConfig.get('period');
       range = sn.api.datum.loaderQueryRange(chartConfig.get('periodAggregate'), (period < 1 ? 1 : period), new Date());
@@ -318,28 +316,52 @@ export default Ember.Service.extend({
       return Ember.RSVP.reject(new Error('Incomplete chart range, cannot load data.'));
     }
 
-    return Ember.RSVP.all([chartConfig.get('uniqueSources'), chartConfig.get('properties'), chartConfig.get('groups')])
-    .then(([uniqueSourceIds, propConfigs, groupConfigs]) => {
+    return Ember.RSVP.all([chartConfig.get('uniqueSourceKeys'), chartConfig.get('properties'), chartConfig.get('groups'), chartConfig.get('profile.nodes')])
+    .then(([uniqueSourceKeys, propConfigs, groupConfigs, nodeConfigs]) => {
       // compute source sets as a GROUP BY of groups
       if ( groupConfigs && groupConfigs.get('length') > 0 ) {
         return groupConfigs.map(groupConfig => {
-          return {groupId:groupConfig.get('id'), sourceIds:groupConfig.get('sourceIds')};
+          const nodeConfig = nodeConfigs.findBy('nodeId', groupConfig.get('nodeId'));
+          return {
+            groupId: groupConfig.get('id'),
+            nodeId: groupConfig.get('nodeId'),
+            nodeConfig: nodeConfig,
+            sourceIds: groupConfig.get('sourceIds')
+          };
         });
       } else {
-        // a single "group"
-        return [{groupId:null, sourceIds:uniqueSourceIds}];
+        // group by node IDs
+          var nodeSources = d3.nest()
+            .key(function(d) { return d.nodeId; })
+            .sortKeys(d3.ascending)
+            .rollup(function(array) {
+              return array.map(function(d) { return d.source; });
+            })
+            .entries(uniqueSourceKeys);
+        return nodeSources.map(function(e) {
+          const nodeId = +e.key;
+          const nodeConfig = nodeConfigs.findBy('nodeId', nodeId);
+          return {
+            groupId:null,
+            nodeId:nodeId,
+            nodeConfig: nodeConfig,
+            sourceIds:e.values
+          };
+        });
       }
     }).then(sourceSets => {
-      const loadSets = sourceSets.map(sourceSet => {
-        return sn.api.datum.loader(sourceSet.sourceIds, urlHelper, range.start, range.end, range.aggregate);
+      const loaders = sourceSets.map(sourceSet => {
+        return sn.api.datum.loader(sourceSet.sourceIds, sourceSet.nodeConfig.get('urlHelper'), range.start, range.end, range.aggregate)
+          .jsonClient(sourceSet.nodeConfig.get('jsonClient'));
       });
-      return Ember.RSVP.denodeify(sn.api.datum.multiLoader(loadSets))().then(results => {
+      return Ember.RSVP.denodeify(sn.api.datum.multiLoader(loaders))().then(results => {
         if ( !results || !Array.isArray(results) || results.length !== sourceSets.length ) {
           throw new Error("No data available.");
         }
         var finalData = sourceSets.map((sourceSet, index) => {
           return {
             groupId:sourceSet.groupId,
+            nodeId: sourceSet.nodeId,
             sourceIds:sourceSet.sourceIds,
             data:results[index]
           };

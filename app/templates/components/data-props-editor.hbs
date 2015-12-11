@@ -16,16 +16,22 @@
   <form class="uk-form uk-width-small-4-10 uk-width-large-2-10">
     <fieldset>
       <legend>{{t 'data-props.edit.sources.title'}}</legend>
-      <ul class="uk-nav uk-nav-side">
-        {{#each sortedSourceConfigs as |sourceConfig|}}
-          <li class="{{if (eq sourceConfig.source selectedSourceId) 'uk-active' null}}">
-            <a {{action 'selectSource' sourceConfig}}>{{sourceConfig.displayName}}</a>
-          </li>
-        {{/each}}
-      </ul>
+      {{#each nodeConfigs as |nodeConfig|}}
+        {{data-props-node-sources nodeConfig=nodeConfig sourceConfigs=sourceConfigs
+          selectedSourceConfig=selectedSourceConfig
+          isNodeConfigSelected=(eq nodeConfig selectedNodeConfig)
+          selectNode=(action 'selectNode')
+          selectSource=(action 'selectSource')}}
+      {{/each}}
+		</fieldset>
+		<fieldset>
+      <a {{action 'showAddNewNodeForm'}} title={{t 'data-props.action.addNode'}}
+        class="{{if showingAddNodeForm 'uk-icon-primary' 'uk-icon-hover'}} uk-icon-medium">
+        {{fa-icon 'plus'}}
+      </a>
 		</fieldset>
 	</form>
-	{{#if selectedSourceId}}
+	{{#if showChildOutlet}}
 		{{outlet}}
 	{{else}}
 	  <div class="uk-width-small-6-10 uk-width-large-4-10">

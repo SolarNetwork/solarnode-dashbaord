@@ -2,11 +2,13 @@ import Ember from 'ember';
 
 export default Ember.Component.extend({
   store: Ember.inject.service(),
+  userService: Ember.inject.service(),
 
 	actions: {
 	  selectChartSuggestion(suggestion) {
       const store  = this.get('store');
 	    const profile = this.get('userProfile');
+	    const nodeId = profile.get('user.nodeId');
       const sampleConfiguration = suggestion.get('sampleConfiguration');
       Ember.RSVP.all([profile.get('charts'), profile.get('chartSources'), profile.get('chartProperties')])
       .then(([chartConfigs, sourceConfigs, propConfigs]) => {
@@ -26,6 +28,7 @@ export default Ember.Component.extend({
               title : group.groupId,
               flags: group.flags,
               groupProp: group.prop,
+              nodeId: nodeId,
               sourceIds: group.sourceIds,
             });
             group.sourceIds.forEach(function(sourceId, index) {
@@ -33,6 +36,7 @@ export default Ember.Component.extend({
               if ( !sourceConfigs.findBy('source', sourceId) ) {
                 var sourceConfig = store.createRecord('chart-source-config', {
                   profile: profile,
+                  nodeId: nodeId,
                   source : sourceId
                 });
                 sourceConfig.save();
@@ -44,6 +48,7 @@ export default Ember.Component.extend({
               if ( !propConfig ) {
                  propConfig = store.createRecord('chart-property-config', {
                   profile: profile,
+                  nodeId: nodeId,
                   source: sourceId,
                   prop: group.prop
                 });
@@ -62,6 +67,7 @@ export default Ember.Component.extend({
           if ( !sourceConfigs.findBy('source', sampleConfiguration.source) ) {
             var sourceConfig = store.createRecord('chart-source-config', {
               profile: profile,
+              nodeId: nodeId,
               source : sampleConfiguration.source
             });
             sourceConfig.save();
@@ -73,6 +79,7 @@ export default Ember.Component.extend({
           if ( !propConfig ) {
              propConfig = store.createRecord('chart-property-config', {
               profile: profile,
+              nodeId: nodeId,
               source: sampleConfiguration.source,
               prop: sampleConfiguration.prop
             });

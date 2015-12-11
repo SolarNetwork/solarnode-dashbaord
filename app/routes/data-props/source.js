@@ -6,13 +6,15 @@ export default Ember.Route.extend({
 
   model(params) {
     return this.get('userService.activeUserProfile').then(profile => {
-      return this.store.query('chart-source-config', {source:params.sourceId, profile:profile.get('id')}).then(sourceConfigs => {
-        const sourceConfig = sourceConfigs.get('firstObject');
-        return profile.get('chartProperties').then(allPropConfigs => {
+      return this.store.findRecord('chart-source-config', params.id).then(sourceConfig => {
+        const nodeId = sourceConfig.get('nodeId');
+        return Ember.RSVP.all([profile.get('nodes').findBy('nodeId', nodeId), profile.get('chartProperties')])
+        .then(([nodeConfig, allPropConfigs]) => {
           const model = DataSourceConfig.create({
             profile: profile,
+            nodeConfig: nodeConfig,
             sourceConfig: sourceConfig,
-            allPropConfigs: allPropConfigs,
+            allPropConfigs: allPropConfigs.filterBy('nodeId', nodeId),
           });
           return model;
         });
@@ -21,13 +23,19 @@ export default Ember.Route.extend({
   },
 
   redirect(model, transition) {
-    var targetSourceId = (transition && transition.params && transition.params['data-props.source']
-      ? transition.params['data-props.source'].sourceId : undefined);
-    if ( targetSourceId && model ) {
+    var targetSourceConfigId = (transition && transition.params && transition.params['data-props.source']
+      ? transition.params['data-props.source'].id : undefined);
+    if ( targetSourceConfigId && model ) {
       Ember.run.next(() => {
         this.eventBus.publish('data-props.source.DataSourceConfigLoaded', model);
       });
     }
+  },
+
+  actions : {
+    setPropertyColor(prop, color) {
+      prop.set('color', color);
+    },
   },
 
 });

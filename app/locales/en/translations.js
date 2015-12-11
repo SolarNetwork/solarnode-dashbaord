@@ -134,21 +134,26 @@ export default {
   "data-props" : {
     "title" : "Manage data sources",
     "intro" : "Here are all the available data sources posted by your SolarNode. Each data source can have any number of properties associated with it. Use this page to assign friendly names, colors, and other information to any of these properties.",
+    "action" : {
+      "addNode" : "Add Another Node",
+    },
+    "sourceWithNode" : "{{node}} - {{source}}",
     "edit" : {
       "help" : "Choose a <b>source</b> from the list on the left to start. All the available <b>properties</b> for that source will then be shown to the right.",
       "noSourceSelected" : "Select a data source.",
       "sources" : {
         "title" : "Sources",
+        "nodeGroupTitle" : "Node {{name}}",
       },
       "source" : {
         "id" : "Source ID",
-        "heading" : "{{name}} Source",
+        "heading" : "Node {{nodeName}} Source “{{sourceName}}”",
         "title" : "Name",
         "placeholder" : "Enter a friendly name",
         "caption" : "You can give this source a more friendly name here. This name will be used for display purposes only.",
       },
       "props" : {
-        "title" : "{{source}} Properties",
+        "title" : "Node {{nodeName}} Source “{{sourceName}}” Properties",
       },
       "prop" : {
         "prop" : {
@@ -171,6 +176,16 @@ export default {
           "caption" : "Enter the unit of measurement used by this property."
         },
       },
-    }
+    },
+    "addNode" : {
+      "title" : "Add Node",
+      "intro" : "If you’d like to compare your SolarNode against another, you can add more data sources from other SolarNodes by filling in the following form:",
+      "submit" : "Add Node",
+      "nodeId" : {
+        "placeholder" : "Enter a SolarNode ID.",
+        "required" : "A node ID is required.",
+        "exists" : "You’ve already added that node ID.",
+      },
+    },
   }
 };

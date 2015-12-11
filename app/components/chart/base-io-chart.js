@@ -43,8 +43,11 @@ export default BaseChart.extend({
     return Ember.RSVP.all([this.get('propConfigs'), this.get('chartConfig.groups')]).then(([propConfigs, sourceGroups]) => {
       sourceGroups.forEach(sourceGroup => {
         const groupId = sourceGroup.get('id');
+        const nodeId = sourceGroup.get('nodeId');
         sourceGroup.get('sourceIds').forEach(sourceId => {
-          const propConfig = propConfigs.findBy('source', sourceId);
+          const propConfig = propConfigs.find(function(propConfig) {
+            return (nodeId === propConfig.get('nodeId') && sourceId === propConfig.get('source'));
+          });
           if ( propConfig ) {
             callback.apply(this, [groupId, sourceId, propConfig]);
           }

@@ -4,6 +4,7 @@ import { defaultUnitsForProperty } from './chart-property-config';
 
 export default DS.Model.extend({
   chart: DS.belongsTo('chart-config', {inverse:'groups'}),
+  nodeId: DS.attr('number'),
   sourceIds: DS.attr(), // array of source IDs
   title: DS.attr('string'),
   displayName: Ember.computed.alias('title'),
@@ -18,7 +19,8 @@ export default DS.Model.extend({
    Get a plain object version of this object. Default values for properties will
    be returned if possible.
    */
-  groupProperty: Ember.computed('groupProp', 'groupUnit', 'groupUnitName', function() {
+  groupProperty: Ember.computed('nodeId', 'groupProp', 'groupUnit', 'groupUnitName', function() {
+    var nodeId = this.get('nodeId');
     var prop = this.get('groupProp');
     var unit = this.get('groupUnit');
     var unitName = this.get('groupUnitName');
@@ -29,6 +31,7 @@ export default DS.Model.extend({
     }
     return {
       groupId: this.get('id'),
+      nodeId: nodeId,
       prop: prop,
       unit: unit,
       unitName: unitName
@@ -37,59 +40,12 @@ export default DS.Model.extend({
 
   allSourceConfigs: Ember.computed.alias('chart.profile.chartSources'),
 
-  sourceConfigs: Ember.computed('sourceIds.[]', 'allSourceConfigs.[]', function() {
+  sourceConfigs: Ember.computed('sourceIds.[]', 'allSourceConfigs.[]', 'nodeId', function() {
     const sourceIds = this.get('sourceIds');
+    const nodeId = this.get('nodeId');
     return this.get('allSourceConfigs').filter(sourceConfig => {
-      return (sourceIds && sourceIds.contains(sourceConfig.get('source')));
+      return (nodeId === sourceConfig.get('nodeId') && sourceIds && sourceIds.contains(sourceConfig.get('source')));
     });
   }),
 
-  /**
-   Get an array of all configured sources and properties.
-
-   @return {Array} Array of ChartPropertyConfig objects
-   *
-  sourceProperties: Ember.computed('sources.@each.properties', function() {
-    const promise = this.get('sources').then(sources => {
-      return Ember.RSVP.all(sources.mapBy('properties'));
-    }).then(arrays => {
-      var merged = Ember.A();
-      arrays.forEach(array => {
-        merged.pushObjects(array);
-      });
-      return merged;
-    });
-    return DS.PromiseArray.create({promise:promise});
-  }),
-
-  /**
-   Get an array of all configured ChartSourceConfig objects.
-
-   @return {Array} Array of ChartSourceConfig objects.
-   *
-  sourceConfigs: Ember.computed('sources.@each.{title,scaleFactor,groupProp,groupUnit,groupUnitName}', function() {
-    const promise = this.get('sources');
-    return DS.PromiseArray.create({promise:promise});
-  }),
-
-  /**
-   Get an array of all configured ChartPropertyConfig objects.
-
-   @return {Array} Array of ChartPropertyConfig objects.
-   *
-  propertyConfigs: Ember.computed('sources.@each.propertyConfigs', function() {
-    const promise = this.get('sources').then(sources => {
-      return Ember.RSVP.all(sources.mapBy('propertyConfigs'));
-    }).then(arrays => {
-      var merged = Ember.A();
-      arrays.forEach(array => {
-        array.forEach(obj => {
-          merged.pushObject(obj);
-        });
-      });
-      return merged;
-    });
-    return DS.PromiseArray.create({promise:promise});
-  }),
-  */
 });

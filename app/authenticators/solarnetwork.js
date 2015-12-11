@@ -1,5 +1,6 @@
 import Ember from 'ember';
 import Base from 'ember-simple-auth/authenticators/base';
+import CryptoJS from 'npm:crypto-js';
 import d3 from 'npm:d3';
 import sn from 'npm:solarnetwork-d3';
 
@@ -19,6 +20,7 @@ export default Base.extend({
         reject();
         return;
       }
+      nodeId = +nodeId;
       var store = this.get('store');
       store.query('user', {nodeId}).then(function(users) {
         // user exists already, cool
@@ -29,7 +31,14 @@ export default Base.extend({
         var user = store.createRecord('user', {nodeId: nodeId});
         user.save();
         var userId = user.get('id');
-        store.createRecord('user-profile', {user: user}).save();
+        var profile = store.createRecord('user-profile', {user: user});
+        store.createRecord('node-config', {
+          profile: profile,
+          nodeId: nodeId,
+          token: token,
+          secret: secret
+        }).save();
+        profile.save();
         resolve({userId, nodeId, token, secret});
       });
     });
@@ -42,7 +51,7 @@ export default Base.extend({
       if ( !(isEmpty(token) || isEmpty(secret)) ) {
         // test auth with token
         sn.config.secureQuery = true;
-        xhr = this.testPrivateQueryAccess(urlHelper);
+        xhr = this.testPrivateQueryAccess(urlHelper, token, secret);
       } else if ( !isEmpty(nodeId) ) {
         // test public auth with node ID
         sn.config.secureQuery = false;
@@ -77,8 +86,8 @@ export default Base.extend({
     return d3.json(url);
   },
 
-  testPrivateQueryAccess(urlHelper) {
+  testPrivateQueryAccess(urlHelper, token, secret) {
     const url = urlHelper.viewActiveInstructionsURL();
-    return d3.json(url);
+    return sn.net.securityHelper(token, secret).json(url);
   }
 });
