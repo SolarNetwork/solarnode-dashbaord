@@ -27,9 +27,7 @@ export default Ember.Route.extend(AuthenticatedRouteMixin, {
 
     updateSuggesionsDateRange(params) {
       this.set('suggestionParams', params);
-      this.model().then(model => {
-        this.transitionTo('get-started');
-      });
+      this.refresh();
     },
 
   }
