@@ -3,8 +3,8 @@ import BaseChart, { datumChartPropsForExport } from './base-chart';
 import d3 from 'npm:d3';
 import sn from 'npm:solarnetwork-d3';
 
-function lineIdForProperty(sourceId, prop) {
-  return sourceId + '-' + prop;
+function lineIdForProperty(nodeId, sourceId, prop) {
+  return nodeId + '-' + sourceId + '-' + prop;
 }
 
 export default BaseChart.extend({
@@ -50,9 +50,10 @@ export default BaseChart.extend({
     }
     const vizMap = {};
     propConfigs.forEach(propConfig => {
+      const nodeId = propConfig.get('nodeId');
       const sourceId = propConfig.get('source');
       const prop = propConfig.get('prop');
-      const lineId = lineIdForProperty(sourceId, prop);
+      const lineId = lineIdForProperty(nodeId, sourceId, prop);
       vizMap[lineId] = propConfig.get('isHidden');
     });
     this.set('visibilityMap', vizMap);
@@ -82,16 +83,22 @@ export default BaseChart.extend({
       if ( Array.isArray(data) && data.length > 0 && Array.isArray(data[0].data) && Array.isArray(data[0].sourceIds) ) {
         data.forEach(function(groupData) {
           // line chart does not do groups... just load data for each configured property
-          var dataBySource = d3.nest()
+          var dataByNodeBySource = d3.nest()
+            .key(function(d) { return d.nodeId; })
             .key(function(d) { return d.sourceId; })
             .sortKeys(d3.ascending)
             .entries(groupData.data);
-          dataBySource.forEach(function(sourceData) {
-            const sourceId = sourceData.key;
-            const data = sourceData.values;
-            const propConfigsForSource = chartConfig.get('properties').filterBy('source', sourceId);
-            propConfigsForSource.forEach(function(propConfig) {
-              chart.load(data, lineIdForProperty(sourceId, propConfig.get('prop')), propConfig.get('prop'));
+          dataByNodeBySource.forEach(function(nodeData) {
+            const nodeId = +nodeData.key;
+            nodeData.values.forEach(function(sourceData) {
+              const sourceId = sourceData.key;
+              const data = sourceData.values;
+              const propConfigsForSource = chartConfig.get('properties').filter(function(propConfig) {
+                return (nodeId === propConfig.get('nodeId') && sourceId === propConfig.get('source'));
+              });
+              propConfigsForSource.forEach(function(propConfig) {
+                chart.load(data, lineIdForProperty(nodeId, sourceId, propConfig.get('prop')), propConfig.get('prop'));
+              });
             });
           });
         });
