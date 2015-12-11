@@ -1,10 +1,53 @@
 import Ember from 'ember';
+import d3 from 'npm:d3';
+
+var dateFormat = d3.time.format("%d.%m.%Y");
+var datePropertyAccessor = {
+    get(key) {
+      var val = this.get(key);
+      return (val ? dateFormat(val) : null);
+    },
+    set(key, value) {
+      var val = (value ? dateFormat.parse(value) : null);
+      this.set(key, val);
+      return (val ? value : null);
+    }
+};
 
 export default Ember.Component.extend({
   store: Ember.inject.service(),
   userService: Ember.inject.service(),
 
+  dateStart: Ember.computed('startDate', datePropertyAccessor),
+  dateEnd: Ember.computed('endDate', datePropertyAccessor),
+
+  period: 1,
+  periodType: 'day',
+  isUsePeriod: true,
+
+  periodTypes: ['hour', 'day', 'month', 'year'],
+  periodChoices: Ember.computed('period', 'periodTypes', function() {
+    const i18n = this.get('i18n');
+    const count = this.get('period');
+    return this.get('periodTypes').map(type => {
+      return {key:type, label:i18n.t('chart.period.'+type, {count:count}).toString().capitalize()};
+    });
+  }),
+
+  aggregate: null,
+  aggregateTypes: ['FiveMinute', 'Hour', 'Day', 'Month', 'Year'],
+  aggregateChoices: Ember.computed('aggregate', 'aggregateTypes', function() {
+    const i18n = this.get('i18n');
+    return this.get('aggregateTypes').map(type => {
+      return {key:type, label:i18n.t('chart.aggregate.'+type).toString().capitalize()};
+    });
+  }),
+
 	actions: {
+    toggleUsePeriod() {
+      this.toggleProperty('isUsePeriod');
+    },
+
 	  selectChartSuggestion(suggestion) {
       const store  = this.get('store');
 	    const profile = this.get('userProfile');

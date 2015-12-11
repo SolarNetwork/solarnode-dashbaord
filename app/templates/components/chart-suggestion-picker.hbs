@@ -1,3 +1,18 @@
+<div class="uk-width-small-1-1 uk-width-medium-1-2 uk-width-large-1-3 uk-container-center">
+	<form class="uk-form uk-form-stacked uk-panel uk-panel-box uk-panel-box-primary">
+		{{chart-date-range-picker
+		  periodChoices=periodChoices
+		  aggregateChoices=aggregateChoices
+		  isUsePeriod=isUsePeriod
+		  toggleUsePeriod=(action 'toggleUsePeriod')
+		  period=(mut period)
+		  periodType=(mut periodType)
+		  startDate=(mut startDate)
+		  endDate=(mut endDate)
+		  aggregate=(mut aggregate)
+		  }}
+	</form>
+</div>
 {{#each suggestions as |suggestion index|}}
   {{chart-suggestion-pick suggestion=suggestion charts=userProfile.charts chartSourceProperties=chartSourceProperties index=index
       onSelect=(action 'selectChartSuggestion') onUnselect=(action 'unselectChartSuggestion')}}
