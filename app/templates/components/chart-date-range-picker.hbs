@@ -1,0 +1,44 @@
+<legend>{{t 'chart.edit.dateRange'}}</legend>
+  <ul class="uk-subnav uk-subnav-pill">
+  <li class="{{if isUsePeriod 'uk-active' null}}"><a {{action 'toggleUsePeriod'}}>{{t 'chart.edit.timePeriod'}}</a></li>
+  <li class="{{if isUsePeriod null 'uk-active'}}"><a {{action 'toggleUsePeriod'}}>{{t 'chart.edit.timeDuration'}}</a></li>
+</ul>
+{{#liquid-spacer growEasing="easeOutQuint"}}
+  {{#liquid-if isUsePeriod class="show-period"}}
+    <fieldset>
+      <div class="uk-form-row">
+      {{input type='number' value=period min=1}}
+      <select onchange={{action (mut periodType) value='target.value'}} autocomplete="off">
+      {{#each periodChoices as |periodChoice|}}
+        <option value={{periodChoice.key}} selected={{if (eq periodType periodChoice.key) 'selected' null}}>{{periodChoice.label}}</option>
+      {{/each}}
+      </select>
+      </div>
+    </fieldset>
+  {{else}}
+    <fieldset>
+      <div class="uk-form-row">
+      <label class="uk-form-label" for="chartStartDate">{{t 'chart.edit.startDate'}}</label>
+      <div class="uk-form-controls">
+        {{input value=startDate data-uk-datepicker="{format:'DD.MM.YYYY'}" class="uk-width-1-1"}}
+      </div>
+      </div>
+      <div class="uk-form-row">
+      <label class="uk-form-label" for="chartEndDate">{{t 'chart.edit.endDate'}}</label>
+      <div class="uk-form-controls">
+        {{input value=endDate data-uk-datepicker="{format:'DD.MM.YYYY'}" class="uk-width-1-1"}}
+      </div>
+      </div>
+      <div class="uk-form-row">
+      <label class="uk-form-label" for="chartEndDate">{{t 'chart.edit.aggregate'}}</label>
+      <div class="uk-form-controls">
+        <select onchange={{action (mut aggregate) value='target.value'}} autocomplete="off">
+        {{#each aggregateChoices as |aggregateChoice|}}
+          <option value={{aggregateChoice.key}} selected={{if (eq aggregate aggregateChoice.key) 'selected' null}}>{{aggregateChoice.label}}</option>
+        {{/each}}
+        </select>
+      </div>
+      </div>
+    </fieldset>
+  {{/liquid-if}}
+{{/liquid-spacer}}
