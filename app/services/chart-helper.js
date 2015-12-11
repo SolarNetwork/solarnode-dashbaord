@@ -57,11 +57,28 @@ export function bestColorSetFromColorGroup(desiredCount, colorGroup) {
   return array;
 }
 
-function dataPerPropertyPerSource(urlHelper) {
-  // get all available data within the last day
-  const endDate = new Date();
-  const startDate = d3.time.day.offset(endDate, -1);
-  const load = Ember.RSVP.denodeify(sn.api.datum.loader([], urlHelper, startDate, endDate, 'Hour'));
+function rangeForDateParameters(params) {
+  var range = {}; // start, end
+  if ( !params ) {
+   // get all available data within the last day
+    range.end = new Date();
+    range.start = d3.time.day.offset(range.end, -1);
+    range.aggregate = 'Hour';
+  } else if ( params.get('isUsePeriod') ) {
+    var period = +params.get('period');
+    range = sn.api.datum.loaderQueryRange(params.get('periodAggregate'), (period < 1 ? 1 : period), new Date());
+    range.aggregate = params.get('periodAggregate');
+  } else {
+    range.end = params.get('endDate');
+    range.start = params.get('startDate');
+    range.aggregate = params.get('aggregate');
+  }
+  return range;
+}
+
+function dataPerPropertyPerSource(urlHelper, params) {
+  var range = rangeForDateParameters(params); // start, end, aggregate
+  const load = Ember.RSVP.denodeify(sn.api.datum.loader([], urlHelper, range.start, range.end, range.aggregate));
   return load().then(function(results) {
     if ( !results || !Array.isArray(results) ) {
       throw new Error("Unable to load data");
@@ -271,10 +288,12 @@ export default Ember.Service.extend({
 
   /**
    * Get a set of ChartSuggestion objects after querying for a set of sample data.
+   *
+   * @param {object} [params] - Date range parameters. If not provided defaults to 1 day.
    */
-  makeChartSuggestions() {
+  makeChartSuggestions(params) {
     const urlHelper = this.get('clientHelper.nodeUrlHelper');
-    return dataPerPropertyPerSource(urlHelper).then(
+    return dataPerPropertyPerSource(urlHelper, params).then(
       (data) => {
         const i18n = this.get('i18n');
         var results = [];
@@ -301,16 +320,7 @@ export default Ember.Service.extend({
     @return {Array} An array of objects like <code>{group:ChartGroup, groupId:X, sourceIds:[A,...], data:[...]}</code>.
   */
   dataForChart(chartConfig) {
-    var range = {}; // start, end
-    if ( chartConfig.get('isUsePeriod') ) {
-      var period = +chartConfig.get('period');
-      range = sn.api.datum.loaderQueryRange(chartConfig.get('periodAggregate'), (period < 1 ? 1 : period), new Date());
-      range.aggregate = chartConfig.get('periodAggregate');
-    } else {
-      range.end = chartConfig.get('endDate');
-      range.start = chartConfig.get('startDate');
-      range.aggregate = chartConfig.get('aggregate');
-    }
+    var range = rangeForDateParameters(chartConfig); // start, end, aggregate
 
     if ( !(range.start && range.end && range.aggregate) ) {
       return Ember.RSVP.reject(new Error('Incomplete chart range, cannot load data.'));

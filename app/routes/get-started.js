@@ -5,9 +5,12 @@ export default Ember.Route.extend(AuthenticatedRouteMixin, {
   chartHelper: Ember.inject.service(),
   userService: Ember.inject.service(),
 
+  suggestionParams: null,
+
   model() {
+    const suggestionParams = this.get('suggestionParams');
     return Ember.RSVP.hash({
-      suggestions: this.get('chartHelper').makeChartSuggestions(),
+      suggestions: this.get('chartHelper').makeChartSuggestions(suggestionParams),
       userProfile: this.get('userService.activeUserProfile')
     });
   },
@@ -20,7 +23,13 @@ export default Ember.Route.extend(AuthenticatedRouteMixin, {
         this.eventBus.publish('UserProfile.SetupComplete', true);
         this.transitionTo('home');
       });
-    }
+    },
+
+    updateSuggesionsDateRange(params) {
+      this.set('suggestionParams', params);
+      this.refresh();
+    },
+
   }
 
 });

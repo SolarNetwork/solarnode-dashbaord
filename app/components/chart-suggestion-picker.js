@@ -1,10 +1,83 @@
 import Ember from 'ember';
+import d3 from 'npm:d3';
+
+var dateFormat = d3.time.format("%d.%m.%Y");
 
 export default Ember.Component.extend({
   store: Ember.inject.service(),
   userService: Ember.inject.service(),
 
+  dateStart: Ember.computed('startDate', function() {
+    const val = this.get('startDate');
+    return (val ? dateFormat.parse(val) : null);
+  }),
+
+  dateEnd: Ember.computed('endDate', function() {
+    const val = this.get('endDate');
+    return (val ? dateFormat.parse(val) : null);
+  }),
+
+  period: 1,
+  periodType: 'day',
+  isUsePeriod: true,
+
+  periodTypes: ['hour', 'day', 'month', 'year'],
+  periodChoices: Ember.computed('period', 'periodTypes', function() {
+    const i18n = this.get('i18n');
+    const count = this.get('period');
+    return this.get('periodTypes').map(type => {
+      return {key:type, label:i18n.t('chart.period.'+type, {count:count}).toString().capitalize()};
+    });
+  }),
+  periodAggregate: Ember.computed('periodType', function() {
+    const periodType = this.get('periodType');
+    if ( periodType === 'year' ) {
+      return 'Month';
+    } else if ( periodType === 'day' ) {
+      return 'Hour';
+    } else if ( periodType === 'hour' ) {
+      return 'FiveMinute';
+    } else {
+      // default to Day
+      return 'Day';
+    }
+  }),
+
+  aggregate: 'Day',
+  aggregateTypes: ['FiveMinute', 'Hour', 'Day', 'Month', 'Year'],
+  aggregateChoices: Ember.computed('aggregate', 'aggregateTypes', function() {
+    const i18n = this.get('i18n');
+    return this.get('aggregateTypes').map(type => {
+      return {key:type, label:i18n.t('chart.aggregate.'+type).toString().capitalize()};
+    });
+  }),
+
+  suggestionParams: Ember.computed('period', 'periodType', 'periodAggregate', 'isUsePeriod', 'aggregate', 'dateStart', 'dateEnd', function() {
+    const params = Ember.Object.create({
+      period: this.get('period'),
+      periodType: this.get('periodType'),
+      periodAggregate: this.get('periodAggregate'),
+      isUsePeriod: this.get('isUsePeriod'),
+      aggregate: this.get('aggregate'),
+      startDate: this.get('dateStart'),
+      endDate: this.get('dateEnd'),
+    });
+    return params;
+  }),
+
+  dateRangeChanged: Ember.observer('period', 'periodType', 'periodAggregate', 'isUsePeriod', 'aggregate', 'dateStart', 'dateEnd', function() {
+    const params = this.get('suggestionParams');
+    if ( !params.get('isUsePeriod') && !(params.get('startDate') && params.get('endDate')) ) {
+      return;
+    }
+    this.sendAction('updateSuggesionsDateRange', params);
+  }),
+
 	actions: {
+    toggleUsePeriod() {
+      this.toggleProperty('isUsePeriod');
+    },
+
 	  selectChartSuggestion(suggestion) {
       const store  = this.get('store');
 	    const profile = this.get('userProfile');
