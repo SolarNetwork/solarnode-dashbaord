@@ -27,8 +27,9 @@ export default Ember.Route.extend(AuthenticatedRouteMixin, {
           allNodeConfigs.forEach(nodeConfig => {
             const nodeId = nodeConfig.get('nodeId');
             const urlHelper = nodeConfig.get('urlHelper');
+            const jsonClient = nodeConfig.get('jsonClient');
             const nodeClient = nodeConfig.get('nodeClient');
-            getSources(urlHelper).then(sourceIds => {
+            getSources(urlHelper, jsonClient).then(sourceIds => {
             var added = false;
             sourceIds.forEach(sourceId => {
               const matchingSourceConfig = model.allSourceConfigs.find(sourceConfig => {
