@@ -47,6 +47,7 @@ export default {
   "getStarted" : {
     "title" : "Let’s get started",
     "intro" : "Here’s a list of chart suggestions based on the data posted by your node recently. Pick the ones you’d like to start with. Don’t fret if the chart name looks funny—you’ll be able to change the chart settings later on.",
+    "dateRangeIntro" : "Looking for older data? You can adjust the date range to update the suggestions based on another time range.",
     "advanced" : "Advanced Setup"
   },
   "chartSuggestion" : {

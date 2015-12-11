@@ -2,17 +2,6 @@ import Ember from 'ember';
 import d3 from 'npm:d3';
 
 var dateFormat = d3.time.format("%d.%m.%Y");
-var datePropertyAccessor = {
-    get(key) {
-      var val = this.get(key);
-      return (val ? dateFormat(val) : null);
-    },
-    set(key, value) {
-      var val = (value ? dateFormat.parse(value) : null);
-      this.set(key, val);
-      return (val ? value : null);
-    }
-};
 
 export default Ember.Component.extend({
   store: Ember.inject.service(),
@@ -20,12 +9,12 @@ export default Ember.Component.extend({
 
   dateStart: Ember.computed('startDate', function() {
     const val = this.get('startDate');
-    return (val ? dateFormat(val) : null);
+    return (val ? dateFormat.parse(val) : null);
   }),
 
   dateEnd: Ember.computed('endDate', function() {
     const val = this.get('endDate');
-    return (val ? dateFormat(val) : null);
+    return (val ? dateFormat.parse(val) : null);
   }),
 
   period: 1,
@@ -54,7 +43,7 @@ export default Ember.Component.extend({
     }
   }),
 
-  aggregate: null,
+  aggregate: 'Day',
   aggregateTypes: ['FiveMinute', 'Hour', 'Day', 'Month', 'Year'],
   aggregateChoices: Ember.computed('aggregate', 'aggregateTypes', function() {
     const i18n = this.get('i18n');
@@ -77,7 +66,11 @@ export default Ember.Component.extend({
   }),
 
   dateRangeChanged: Ember.observer('period', 'periodType', 'periodAggregate', 'isUsePeriod', 'aggregate', 'dateStart', 'dateEnd', function() {
-    this.sendAction('updateSuggesionsDateRange', this.get('suggestionParams'));
+    const params = this.get('suggestionParams');
+    if ( !params.get('isUsePeriod') && !(params.get('startDate') && params.get('endDate')) ) {
+      return;
+    }
+    this.sendAction('updateSuggesionsDateRange', params);
   }),
 
 	actions: {

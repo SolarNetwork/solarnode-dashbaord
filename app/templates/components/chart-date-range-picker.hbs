@@ -7,12 +7,12 @@
   {{#liquid-if isUsePeriod class="show-period"}}
     <fieldset>
       <div class="uk-form-row">
-      {{input type='number' value=period min=1}}
-      <select onchange={{action (mut periodType) value='target.value'}} autocomplete="off">
-      {{#each periodChoices as |periodChoice|}}
-        <option value={{periodChoice.key}} selected={{if (eq periodType periodChoice.key) 'selected' null}}>{{periodChoice.label}}</option>
-      {{/each}}
-      </select>
+        {{input type='number' value=period min=1 class="uk-form-width-mini"}}
+        <select onchange={{action (mut periodType) value='target.value'}} autocomplete="off" class="uk-form-width-small">
+        {{#each periodChoices as |periodChoice|}}
+          <option value={{periodChoice.key}} selected={{if (eq periodType periodChoice.key) 'selected' null}}>{{periodChoice.label}}</option>
+        {{/each}}
+        </select>
       </div>
     </fieldset>
   {{else}}
