@@ -18,8 +18,15 @@ export default Ember.Component.extend({
   store: Ember.inject.service(),
   userService: Ember.inject.service(),
 
-  dateStart: Ember.computed('startDate', datePropertyAccessor),
-  dateEnd: Ember.computed('endDate', datePropertyAccessor),
+  dateStart: Ember.computed('startDate', function() {
+    const val = this.get('startDate');
+    return (val ? dateFormat(val) : null);
+  }),
+
+  dateEnd: Ember.computed('endDate', function() {
+    const val = this.get('endDate');
+    return (val ? dateFormat(val) : null);
+  }),
 
   period: 1,
   periodType: 'day',
@@ -41,6 +48,22 @@ export default Ember.Component.extend({
     return this.get('aggregateTypes').map(type => {
       return {key:type, label:i18n.t('chart.aggregate.'+type).toString().capitalize()};
     });
+  }),
+
+  suggestionParams: Ember.computed('period', 'periodType', 'isUsePeriod', 'aggregate', 'dateStart', 'dateEnd', function() {
+    const params = Ember.Object.create({
+      period: this.get('period'),
+      periodType: this.get('periodType'),
+      isUsePeriod: this.get('isUsePeriod'),
+      aggregate: this.get('aggregate'),
+      dateStart: this.get('dateStart'),
+      dateEnd: this.get('dateEnd'),
+    });
+    return params;
+  }),
+
+  dateRangeChanged: Ember.observer('period', 'periodType', 'isUsePeriod', 'aggregate', 'dateStart', 'dateEnd', function() {
+    this.sendAction('updateSuggesionsDateRange', this.get('suggestionParams'));
   }),
 
 	actions: {

@@ -9,6 +9,9 @@
 	</div>
 </div>
 <p>{{t "getStarted.intro"}}</p>
-{{chart-suggestion-picker suggestions=model.suggestions.suggestions
+{{chart-suggestion-picker
+  suggestions=model.suggestions.suggestions
   userProfile=model.userProfile
-  chartSourceProperties=model.userProfile.chartSourceProperties}}
+  chartSourceProperties=model.userProfile.chartSourceProperties
+  updateSuggesionsDateRange='updateSuggesionsDateRange'
+  }}
