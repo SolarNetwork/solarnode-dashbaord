@@ -19,7 +19,8 @@ export default DS.Model.extend({
    Get a plain object version of this object. Default values for properties will
    be returned if possible.
    */
-  groupProperty: Ember.computed('groupProp', 'groupUnit', 'groupUnitName', function() {
+  groupProperty: Ember.computed('nodeId', 'groupProp', 'groupUnit', 'groupUnitName', function() {
+    var nodeId = this.get('nodeId');
     var prop = this.get('groupProp');
     var unit = this.get('groupUnit');
     var unitName = this.get('groupUnitName');
@@ -30,6 +31,7 @@ export default DS.Model.extend({
     }
     return {
       groupId: this.get('id'),
+      nodeId: nodeId,
       prop: prop,
       unit: unit,
       unitName: unitName
@@ -38,10 +40,11 @@ export default DS.Model.extend({
 
   allSourceConfigs: Ember.computed.alias('chart.profile.chartSources'),
 
-  sourceConfigs: Ember.computed('sourceIds.[]', 'allSourceConfigs.[]', function() {
+  sourceConfigs: Ember.computed('sourceIds.[]', 'allSourceConfigs.[]', 'nodeId', function() {
     const sourceIds = this.get('sourceIds');
+    const nodeId = this.get('nodeId');
     return this.get('allSourceConfigs').filter(sourceConfig => {
-      return (sourceIds && sourceIds.contains(sourceConfig.get('source')));
+      return (nodeId === sourceConfig.get('nodeId') && sourceIds && sourceIds.contains(sourceConfig.get('source')));
     });
   }),
 
