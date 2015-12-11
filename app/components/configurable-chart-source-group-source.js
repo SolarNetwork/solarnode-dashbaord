@@ -7,10 +7,14 @@ export default Ember.Component.extend({
 
   profile: Ember.computed.alias('sourceConfig.profile'),
 
+  nodeId: Ember.computed.alias('sourceGroup.nodeId'),
   source: Ember.computed.alias('sourceConfig.source'),
   sourceProperties: Ember.computed('propConfigs.@each.source', 'source', function() {
+    const nodeId = this.get('nodeId');
     const sourceId = this.get('source');
-    return this.get('propConfigs').filterBy('source', sourceId);
+    return this.get('propConfigs').filter(function(propConfig) {
+      return (nodeId === propConfig.get('nodeId') && sourceId === propConfig.get('source'));
+    });
   }),
 
   canRemoveProperty: Ember.computed.gt('chartConfig.properties.length', 1),

@@ -47,7 +47,9 @@
 </fieldset>
 
 {{#each sourceConfigs as |sourceConfig|}}
-  {{configurable-chart-source-group-source sourceConfig=sourceConfig
+  {{configurable-chart-source-group-source
+    sourceGroup=sourceGroup
+    sourceConfig=sourceConfig
     propConfigs=propConfigs
     canRemoveProperty=(gt sourceGroup.sourceIds.length 1)
     togglePropertyVisibility=(action 'togglePropertyVisibility')
