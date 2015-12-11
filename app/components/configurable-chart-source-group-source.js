@@ -9,7 +9,7 @@ export default Ember.Component.extend({
 
   nodeId: Ember.computed.alias('sourceGroup.nodeId'),
   source: Ember.computed.alias('sourceConfig.source'),
-  sourceProperties: Ember.computed('propConfigs.@each.source', 'source', function() {
+  sourceProperties: Ember.computed('propConfigs.@each.source', 'source', 'nodeId', function() {
     const nodeId = this.get('nodeId');
     const sourceId = this.get('source');
     return this.get('propConfigs').filter(function(propConfig) {
