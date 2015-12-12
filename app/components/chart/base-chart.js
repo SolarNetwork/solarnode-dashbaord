@@ -64,9 +64,7 @@ export default Ember.Component.extend({
   }),
 
   inserted: Ember.on('didInsertElement', function() {
-    if ( this.get('chartConfig') ) {
-      this.loadDataFromChartConfig();
-    } else {
+    if ( !this.get('chartConfig') ) {
       this.shouldDraw();
     }
   }),
@@ -162,7 +160,7 @@ export default Ember.Component.extend({
   },
 
   loadDataFromChartConfigThrottled() {
-    Ember.run.debounce(this, 'internalLoadDataFromChartConfig', 600);
+    Ember.run.debounce(this, 'internalLoadDataFromChartConfig', 400);
   },
 
   internalLoadDataFromChartConfig() {
@@ -186,7 +184,9 @@ export default Ember.Component.extend({
 
   shouldDraw() {
     this.set('hasDrawn', false);
-    Ember.run.once(this, 'draw');
+    if ( this.get('data') ) {
+      Ember.run.once(this, 'draw');
+    }
   },
 
   draw() {
