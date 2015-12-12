@@ -4,7 +4,7 @@ const { service } = Ember.inject;
 const { isEmpty } = Ember;
 
 export default Ember.Component.extend({
-  classNames: ['app-login-form', 'uk-width-1-2', 'uk-container-center'],
+  classNames: ['app-login-form', 'uk-width-small-1-1', 'uk-width-medium-2-3', 'uk-width-large-1-2', 'uk-container-center'],
   session: service('session'),
   actions: {
 
