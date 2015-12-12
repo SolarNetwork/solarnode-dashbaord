@@ -160,7 +160,7 @@ export default Ember.Component.extend({
   },
 
   loadDataFromChartConfigThrottled() {
-    Ember.run.debounce(this, 'internalLoadDataFromChartConfig', 600);
+    Ember.run.debounce(this, 'internalLoadDataFromChartConfig', 400);
   },
 
   internalLoadDataFromChartConfig() {
