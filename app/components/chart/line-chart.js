@@ -1,5 +1,6 @@
 import Ember from 'ember';
 import BaseChart, { datumChartPropsForExport } from './base-chart';
+import { sortByNodeIdThenSource } from '../../models/chart-config';
 import d3 from 'npm:d3';
 import sn from 'npm:solarnetwork-d3';
 
@@ -28,9 +29,13 @@ export default BaseChart.extend({
     if ( !propConfigs ) {
       return;
     }
-    const colors = [];
+    var colors = [];
     propConfigs.forEach(propConfig => {
-      colors.push(propConfig.get('color'));
+      colors.push(propConfig);
+    });
+    colors.sort(sortByNodeIdThenSource);
+    colors = colors.map(propConfig => {
+      return propConfig.get('color');
     });
     this.set('colors', colors);
   },
