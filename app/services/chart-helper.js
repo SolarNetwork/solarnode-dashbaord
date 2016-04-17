@@ -191,7 +191,7 @@ function chartSuggestionsFromSourceData(sourceData, i18n) {
       data: sourceData.values,
       sampleConfiguration: {source:sourceData.key, prop:'watts'}
     })];
-  } else {
+  } else if ( props.length > 0 ) {
     // unknown, use General
     return [ChartSuggestion.create({
       style: 'line',
@@ -202,6 +202,9 @@ function chartSuggestionsFromSourceData(sourceData, i18n) {
       sampleConfiguration: {source:sourceData.key, prop:props[0].prop}
     })];
   }
+
+  // unable to make any suggestions
+  return [];
 }
 
 function sourceGroupForSuggestions(suggestions, key, title, prop, flags, colors) {
